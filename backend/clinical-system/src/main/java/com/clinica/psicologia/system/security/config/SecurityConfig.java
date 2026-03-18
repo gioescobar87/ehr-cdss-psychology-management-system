@@ -7,7 +7,7 @@ import com.clinica.psicologia.system.security.service.SecurityUserService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -89,10 +89,97 @@ public class SecurityConfig {
                                                 .accessDeniedHandler(accessDeniedHandler))
                                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
+
+                                                // =========================
+                                                // PUBLIC AUTH ENDPOINTS
+                                                // =========================
                                                 .requestMatchers(
-                                                                "/auth/**",
-                                                                "/dev/**")
+                                                                "/auth/login",
+                                                                "/auth/register",
+                                                                "/auth/refresh")
                                                 .permitAll()
+
+                                                // =========================
+                                                // USER MANAGEMENT
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/usuarios/**")
+                                                .hasAuthority("USUARIO_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/usuarios/**")
+                                                .hasAuthority("USUARIO_WRITE")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/usuarios/**")
+                                                .hasAuthority("USUARIO_DELETE")
+
+                                                // =========================
+                                                // PATIENT MODULE
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/pacientes/**")
+                                                .hasAuthority("PACIENTE_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/pacientes/**")
+                                                .hasAuthority("PACIENTE_WRITE")
+
+                                                .requestMatchers(HttpMethod.PUT, "/pacientes/reasignar/**")
+                                                .hasAuthority("PACIENTE_REASIGNAR")
+
+                                                // =========================
+                                                // CLINICAL SESSIONS
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/sesiones/**")
+                                                .hasAuthority("SESION_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/sesiones/**")
+                                                .hasAuthority("SESION_WRITE")
+
+                                                // =========================
+                                                // APPOINTMENTS
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/citas/**")
+                                                .hasAuthority("CITA_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/citas/**")
+                                                .hasAuthority("CITA_WRITE")
+
+                                                // =========================
+                                                // CDSS DIAGNOSTIC ENGINE
+                                                // =========================
+                                                .requestMatchers("/diagnostico/ejecutar/**")
+                                                .hasAuthority("DIAGNOSTICO_EXECUTE")
+
+                                                .requestMatchers("/diagnostico/validar/**")
+                                                .hasAuthority("DIAGNOSTICO_VALIDAR")
+
+                                                // =========================
+                                                // REPORTS
+                                                // =========================
+                                                .requestMatchers("/reportes/**")
+                                                .hasAuthority("REPORTE_READ")
+
+                                                // =========================
+                                                // AUDIT LOG
+                                                // =========================
+                                                .requestMatchers("/bitacora/**")
+                                                .hasAuthority("BITACORA_READ")
+
+                                                // =========================
+                                                // CATALOG MANAGEMENT
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/catalogos/**")
+                                                .hasAuthority("CATALOGO_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/catalogos/**")
+                                                .hasAuthority("CATALOGO_WRITE")
+
+                                                // =========================
+                                                // ADMIN OVERRIDE
+                                                // =========================
+                                                .requestMatchers("/admin/**")
+                                                .hasAuthority("ADMIN_FULL")
+
+                                                // =========================
+                                                // FALLBACK
+                                                // =========================
                                                 .anyRequest().authenticated())
                                 .authenticationProvider(authenticationProvider())
                                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -100,34 +187,6 @@ public class SecurityConfig {
                 return http.build();
         }
 
-        /*
-         * @Bean
-         * public SecurityFilterChain filterChain(
-         * org.springframework.security.config.annotation.web.builders.HttpSecurity http
-         * ) throws Exception {
-         * 
-         * http
-         * .csrf(csrf -> csrf.disable())
-         * .sessionManagement(sm ->
-         * sm.sessionCreationPolicy(
-         * SessionCreationPolicy.STATELESS
-         * )
-         * )
-         * .authorizeHttpRequests(auth -> auth
-         * .requestMatchers("/auth/**").permitAll()
-         * .anyRequest().authenticated()
-         * )
-         * .formLogin(form -> form.disable())
-         * .httpBasic(basic -> basic.disable())
-         * .addFilterBefore(
-         * jwtFilter,
-         * org.springframework.security.web.authentication.
-         * UsernamePasswordAuthenticationFilter.class
-         * );
-         * 
-         * return http.build();
-         * }
-         */
         @Bean
         public AuthenticationManager authenticationManager(
                         AuthenticationConfiguration config) throws Exception {
