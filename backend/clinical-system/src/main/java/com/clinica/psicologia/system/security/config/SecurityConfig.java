@@ -89,14 +89,11 @@ public class SecurityConfig {
                                                 .accessDeniedHandler(accessDeniedHandler))
                                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .anyRequest().permitAll())
-                                                /* .requestMatchers(
-                                                                "/auth/login",
-                                                                "/auth/register",
-                                                                "/auth/refresh",
+                                                .requestMatchers(
+                                                                "/auth/**",
                                                                 "/dev/**")
                                                 .permitAll()
-                                                .anyRequest().authenticated()) */
+                                                .anyRequest().authenticated())
                                 .authenticationProvider(authenticationProvider())
                                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
