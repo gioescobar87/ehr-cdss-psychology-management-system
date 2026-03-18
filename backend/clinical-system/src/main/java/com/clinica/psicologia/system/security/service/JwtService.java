@@ -1,26 +1,28 @@
 package com.clinica.psicologia.system.security.service;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.clinica.psicologia.system.security.config.JwtProperties;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
+@RequiredArgsConstructor
 @Service
 public class JwtService {
 
-    @Value("${security.jwt.secret}")
-    private String secret;
-
-    @Value("${security.jwt.expiration}")
-    private long jwtExpiration;
+    private final JwtProperties jwtProperties;
 
     private Key getSignKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUsername(String token) {
@@ -41,6 +43,7 @@ public class JwtService {
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
+                .requireIssuer(jwtProperties.getIssuer())
                 .setSigningKey(getSignKey())
                 .build()
                 .parseClaimsJws(token)
@@ -63,10 +66,21 @@ public class JwtService {
 
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(new Date())
                 .setExpiration(
                         new Date(System.currentTimeMillis()
-                                + jwtExpiration))
+                                + jwtProperties.getExpiration()))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuer(jwtProperties.getIssuer())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshExpiration()))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

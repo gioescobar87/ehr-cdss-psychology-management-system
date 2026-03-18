@@ -6,7 +6,9 @@ spring:
 
 security:
   jwt:
-    secret: CLINICA_SUPER_SECRET_KEY_2026_CLINICA_SYSTEM
-    expiration: 60000 #3600000
+    secret: ${JSW_SECRET}
+    expiration: ${JWT_EXPIRATION:3600000}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000}
+    issuer: ${JWT_ISSUER:clinical-system}
     #SECRET ATTRIBUTES: STRONG - PRIVATE - OVER 256 BITS LENGTH
     #IF THAT CRITERA IS MET, FORGERY IS COMPUTATIONALLY INFEASIBLE
