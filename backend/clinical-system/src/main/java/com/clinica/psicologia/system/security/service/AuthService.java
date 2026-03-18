@@ -9,9 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clinica.psicologia.system.model.security.RefreshToken;
 import com.clinica.psicologia.system.model.security.Rol;
 import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.model.security.UsuarioRol;
+import com.clinica.psicologia.system.repository.security.RefreshTokenRepository;
 import com.clinica.psicologia.system.repository.security.RolRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRolRepository;
@@ -29,10 +31,12 @@ public class AuthService {
     private final RolRepository rolRepository;
     private final UsuarioRolRepository usuarioRolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public AuthService(AuthenticationManager authenticationManager, SecurityUserService userService,
             JwtService jwtService, RefreshTokenService refreshTokenService, UsuarioRepository usuarioRepository,
-            RolRepository rolRepository, UsuarioRolRepository usuarioRolRepository, PasswordEncoder passwordEncoder) {
+            RolRepository rolRepository, UsuarioRolRepository usuarioRolRepository, PasswordEncoder passwordEncoder,
+            RefreshTokenRepository refreshTokenRepository) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.jwtService = jwtService;
@@ -41,6 +45,7 @@ public class AuthService {
         this.rolRepository = rolRepository;
         this.usuarioRolRepository = usuarioRolRepository;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenRepository = refreshTokenRepository;/*  */
     }
 
     public Map<String, String> login(LoginRequest request) {
@@ -59,12 +64,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(RegisterRequest request){
-        if(usuarioRepository.existsByUsername(request.getUsername())){
+    public void register(RegisterRequest request) {
+        if (usuarioRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
 
-        if(usuarioRepository.existsByCorreo(request.getCorreo())){
+        if (usuarioRepository.existsByCorreo(request.getCorreo())) {
             throw new RuntimeException("Email already exists");
         }
 
@@ -79,11 +84,19 @@ public class AuthService {
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         Rol rol = rolRepository.findByNombreRol(request.getRoleName()).orElseThrow();
-        
+
         UsuarioRol usuarioRol = new UsuarioRol();
         usuarioRol.setUsuario(usuarioGuardado);
         usuarioRol.setRol(rol);
 
         usuarioRolRepository.save(usuarioRol);
+    }
+
+    @Transactional
+    public void logout(String refreshToken) {
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+        refreshTokenRepository.delete(token);
     }
 }

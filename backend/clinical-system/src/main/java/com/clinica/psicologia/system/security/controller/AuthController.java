@@ -65,4 +65,10 @@ public class AuthController {
         authService.register(request);
     }
     
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@RequestBody Map<String,String> body) {
+        authService.logout(body.get("refreshToken"));
+    }
+    
 }
