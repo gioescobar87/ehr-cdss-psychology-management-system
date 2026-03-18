@@ -2,14 +2,17 @@ package com.clinica.psicologia.system.security.controller;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.clinica.psicologia.system.dto.security.LoginRequest;
 import com.clinica.psicologia.system.model.security.RefreshToken;
+import com.clinica.psicologia.system.security.dto.LoginRequest;
+import com.clinica.psicologia.system.security.dto.RegisterRequest;
 import com.clinica.psicologia.system.security.service.AuthService;
 import com.clinica.psicologia.system.security.service.JwtService;
 import com.clinica.psicologia.system.security.service.RefreshTokenService;
@@ -55,4 +58,11 @@ public class AuthController {
                 "accessToken", access,
                 "refreshToken", newToken.getToken());
     }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void register(@RequestBody RegisterRequest request) {
+        authService.register(request);
+    }
+    
 }
