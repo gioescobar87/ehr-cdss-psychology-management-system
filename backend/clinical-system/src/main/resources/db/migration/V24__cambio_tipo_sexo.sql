@@ -1,0 +1,2 @@
+ALTER TABLE paciente
+ALTER COLUMN sexo TYPE VARCHAR(1);
