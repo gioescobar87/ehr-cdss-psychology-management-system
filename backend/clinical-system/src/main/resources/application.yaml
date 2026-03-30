@@ -6,7 +6,7 @@ spring:
 
 security:
   jwt:
-    secret: ${JSW_SECRET}
+    secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION:3600000}
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000}
     issuer: ${JWT_ISSUER:clinical-system}
@@ -14,3 +14,8 @@ security:
     #IF THAT CRITERA IS MET, FORGERY IS COMPUTATIONALLY INFEASIBLE
   encryption:
     key: ${ENCRYPTION_KEY}
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
