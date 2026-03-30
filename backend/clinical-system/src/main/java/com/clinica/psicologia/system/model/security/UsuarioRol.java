@@ -1,5 +1,7 @@
 package com.clinica.psicologia.system.model.security;
 
+import com.clinica.psicologia.system.model.base.BaseEntity;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,11 +9,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "usuario_rol")
-public class UsuarioRol {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+public class UsuarioRol extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

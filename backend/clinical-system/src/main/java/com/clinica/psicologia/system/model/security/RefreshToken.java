@@ -2,11 +2,10 @@ package com.clinica.psicologia.system.model.security;
 
 import java.time.Instant;
 
+import com.clinica.psicologia.system.model.base.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -16,10 +15,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "refresh_token")
-public class RefreshToken {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RefreshToken extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

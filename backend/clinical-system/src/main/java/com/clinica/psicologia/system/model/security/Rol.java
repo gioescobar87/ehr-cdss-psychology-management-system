@@ -1,5 +1,5 @@
 package com.clinica.psicologia.system.model.security;
-import com.clinica.psicologia.system.model.catalog.BaseCatalog;
+import com.clinica.psicologia.system.model.base.BaseCatalog;
 
 import jakarta.persistence.*;
 import lombok.Getter;

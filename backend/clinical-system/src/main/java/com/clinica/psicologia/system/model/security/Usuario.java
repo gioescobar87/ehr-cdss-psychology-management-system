@@ -1,10 +1,12 @@
 package com.clinica.psicologia.system.model.security;
 
+import com.clinica.psicologia.system.model.base.BaseEntity;
+import com.clinica.psicologia.system.model.catalog.Estado;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -17,11 +19,7 @@ import lombok.Setter;
            @UniqueConstraint(name = "uq_usuario_username", columnNames = "username"),
            @UniqueConstraint(name = "uq_usuario_correo", columnNames = "correo")
        })
-public class Usuario {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+public class Usuario extends BaseEntity{
 
     @Column(nullable = false, length = 100)
     private String username;
@@ -44,6 +42,7 @@ public class Usuario {
     @Column(name = "fecha_modificacion")
     private java.time.LocalDateTime fechaModificacion;
 
-    @Column(name = "estado_id", nullable = false)
-    private Integer estadoId;
+    @ManyToOne
+    @JoinColumn(name = "estado_id", nullable = false)
+    private Estado estado;
 }
