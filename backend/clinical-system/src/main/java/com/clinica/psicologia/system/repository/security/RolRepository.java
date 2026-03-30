@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.clinica.psicologia.system.model.security.Rol;
 
 public interface RolRepository extends JpaRepository<Rol, Integer> {
-    Optional<Rol> findByNombreRol(String nombreRol);
+    Optional<Rol> findByNombre(String nombre);
 }

@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.clinica.psicologia.system.model.security.RefreshToken;
 
 
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Integer> {
     Optional<RefreshToken> findByToken(String token);
 
-    void deleteByUsuarioIdUsuario(Integer idUsuario);
+    void deleteByUsuarioId(Integer id);
 }
