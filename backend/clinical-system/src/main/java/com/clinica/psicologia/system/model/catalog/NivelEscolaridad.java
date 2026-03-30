@@ -1,6 +1,7 @@
 package com.clinica.psicologia.system.model.catalog;
 
-import jakarta.persistence.Column;
+import com.clinica.psicologia.system.model.base.BaseCatalog;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
