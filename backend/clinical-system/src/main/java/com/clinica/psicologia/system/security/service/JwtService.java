@@ -21,6 +21,7 @@ public class JwtService {
     private final JwtProperties jwtProperties;
 
     private Key getSignKey() {
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"+jwtProperties.getSecret());
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }

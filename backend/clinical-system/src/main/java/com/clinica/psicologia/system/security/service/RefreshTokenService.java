@@ -28,7 +28,7 @@ public class RefreshTokenService {
     public RefreshToken createRefreshToken(String username) {
         Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
 
-        repository.deleteByUsuarioIdUsuario(usuario.getIdUsuario());
+        repository.deleteByUsuarioId(usuario.getId());
         RefreshToken token = new RefreshToken();
         token.setUsuario(usuario);
         token.setToken(UUID.randomUUID().toString());

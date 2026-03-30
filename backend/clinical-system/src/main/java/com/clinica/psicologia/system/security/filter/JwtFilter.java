@@ -33,7 +33,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         return path.startsWith("/auth")
-                || path.startsWith("/dev");
+                || path.startsWith("/dev")
+                || path.startsWith("/error");
     }
 
     @Override

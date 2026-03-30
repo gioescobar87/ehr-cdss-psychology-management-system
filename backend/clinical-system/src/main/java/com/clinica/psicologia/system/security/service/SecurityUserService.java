@@ -47,7 +47,7 @@ public class SecurityUserService implements UserDetailsService {
 
             authorities.add(
                     new SimpleGrantedAuthority(
-                            "ROLE_" + rol.getNombreRol().trim().toUpperCase()
+                            "ROLE_" + rol.getNombre().trim().toUpperCase()
                     )
             );
 
@@ -57,7 +57,7 @@ public class SecurityUserService implements UserDetailsService {
             for (RolPermiso rp : permisos) {
                 authorities.add(
                         new SimpleGrantedAuthority(
-                                rp.getPermiso().getNombrePermiso().trim().toUpperCase()
+                                rp.getPermiso().getNombre().trim().toUpperCase()
                         )
                 );
             }

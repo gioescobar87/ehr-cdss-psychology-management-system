@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clinica.psicologia.system.model.catalog.Estado;
 import com.clinica.psicologia.system.model.security.RefreshToken;
 import com.clinica.psicologia.system.model.security.Rol;
 import com.clinica.psicologia.system.model.security.Usuario;
@@ -74,16 +75,18 @@ public class AuthService {
         }
 
         Usuario usuario = new Usuario();
+        Estado estado = new Estado();
+        estado.setId(1);
+        usuario.setEstado(estado);
         usuario.setUsername(request.getUsername());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
         usuario.setCorreo(request.getCorreo());
-        usuario.setIdEstado(1);
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
-        Rol rol = rolRepository.findByNombreRol(request.getRoleName()).orElseThrow();
+        Rol rol = rolRepository.findByNombre(request.getRoleName()).orElseThrow();
 
         UsuarioRol usuarioRol = new UsuarioRol();
         usuarioRol.setUsuario(usuarioGuardado);

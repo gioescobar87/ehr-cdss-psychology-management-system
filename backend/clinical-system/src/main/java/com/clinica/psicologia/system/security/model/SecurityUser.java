@@ -38,7 +38,7 @@ public class SecurityUser implements UserDetails{
 
     @Override
     public boolean isEnabled(){
-        return usuario.getIdEstado() == 1;
+        return usuario.getEstado().getId() == 1;
     }
 
     @Override
