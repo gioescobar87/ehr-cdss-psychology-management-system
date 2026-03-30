@@ -17,7 +17,7 @@ public abstract class BaseCatalog extends BaseEntity {
 
     private String descripcion;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "estado_id")
     private Estado estado;
 }

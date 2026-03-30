@@ -9,6 +9,7 @@ import com.clinica.psicologia.system.model.patient.Paciente;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -19,15 +20,15 @@ import lombok.Setter;
 @Entity
 @Table(name = "prueba_psicologica")
 public class PruebaPsicologica extends BaseEntity{
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sesion_id")
     private Sesion sesion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_prueba_id")
     private TipoPrueba tipoPrueba;
 
@@ -40,7 +41,7 @@ public class PruebaPsicologica extends BaseEntity{
     @Column(name = "archivo_adjunto")
     private String archivoAdjunto;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id")
     private Estado estado;
 }

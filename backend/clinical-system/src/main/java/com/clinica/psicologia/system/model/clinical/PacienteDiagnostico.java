@@ -9,6 +9,7 @@ import com.clinica.psicologia.system.model.patient.Paciente;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -19,22 +20,22 @@ import lombok.Setter;
 @Entity
 @Table(name = "paciente_diagnostico")
 public class PacienteDiagnostico extends BaseEntity {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diagnostico_id")
     private Diagnostico diagnostico;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sesion_id")
     private Sesion sesion;
 
     @Column(name = "fecha_diagnostico")
     private LocalDate fechaDiagnostico;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id")
     private Estado estado;
 }

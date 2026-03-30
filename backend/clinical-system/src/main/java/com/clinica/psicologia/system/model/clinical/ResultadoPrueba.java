@@ -12,7 +12,7 @@ import lombok.Setter;
 @Table(name = "resultado_prueba")
 public class ResultadoPrueba extends BaseEntity{
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prueba_psicologica_id")
     private PruebaPsicologica prueba;
 
@@ -23,7 +23,7 @@ public class ResultadoPrueba extends BaseEntity{
     @Convert(converter = StringEncryptConverter.class)
     private String observaciones;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id")
     private Estado estado;
 }

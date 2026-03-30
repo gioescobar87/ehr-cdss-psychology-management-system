@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @Table(name = "nota_sesion")
 public class NotaSesion extends BaseEntity{
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sesion_id")
     private Sesion sesion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 

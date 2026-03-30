@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Table(name = "plan_tratamiento")
 public class PlanTratamiento extends BaseEntity{
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_diagnostico_id")
     private PacienteDiagnostico PacienteDiagnostico;
 
@@ -24,7 +24,7 @@ public class PlanTratamiento extends BaseEntity{
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id")
     private Estado estado;
 }

@@ -5,6 +5,7 @@ import com.clinica.psicologia.system.model.catalog.Estado;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -42,7 +43,7 @@ public class Usuario extends BaseEntity{
     @Column(name = "fecha_modificacion")
     private java.time.LocalDateTime fechaModificacion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
 }

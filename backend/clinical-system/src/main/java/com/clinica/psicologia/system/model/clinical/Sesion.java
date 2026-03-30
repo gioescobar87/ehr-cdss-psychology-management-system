@@ -12,6 +12,7 @@ import com.clinica.psicologia.system.util.encryption.StringEncryptConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,15 +23,15 @@ import lombok.Setter;
 @Entity
 @Table(name = "sesion")
 public class Sesion extends BaseEntity{
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_sesion_id")
     private TipoSesion tipoSesion;
 
@@ -41,7 +42,7 @@ public class Sesion extends BaseEntity{
     @Convert(converter = StringEncryptConverter.class)
     private String observacionesGenerales;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id")
     private Estado estado;
 }

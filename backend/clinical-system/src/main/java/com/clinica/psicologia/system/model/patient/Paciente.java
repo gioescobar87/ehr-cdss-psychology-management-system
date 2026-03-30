@@ -12,6 +12,7 @@ import com.clinica.psicologia.system.util.encryption.StringEncryptConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -48,15 +49,15 @@ public class Paciente extends BaseEntity {
 
     private LocalDateTime fechaRegistro;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_civil_id")
     private EstadoCivil estadoCivil;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nivel_escolaridad_id")
     private NivelEscolaridad nivelEscolaridad;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id")
     private Estado estado;
 }
