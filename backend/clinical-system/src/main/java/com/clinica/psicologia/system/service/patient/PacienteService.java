@@ -1,24 +1,15 @@
 package com.clinica.psicologia.system.service.patient;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-import com.clinica.psicologia.system.model.patient.Paciente;
-import com.clinica.psicologia.system.repository.patient.PacienteRepository;
+import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
+import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+public interface PacienteService {
 
-@Service
-@RequiredArgsConstructor
-@Transactional
-public class PacienteService {
-    private final PacienteRepository pacienteRepository;
+    PacienteResponseDTO crearPaciente(PacienteRequestDTO dto);
 
-    public Paciente crearPaciente(){
-        throw new UnsupportedOperationException();
-    }
+    List<PacienteResponseDTO> obtenerPacientes();
 
-    public Paciente obtenerPaciente(Long id){
-        throw new UnsupportedOperationException();
-    }
+    PacienteResponseDTO obtenerPorId(Long id);
 }
