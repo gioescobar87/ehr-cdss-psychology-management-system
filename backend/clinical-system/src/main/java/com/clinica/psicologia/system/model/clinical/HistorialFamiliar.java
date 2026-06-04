@@ -26,7 +26,7 @@ public class HistorialFamiliar extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condicion_medica_id")
-    private CondicionMedica condicion_medica;
+    private CondicionMedica condicionMedica;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentesco_id")

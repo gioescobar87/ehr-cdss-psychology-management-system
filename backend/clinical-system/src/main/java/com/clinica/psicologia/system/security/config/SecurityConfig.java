@@ -114,14 +114,25 @@ public class SecurityConfig {
                                                 // =========================
                                                 // PATIENT MODULE
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/pacientes/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/pacientes/**")
                                                 .hasAuthority("PACIENTE_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/pacientes/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/pacientes/**")
                                                 .hasAuthority("PACIENTE_WRITE")
 
-                                                .requestMatchers(HttpMethod.PUT, "/pacientes/reasignar/**")
+                                                .requestMatchers(HttpMethod.PUT, "/api/pacientes/reasignar/**")
                                                 .hasAuthority("PACIENTE_REASIGNAR")
+
+                                                // =========================
+                                                // MEDICAL HISTORY
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET,
+                                                        "/api/historial-medico/**")
+                                                .hasAuthority("PACIENTE_READ")
+
+                                                .requestMatchers(HttpMethod.POST,
+                                                        "/api/historial-medico/**")
+                                                .hasAuthority("PACIENTE_WRITE")
 
                                                 // =========================
                                                 // CLINICAL SESSIONS

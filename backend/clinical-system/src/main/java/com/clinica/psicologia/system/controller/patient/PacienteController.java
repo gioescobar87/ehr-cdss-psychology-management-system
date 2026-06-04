@@ -36,7 +36,7 @@ public class PacienteController {
     }
 
     @GetMapping("/{id}")
-    public PacienteResponseDTO obtener(@PathVariable Long id) {
+    public PacienteResponseDTO obtener(@PathVariable Integer id) {
         return service.obtenerPorId(id);
     }
 }

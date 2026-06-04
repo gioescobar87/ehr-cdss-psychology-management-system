@@ -12,11 +12,11 @@ import lombok.Setter;
 @Table(name = "rol_permiso")
 public class RolPermiso extends BaseEntity{
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rol_id")
     private Rol rol;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "permiso_id")
     private Permiso permiso;
 

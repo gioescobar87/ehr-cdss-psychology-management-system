@@ -56,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             String username = jwtService.extractUsername(token);
             var user = userService.loadUserByUsername(username);
-
+            //System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX AUTHORITIES -> " + user.getAuthorities());
             if (!jwtService.isTokenValid(token, user)) {
 
                 unauthorized(response,
@@ -79,7 +79,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception ex) {
-
+            System.out.println("EXCEPCIÓN: " + ex);
             unauthorized(response,
                     "INVALID_TOKEN",
                     "JWT token invalid");

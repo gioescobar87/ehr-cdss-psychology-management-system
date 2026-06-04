@@ -11,5 +11,5 @@ public interface PacienteService {
 
     List<PacienteResponseDTO> obtenerPacientes();
 
-    PacienteResponseDTO obtenerPorId(Long id);
+    PacienteResponseDTO obtenerPorId(Integer id);
 }

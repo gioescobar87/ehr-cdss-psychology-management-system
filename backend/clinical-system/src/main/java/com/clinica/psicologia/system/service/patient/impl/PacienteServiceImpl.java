@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 import com.clinica.psicologia.system.mapper.patient.PacienteMapper;
+import com.clinica.psicologia.system.model.catalog.Estado;
 import com.clinica.psicologia.system.model.patient.Paciente;
+import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.service.patient.PacienteService;
 
@@ -21,6 +23,7 @@ public class PacienteServiceImpl implements PacienteService {
 
     private final PacienteRepository pacienteRepository;
     private final PacienteMapper pacienteMapper;
+    private final EstadoRepository estadoRepository;
 
     /* =====================================================
        CREAR PACIENTE
@@ -29,6 +32,15 @@ public class PacienteServiceImpl implements PacienteService {
     public PacienteResponseDTO crearPaciente(PacienteRequestDTO dto) {
 
         Paciente paciente = pacienteMapper.toEntity(dto);
+
+        // =================================================
+        // ASIGNAR ESTADO ACTIVO POR DEFECTO
+        // =================================================
+        Estado estadoActivo = estadoRepository.findById(1)
+                .orElseThrow(() ->
+                        new RuntimeException("Estado ACTIVO no encontrado"));
+
+        paciente.setEstado(estadoActivo);
 
         paciente = pacienteRepository.save(paciente);
 
@@ -53,7 +65,7 @@ public class PacienteServiceImpl implements PacienteService {
        ===================================================== */
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
-    public PacienteResponseDTO obtenerPorId(Long id) {
+    public PacienteResponseDTO obtenerPorId(Integer id) {
 
         Paciente paciente = pacienteRepository.findById(id)
                 .orElseThrow(() ->
