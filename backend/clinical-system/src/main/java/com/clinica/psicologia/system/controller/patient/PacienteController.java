@@ -1,23 +1,31 @@
 package com.clinica.psicologia.system.controller.patient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 import com.clinica.psicologia.system.service.patient.PacienteService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/pacientes")
+@RequestMapping("/pacientes")
 @RequiredArgsConstructor
 public class PacienteController {
 
@@ -25,9 +33,11 @@ public class PacienteController {
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
-            @RequestBody PacienteRequestDTO dto) {
+            @Valid @RequestBody PacienteRequestDTO dto) {
 
-        return ResponseEntity.ok(service.crearPaciente(dto));
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(service.crearPaciente(dto));
     }
 
     @GetMapping
@@ -38,5 +48,34 @@ public class PacienteController {
     @GetMapping("/{id}")
     public PacienteResponseDTO obtener(@PathVariable Integer id) {
         return service.obtenerPorId(id);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PacienteResponseDTO> actualizar(
+            @PathVariable Integer id,
+            @Valid @RequestBody PacienteRequestDTO dto) {
+
+        return ResponseEntity.ok(
+                service.actualizarPaciente(id, dto));
+    }
+
+    @RestControllerAdvice
+    public class GlobalExceptionHandler {
+
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, String>> handleValidation(
+                MethodArgumentNotValidException ex) {
+
+            Map<String, String> errors = new HashMap<>();
+
+            ex.getBindingResult()
+                    .getFieldErrors()
+                    .forEach(error ->
+                            errors.put(
+                                    error.getField(),
+                                    error.getDefaultMessage()));
+
+            return ResponseEntity.badRequest().body(errors);
+        }
     }
 }

@@ -6,7 +6,8 @@ spring:
 
 security:
   jwt:
-    secret: ${JWT_SECRET}
+    #secret: ${JWT_SECRET}
+    secret: c5rmj6rssag/QzqH8fNoTOPwhTGKNJwfXR3sKN1QKlcU/XJuyVG8RVuND9q//paTj/pTDI/AEDtWbh3fCirWEA==
     expiration: ${JWT_EXPIRATION:3600000}
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000}
     issuer: ${JWT_ISSUER:clinical-system}

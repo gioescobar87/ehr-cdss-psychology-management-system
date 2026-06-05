@@ -37,6 +37,17 @@ public class PacienteMapper {
             paciente.getNombre() + " " + paciente.getApellido(),
             paciente.getSexo(),
             edad
-    );
-}
+        );
+    }
+
+    public void updateEntityFromDto(
+        PacienteRequestDTO dto,
+        Paciente paciente) {
+
+            paciente.setNombre(dto.nombre());
+            paciente.setApellido(dto.apellido());
+            paciente.setFechaNacimiento(dto.fechaNacimiento());
+            paciente.setSexo(dto.sexo());
+            paciente.setOcupacion(dto.ocupacion());
+        }
 }

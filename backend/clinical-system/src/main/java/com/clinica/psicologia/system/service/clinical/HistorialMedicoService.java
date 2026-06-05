@@ -7,9 +7,13 @@ import com.clinica.psicologia.system.dto.response.clinical.HistorialMedicoRespon
 
 public interface HistorialMedicoService {
 
-    HistorialMedicoResponseDTO crear(
-            HistorialMedicoRequestDTO dto);
+        HistorialMedicoResponseDTO crear(HistorialMedicoRequestDTO dto);
 
-    List<HistorialMedicoResponseDTO>
-        obtenerPorPaciente(Integer pacienteId);
+        List<HistorialMedicoResponseDTO>obtenerPorPaciente(Integer pacienteId);
+
+        HistorialMedicoResponseDTO obtenerPorId(Integer id);
+
+        HistorialMedicoResponseDTO actualizar(Integer id,HistorialMedicoRequestDTO dto);
+
+        void desactivar(Integer id);
 }

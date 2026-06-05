@@ -114,13 +114,16 @@ public class SecurityConfig {
                                                 // =========================
                                                 // PATIENT MODULE
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/api/pacientes/**")
+                                                .requestMatchers(HttpMethod.GET, "/pacientes/**")
                                                 .hasAuthority("PACIENTE_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/api/pacientes/**")
+                                                .requestMatchers(HttpMethod.POST, "/pacientes/**")
                                                 .hasAuthority("PACIENTE_WRITE")
 
-                                                .requestMatchers(HttpMethod.PUT, "/api/pacientes/reasignar/**")
+                                                .requestMatchers(HttpMethod.PUT, "/pacientes/**")
+                                                .hasAuthority("PACIENTE_WRITE")
+
+                                                .requestMatchers(HttpMethod.PUT, "/pacientes/reasignar/**")
                                                 .hasAuthority("PACIENTE_REASIGNAR")
 
                                                 // =========================

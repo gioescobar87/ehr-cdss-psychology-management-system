@@ -73,4 +73,23 @@ public class PacienteServiceImpl implements PacienteService {
 
         return pacienteMapper.toResponse(paciente);
     }
+
+    /* =====================================================
+       OBTENER POR ID
+       ===================================================== */
+    @Override
+    public PacienteResponseDTO actualizarPaciente(
+            Integer id,
+            PacienteRequestDTO dto) {
+
+        Paciente paciente = pacienteRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Paciente no encontrado: " + id));
+
+        pacienteMapper.updateEntityFromDto(dto, paciente);
+
+        paciente = pacienteRepository.save(paciente);
+
+        return pacienteMapper.toResponse(paciente);
+    }
 }

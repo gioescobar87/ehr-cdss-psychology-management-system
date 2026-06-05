@@ -12,4 +12,6 @@ public interface PacienteService {
     List<PacienteResponseDTO> obtenerPacientes();
 
     PacienteResponseDTO obtenerPorId(Integer id);
+
+    PacienteResponseDTO actualizarPaciente(Integer id, PacienteRequestDTO dto);
 }

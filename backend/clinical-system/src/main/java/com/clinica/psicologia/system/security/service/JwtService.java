@@ -27,10 +27,12 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
+        System.out.println("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT TOKEN RECEIVED: [" + token + "]");
         return extractClaim(token, Claims::getSubject);
     }
 
     public Date extractExpiration(String token) {
+        System.out.println("TOKEN RECEIVED: [" + token + "]");
         return extractClaim(token, Claims::getExpiration);
     }
 

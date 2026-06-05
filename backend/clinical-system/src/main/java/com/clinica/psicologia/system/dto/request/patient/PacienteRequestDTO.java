@@ -6,16 +6,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record PacienteRequestDTO(
-    @NotBlank
+    @NotBlank(message = "El nombre es obligatorio")
     String nombre,
 
-    @NotBlank
+    @NotBlank(message = "El apellido es obligatorio")
     String apellido,
 
-    @NotNull
+    @NotNull(message = "La fecha de nacimiento es obligatoria")
     LocalDate fechaNacimiento,
 
-    @NotBlank
+    @NotBlank(message = "El sexo es obligatorio")
     String sexo,
     
     String ocupacion,

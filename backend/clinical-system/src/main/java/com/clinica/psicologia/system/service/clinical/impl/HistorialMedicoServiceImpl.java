@@ -75,4 +75,66 @@ public class HistorialMedicoServiceImpl implements HistorialMedicoService {
             .map(historialMedicoMapper::toResponse)
             .toList();
     }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public HistorialMedicoResponseDTO obtenerPorId(
+            Integer id) {
+
+        HistorialMedico historial = historialMedicoRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Historial médico no encontrado: " + id));
+
+        return historialMedicoMapper.toResponse(historial);
+    }
+
+    @Override
+    public HistorialMedicoResponseDTO actualizar(
+            Integer id,
+            HistorialMedicoRequestDTO dto) {
+
+        HistorialMedico historial = historialMedicoRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Historial médico no encontrado: " + id));
+
+        CondicionMedica condicion = condicionMedicaRepository
+                .findById(dto.condicionMedicaId())
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Condición médica no encontrada: "
+                                        + dto.condicionMedicaId()));
+
+        historial.setCondicionMedica(condicion);
+        historial.setFechaDiagnostico(dto.fechaDiagnostico());
+        historial.setTratamientoActual(dto.tratamientoActual());
+        historial.setObservaciones(dto.observaciones());
+
+        historial = historialMedicoRepository.save(historial);
+
+        return historialMedicoMapper.toResponse(historial);
+    }
+
+    @Override
+    public void desactivar(Integer id) {
+
+        HistorialMedico historial = historialMedicoRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Historial médico no encontrado: " + id));
+
+        Estado estadoInactivo = estadoRepository
+                .findById(2)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Estado INACTIVO no encontrado"));
+
+        historial.setEstado(estadoInactivo);
+
+        historialMedicoRepository.save(historial);
+    }
 }
