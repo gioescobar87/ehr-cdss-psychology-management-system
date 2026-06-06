@@ -94,101 +94,103 @@ public class SecurityConfig {
                                                 // PUBLIC AUTH ENDPOINTS
                                                 // =========================
                                                 .requestMatchers(
-                                                                "/auth/login",
-                                                                "/auth/register",
-                                                                "/auth/refresh")
+                                                                "/api/auth/login",
+                                                                "/api/auth/register",
+                                                                "/api/auth/refresh-token",
+                                                                "/api/auth/forgot-password",
+                                                                "/api/auth/reset-password")
                                                 .permitAll()
 
                                                 // =========================
                                                 // USER MANAGEMENT
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/usuarios/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/**")
                                                 .hasAuthority("USUARIO_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/usuarios/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/usuarios/**")
                                                 .hasAuthority("USUARIO_WRITE")
 
-                                                .requestMatchers(HttpMethod.DELETE, "/usuarios/**")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**")
                                                 .hasAuthority("USUARIO_DELETE")
 
                                                 // =========================
                                                 // PATIENT MODULE
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/pacientes/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/pacientes/**")
                                                 .hasAuthority("PACIENTE_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/pacientes/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/pacientes/**")
                                                 .hasAuthority("PACIENTE_WRITE")
 
-                                                .requestMatchers(HttpMethod.PUT, "/pacientes/**")
+                                                .requestMatchers(HttpMethod.PUT, "/api/pacientes/**")
                                                 .hasAuthority("PACIENTE_WRITE")
 
-                                                .requestMatchers(HttpMethod.PUT, "/pacientes/reasignar/**")
+                                                .requestMatchers(HttpMethod.PUT, "/api/pacientes/reasignar/**")
                                                 .hasAuthority("PACIENTE_REASIGNAR")
 
                                                 // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET,
-                                                        "/api/historial-medico/**")
+                                                        "/api/api/historial-medico/**")
                                                 .hasAuthority("PACIENTE_READ")
 
                                                 .requestMatchers(HttpMethod.POST,
-                                                        "/api/historial-medico/**")
+                                                        "/api/api/historial-medico/**")
                                                 .hasAuthority("PACIENTE_WRITE")
 
                                                 // =========================
                                                 // CLINICAL SESSIONS
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/sesiones/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/sesiones/**")
                                                 .hasAuthority("SESION_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/sesiones/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/sesiones/**")
                                                 .hasAuthority("SESION_WRITE")
 
                                                 // =========================
                                                 // APPOINTMENTS
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/citas/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/citas/**")
                                                 .hasAuthority("CITA_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/citas/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/citas/**")
                                                 .hasAuthority("CITA_WRITE")
 
                                                 // =========================
                                                 // CDSS DIAGNOSTIC ENGINE
                                                 // =========================
-                                                .requestMatchers("/diagnostico/ejecutar/**")
+                                                .requestMatchers("/api/diagnostico/ejecutar/**")
                                                 .hasAuthority("DIAGNOSTICO_EXECUTE")
 
-                                                .requestMatchers("/diagnostico/validar/**")
+                                                .requestMatchers("/api/diagnostico/validar/**")
                                                 .hasAuthority("DIAGNOSTICO_VALIDAR")
 
                                                 // =========================
                                                 // REPORTS
                                                 // =========================
-                                                .requestMatchers("/reportes/**")
+                                                .requestMatchers("/api/reportes/**")
                                                 .hasAuthority("REPORTE_READ")
 
                                                 // =========================
                                                 // AUDIT LOG
                                                 // =========================
-                                                .requestMatchers("/bitacora/**")
+                                                .requestMatchers("/api/bitacora/**")
                                                 .hasAuthority("BITACORA_READ")
 
                                                 // =========================
                                                 // CATALOG MANAGEMENT
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/catalogos/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/catalogos/**")
                                                 .hasAuthority("CATALOGO_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/catalogos/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/catalogos/**")
                                                 .hasAuthority("CATALOGO_WRITE")
 
                                                 // =========================
                                                 // ADMIN OVERRIDE
                                                 // =========================
-                                                .requestMatchers("/admin/**")
+                                                .requestMatchers("/api/admin/**")
                                                 .hasAuthority("ADMIN_FULL")
 
                                                 // =========================
