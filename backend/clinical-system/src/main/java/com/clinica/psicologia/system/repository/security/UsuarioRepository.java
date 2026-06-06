@@ -14,4 +14,6 @@ public interface UsuarioRepository
     boolean existsByUsername(String username);
 
     boolean existsByCorreo(String correo);
+
+    Optional<Usuario> findByCorreo(String correo);
 }
