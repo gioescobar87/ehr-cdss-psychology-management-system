@@ -1,7 +1,8 @@
 package com.clinica.psicologia.system.security.dto;
 
+import com.clinica.psicologia.system.security.validation.StrongPassword;
+
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ public class ResetPasswordRequest {
     @NotBlank(message = "Token is required")
     private String token;
     @NotBlank(message = "New password is required")
-    @Size(min = 8, message = "New password must be at least 8 characters long")
+    @StrongPassword
     private String newPassword;
 
 }

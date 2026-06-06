@@ -1,5 +1,7 @@
 package com.clinica.psicologia.system.security.dto;
 
+import com.clinica.psicologia.system.security.validation.StrongPassword;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -11,6 +13,7 @@ public class RegisterRequest {
     @NotBlank(message = "Username is required")
     private String username;
     @NotBlank(message = "Password is required")
+    @StrongPassword
     private String password;
     @NotBlank(message = "First name is required")
     private String nombre;
@@ -21,5 +24,5 @@ public class RegisterRequest {
     private String correo;
     @NotBlank(message = "Role is required")
     private String roleName;
-    
+
 }
