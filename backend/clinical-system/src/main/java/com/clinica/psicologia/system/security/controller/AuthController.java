@@ -3,6 +3,8 @@ package com.clinica.psicologia.system.security.controller;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,15 +13,22 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.model.security.RefreshToken;
+import com.clinica.psicologia.system.security.dto.ChangePasswordRequest;
+import com.clinica.psicologia.system.security.dto.ForgotPasswordRequest;
+import com.clinica.psicologia.system.security.dto.ForgotPasswordResponse;
 import com.clinica.psicologia.system.security.dto.LoginRequest;
 import com.clinica.psicologia.system.security.dto.RegisterRequest;
+import com.clinica.psicologia.system.security.dto.ResetPasswordRequest;
+import com.clinica.psicologia.system.security.dto.UserProfileResponse;
 import com.clinica.psicologia.system.security.service.AuthService;
 import com.clinica.psicologia.system.security.service.JwtService;
 import com.clinica.psicologia.system.security.service.RefreshTokenService;
 import com.clinica.psicologia.system.security.service.SecurityUserService;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -39,11 +48,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody LoginRequest request) {
+    public Map<String, String> login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("/refresh-token")
     public Map<String, String> refresh(
             @RequestParam String refreshToken) {
 
@@ -61,14 +70,54 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@RequestBody RegisterRequest request) {
+    public void register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
     }
     
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(@RequestBody Map<String,String> body) {
+    public void logout(@Valid @RequestBody Map<String,String> body) {
         authService.logout(body.get("refreshToken"));
     }
+
+    @GetMapping("/me")
+    public UserProfileResponse me(Authentication authentication) {
+
+        return authService.getCurrentUser(
+                authentication.getName());
+    }
     
+    @PostMapping("/change-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request) {
+
+        authService.changePassword(
+                authentication.getName(),
+                request);
+    }
+
+    /* @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void forgotPassword(
+            @RequestBody ForgotPasswordRequest request) {
+
+        authService.forgotPassword(request);
+    } */
+
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+
+        authService.resetPassword(request);
+    }
+
+    @PostMapping("/forgot-password")
+    public ForgotPasswordResponse forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+
+        return authService.forgotPassword(request);
+    }
 }
