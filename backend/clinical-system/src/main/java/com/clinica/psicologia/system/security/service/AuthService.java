@@ -290,4 +290,15 @@ public class AuthService {
                 return new ForgotPasswordResponse(
                                 token.getToken());
         }
+
+        @Transactional
+        public void logoutAll(String username) {
+
+                Usuario usuario = usuarioRepository
+                                .findByUsername(username)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "User not found"));
+
+                refreshTokenRepository.deleteByUsuario(usuario);
+        }
 }

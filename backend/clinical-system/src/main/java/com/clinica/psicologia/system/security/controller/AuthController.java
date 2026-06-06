@@ -73,10 +73,10 @@ public class AuthController {
     public void register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
     }
-    
+
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(@Valid @RequestBody Map<String,String> body) {
+    public void logout(@Valid @RequestBody Map<String, String> body) {
         authService.logout(body.get("refreshToken"));
     }
 
@@ -86,7 +86,7 @@ public class AuthController {
         return authService.getCurrentUser(
                 authentication.getName());
     }
-    
+
     @PostMapping("/change-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(
@@ -98,13 +98,17 @@ public class AuthController {
                 request);
     }
 
-    /* @PostMapping("/forgot-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void forgotPassword(
-            @RequestBody ForgotPasswordRequest request) {
-
-        authService.forgotPassword(request);
-    } */
+    /*
+     * @PostMapping("/forgot-password")
+     * 
+     * @ResponseStatus(HttpStatus.NO_CONTENT)
+     * public void forgotPassword(
+     * 
+     * @RequestBody ForgotPasswordRequest request) {
+     * 
+     * authService.forgotPassword(request);
+     * }
+     */
 
     @PostMapping("/reset-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -119,5 +123,14 @@ public class AuthController {
             @Valid @RequestBody ForgotPasswordRequest request) {
 
         return authService.forgotPassword(request);
+    }
+
+    @PostMapping("/logout-all")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logoutAll(
+            Authentication authentication) {
+
+        authService.logoutAll(
+                authentication.getName());
     }
 }
