@@ -1,0 +1,7 @@
+package com.clinica.psicologia.system.security.exception.custom;
+
+public class DuplicateResourceException extends RuntimeException {
+    public DuplicateResourceException(String message){
+        super(message);
+    }
+}
