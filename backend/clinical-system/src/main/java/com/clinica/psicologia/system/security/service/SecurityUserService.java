@@ -31,7 +31,7 @@ public class SecurityUserService implements UserDetailsService {
                         throws UsernameNotFoundException {
 
                 Usuario usuario = usuarioRepository
-                                .findByUsername(username)
+                                .findByUsernameWithEstado(username)
                                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
                 String estado = usuario.getEstado()

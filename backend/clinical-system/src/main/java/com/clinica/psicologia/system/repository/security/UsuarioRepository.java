@@ -2,9 +2,9 @@ package com.clinica.psicologia.system.repository.security;
 
 import com.clinica.psicologia.system.model.security.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
-
 
 public interface UsuarioRepository
         extends JpaRepository<Usuario, Integer> {
@@ -16,4 +16,12 @@ public interface UsuarioRepository
     boolean existsByCorreo(String correo);
 
     Optional<Usuario> findByCorreo(String correo);
+
+    @Query("""
+                SELECT u
+                FROM Usuario u
+                JOIN FETCH u.estado
+                WHERE u.username = :username
+            """)
+    Optional<Usuario> findByUsernameWithEstado(String username);
 }
