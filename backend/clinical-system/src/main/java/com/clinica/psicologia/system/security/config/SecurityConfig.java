@@ -104,14 +104,59 @@ public class SecurityConfig {
                                                 // =========================
                                                 // USER MANAGEMENT
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/**")
+
+                                                // READ
+                                                .requestMatchers(HttpMethod.GET, "/api/usuarios")
                                                 .hasAuthority("USUARIO_READ")
 
-                                                .requestMatchers(HttpMethod.POST, "/api/usuarios/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/*")
+                                                .hasAuthority("USUARIO_READ")
+
+                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/*/roles")
+                                                .hasAuthority("USUARIO_READ")
+
+                                                // WRITE (CREATE + UPDATE + STATUS + ROLES ASSIGNMENT)
+                                                .requestMatchers(HttpMethod.POST, "/api/usuarios")
                                                 .hasAuthority("USUARIO_WRITE")
 
-                                                .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**")
+                                                .requestMatchers(HttpMethod.PUT, "/api/usuarios/*")
+                                                .hasAuthority("USUARIO_WRITE")
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/usuarios/*/estado")
+                                                .hasAuthority("USUARIO_WRITE")
+
+                                                .requestMatchers(HttpMethod.POST, "/api/usuarios/*/roles")
+                                                .hasAuthority("USUARIO_WRITE")
+
+                                                // DELETE USER ONLY
+                                                .requestMatchers(HttpMethod.DELETE, "/api/usuarios/*")
                                                 .hasAuthority("USUARIO_DELETE")
+
+                                                // DELETE ROLE ASSIGNMENT
+                                                .requestMatchers(HttpMethod.DELETE, "/api/usuarios/*/roles/*")
+                                                .hasAuthority("USUARIO_WRITE")
+
+                                                // =========================
+                                                // ROLE MANAGEMENT
+                                                // =========================
+
+                                                .requestMatchers(HttpMethod.GET, "/api/roles")
+                                                .hasAuthority("ROL_READ")
+
+                                                .requestMatchers(HttpMethod.GET, "/api/roles/*")
+                                                .hasAuthority("ROL_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/api/roles")
+                                                .hasAuthority("ROL_WRITE")
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/roles/*")
+                                                .hasAuthority("ROL_WRITE")
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/roles/*/estado")
+                                                .hasAuthority("ROL_WRITE")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/roles/*")
+                                                .hasAuthority("ROL_DELETE")
 
                                                 // =========================
                                                 // PATIENT MODULE
@@ -132,11 +177,11 @@ public class SecurityConfig {
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET,
-                                                        "/api/api/historial-medico/**")
+                                                                "/api/api/historial-medico/**")
                                                 .hasAuthority("PACIENTE_READ")
 
                                                 .requestMatchers(HttpMethod.POST,
-                                                        "/api/api/historial-medico/**")
+                                                                "/api/api/historial-medico/**")
                                                 .hasAuthority("PACIENTE_WRITE")
 
                                                 // =========================

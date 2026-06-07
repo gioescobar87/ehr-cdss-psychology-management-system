@@ -8,4 +8,6 @@ import com.clinica.psicologia.system.model.security.Rol;
 
 public interface RolRepository extends JpaRepository<Rol, Integer> {
     Optional<Rol> findByNombre(String nombre);
+
+    boolean existsByNombre(String nombre);
 }
