@@ -159,6 +159,64 @@ public class SecurityConfig {
                                                 .hasAuthority("ROL_DELETE")
 
                                                 // =========================
+                                                // MODULE MANAGEMENT
+                                                // =========================
+
+                                                .requestMatchers(HttpMethod.GET, "/api/modulos/**")
+                                                .hasAuthority("MODULO_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/api/modulos/**")
+                                                .hasAuthority("MODULO_WRITE")
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/modulos/**")
+                                                .hasAuthority("MODULO_WRITE")
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/modulos/**")
+                                                .hasAuthority("MODULO_WRITE")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/modulos/**")
+                                                .hasAuthority("MODULO_DELETE")
+
+                                                // =========================
+                                                // PERMISSION MANAGEMENT
+                                                // =========================
+
+                                                // READ
+                                                .requestMatchers(HttpMethod.GET, "/api/permisos")
+                                                .hasAuthority("PERMISO_READ")
+
+                                                .requestMatchers(HttpMethod.GET, "/api/permisos/*")
+                                                .hasAuthority("PERMISO_READ")
+
+                                                // CREATE NEW PERMISSION
+                                                .requestMatchers(HttpMethod.POST, "/api/permisos")
+                                                .hasAuthority("PERMISO_WRITE")
+
+                                                // UPDATE
+                                                .requestMatchers(HttpMethod.PUT, "/api/permisos/*")
+                                                .hasAuthority("PERMISO_WRITE")
+
+                                                // DELETE
+                                                .requestMatchers(HttpMethod.DELETE, "/api/permisos/*")
+                                                .hasAuthority("PERMISO_DELETE")
+
+                                                // =========================
+                                                // ROLE-PERMISSION ASSIGNMENT
+                                                // =========================
+
+                                                // GET ROLE PERMISSIONS
+                                                .requestMatchers(HttpMethod.GET, "/api/roles/*/permisos")
+                                                .hasAuthority("ROL_READ")
+
+                                                // ASSIGN PERMISSION
+                                                .requestMatchers(HttpMethod.POST, "/api/roles/*/permisos")
+                                                .hasAuthority("ROL_WRITE")
+
+                                                // REMOVE PERMISSION
+                                                .requestMatchers(HttpMethod.DELETE, "/api/roles/*/permisos/*")
+                                                .hasAuthority("ROL_WRITE")
+
+                                                // =========================
                                                 // PATIENT MODULE
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/pacientes/**")

@@ -12,4 +12,8 @@ public class PermisoResponseDTO {
     private String nombre;
 
     private String descripcion;
+
+    private Integer moduloId;
+
+    private String moduloNombre;
 }

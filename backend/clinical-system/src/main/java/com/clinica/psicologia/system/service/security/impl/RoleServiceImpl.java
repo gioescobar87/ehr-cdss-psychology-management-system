@@ -107,17 +107,17 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-@Transactional
-public void delete(Integer id) {
+    @Transactional
+    public void delete(Integer id) {
 
-    Rol rol = rolRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        Rol rol = rolRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-    if (usuarioRolRepository.existsByRol(rol)) {
-        throw new DuplicateResourceException(
-                "Role cannot be deleted because it is assigned to users");
+        if (usuarioRolRepository.existsByRol(rol)) {
+            throw new DuplicateResourceException(
+                    "Role cannot be deleted because it is assigned to users");
+        }
+
+        rolRepository.delete(rol);
     }
-
-    rolRepository.delete(rol);
-}
 }
