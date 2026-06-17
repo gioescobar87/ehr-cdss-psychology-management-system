@@ -31,6 +31,4 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
         WHERE u.username = :username
     """)
     Optional<Usuario> findByUsernameWithEstado(String username);
-
-    boolean existsByRol(Rol rol);
 }

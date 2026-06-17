@@ -3,9 +3,11 @@ package com.clinica.psicologia.system.controller.security;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.RolRequestDTO;
 import com.clinica.psicologia.system.dto.response.security.RolResponseDTO;
 import com.clinica.psicologia.system.service.security.RoleService;
@@ -51,10 +53,12 @@ public class RoleController {
 
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasAuthority('ROL_WRITE')")
-    public void changeStatus(
+    public ResponseEntity<Void> changeStatus(
             @PathVariable Integer id,
-            @RequestBody Integer estadoId) {
-        roleService.changeStatus(id, estadoId);
+            @Valid @RequestBody EstadoChangeRequestDTO request) {
+        roleService.changeStatus(id, request.getEstadoId());
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

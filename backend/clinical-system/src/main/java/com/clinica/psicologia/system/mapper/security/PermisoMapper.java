@@ -1,5 +1,7 @@
 package com.clinica.psicologia.system.mapper.security;
 
+import java.util.List;
+
 import com.clinica.psicologia.system.dto.response.security.PermisoResponseDTO;
 import com.clinica.psicologia.system.model.security.Permiso;
 
@@ -9,8 +11,15 @@ public class PermisoMapper {
         dto.setId(permiso.getId());
         dto.setNombre(permiso.getNombre());
         dto.setDescripcion(permiso.getDescripcion());
-        dto.setModuloId(permiso.getModulo().getId());
-        dto.setModuloNombre(permiso.getModulo().getNombre());
+        dto.setEstadoId(permiso.getEstado().getId());
+        dto.setEstado(permiso.getEstado().getNombreEstado());
         return dto;
+    }
+
+    public List<PermisoResponseDTO> toResponseList(List<Permiso> permisos) {
+
+        return permisos.stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

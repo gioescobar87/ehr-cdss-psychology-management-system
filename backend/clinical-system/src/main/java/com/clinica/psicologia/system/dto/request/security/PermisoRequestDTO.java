@@ -15,7 +15,7 @@ public class PermisoRequestDTO {
     @NotBlank(message = "La descripción del permiso es obligatoria")
     private String descripcion;
 
-    @NotNull(message = "El ID del módulo es obligatorio")
-    private Integer moduloId;
+    @NotNull(message = "El estado del permiso es obligatorio")
+    private Integer estadoId;
 
 }

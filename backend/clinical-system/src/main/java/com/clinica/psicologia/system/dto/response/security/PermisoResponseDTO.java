@@ -13,7 +13,7 @@ public class PermisoResponseDTO {
 
     private String descripcion;
 
-    private Integer moduloId;
+    private Integer estadoId;
 
-    private String moduloNombre;
+    private String estado;
 }

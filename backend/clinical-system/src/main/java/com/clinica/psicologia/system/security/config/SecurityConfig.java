@@ -98,7 +98,8 @@ public class SecurityConfig {
                                                                 "/api/auth/register",
                                                                 "/api/auth/refresh-token",
                                                                 "/api/auth/forgot-password",
-                                                                "/api/auth/reset-password")
+                                                                "/api/auth/reset-password",
+                                                                "/actuator/mappings")
                                                 .permitAll()
 
                                                 // =========================
@@ -188,7 +189,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/permisos/*")
                                                 .hasAuthority("PERMISO_READ")
 
-                                                // CREATE NEW PERMISSION
+                                                // CREATE
                                                 .requestMatchers(HttpMethod.POST, "/api/permisos")
                                                 .hasAuthority("PERMISO_WRITE")
 
@@ -198,6 +199,16 @@ public class SecurityConfig {
 
                                                 // DELETE
                                                 .requestMatchers(HttpMethod.DELETE, "/api/permisos/*")
+                                                .hasAuthority("PERMISO_DELETE")
+
+                                                // ROLE-PERMISSION ASSIGNMENTS
+                                                .requestMatchers(HttpMethod.GET, "/api/roles/*/permisos")
+                                                .hasAuthority("PERMISO_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/api/roles/*/permisos")
+                                                .hasAuthority("PERMISO_WRITE")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/roles/*/permisos/*")
                                                 .hasAuthority("PERMISO_DELETE")
 
                                                 // =========================
