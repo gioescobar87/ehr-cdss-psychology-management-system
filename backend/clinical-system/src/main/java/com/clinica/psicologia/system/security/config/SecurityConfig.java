@@ -160,25 +160,6 @@ public class SecurityConfig {
                                                 .hasAuthority("ROL_DELETE")
 
                                                 // =========================
-                                                // MODULE MANAGEMENT
-                                                // =========================
-
-                                                .requestMatchers(HttpMethod.GET, "/api/modulos/**")
-                                                .hasAuthority("MODULO_READ")
-
-                                                .requestMatchers(HttpMethod.POST, "/api/modulos/**")
-                                                .hasAuthority("MODULO_WRITE")
-
-                                                .requestMatchers(HttpMethod.PUT, "/api/modulos/**")
-                                                .hasAuthority("MODULO_WRITE")
-
-                                                .requestMatchers(HttpMethod.PATCH, "/api/modulos/**")
-                                                .hasAuthority("MODULO_WRITE")
-
-                                                .requestMatchers(HttpMethod.DELETE, "/api/modulos/**")
-                                                .hasAuthority("MODULO_DELETE")
-
-                                                // =========================
                                                 // PERMISSION MANAGEMENT
                                                 // =========================
 
@@ -226,6 +207,60 @@ public class SecurityConfig {
                                                 // REMOVE PERMISSION
                                                 .requestMatchers(HttpMethod.DELETE, "/api/roles/*/permisos/*")
                                                 .hasAuthority("ROL_WRITE")
+
+                                                // =========================
+                                                // MODULE MANAGEMENT
+                                                // =========================
+
+                                                .requestMatchers(HttpMethod.GET, "/api/modulos/**")
+                                                .hasAuthority("MODULO_READ")
+
+                                                .requestMatchers(HttpMethod.POST, "/api/modulos/**")
+                                                .hasAuthority("MODULO_WRITE")
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/modulos/**")
+                                                .hasAuthority("MODULO_WRITE")
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/modulos/**")
+                                                .hasAuthority("MODULO_WRITE")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/modulos/**")
+                                                .hasAuthority("MODULO_DELETE")
+
+                                                // =========================
+                                                // OPTION MANAGEMENT
+                                                // =========================
+
+                                                // READ
+                                                .requestMatchers(HttpMethod.GET, "/api/opciones")
+                                                .hasAuthority("OPCION_READ")
+
+                                                .requestMatchers(HttpMethod.GET, "/api/opciones/tree")
+                                                .hasAuthority("OPCION_READ")
+
+                                                .requestMatchers(HttpMethod.GET, "/api/opciones/*")
+                                                .hasAuthority("OPCION_READ")
+
+                                                .requestMatchers(HttpMethod.GET, "/api/opciones/modulo/*")
+                                                .hasAuthority("OPCION_READ")
+
+                                                .requestMatchers(HttpMethod.GET, "/api/opciones/*/hijas")
+                                                .hasAuthority("OPCION_READ")
+
+                                                // CREATE
+                                                .requestMatchers(HttpMethod.POST, "/api/opciones")
+                                                .hasAuthority("OPCION_WRITE")
+
+                                                // UPDATE
+                                                .requestMatchers(HttpMethod.PUT, "/api/opciones/*")
+                                                .hasAuthority("OPCION_WRITE")
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/opciones/*/estado")
+                                                .hasAuthority("OPCION_WRITE")
+
+                                                // DELETE
+                                                .requestMatchers(HttpMethod.DELETE, "/api/opciones/*")
+                                                .hasAuthority("OPCION_DELETE")
 
                                                 // =========================
                                                 // PATIENT MODULE
