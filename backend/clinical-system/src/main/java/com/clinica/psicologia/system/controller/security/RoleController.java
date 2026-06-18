@@ -25,26 +25,22 @@ public class RoleController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROL_READ')")
     public List<RolResponseDTO> findAll() {
         return roleService.findAll();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROL_READ')")
     public RolResponseDTO findById(@PathVariable Integer id) {
         return roleService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('ROL_WRITE')")
     public RolResponseDTO create(@Valid @RequestBody RolRequestDTO request) {
         return roleService.create(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROL_WRITE')")
     public RolResponseDTO update(
             @PathVariable Integer id,
             @Valid @RequestBody RolRequestDTO request) {
@@ -52,7 +48,6 @@ public class RoleController {
     }
 
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasAuthority('ROL_WRITE')")
     public ResponseEntity<Void> changeStatus(
             @PathVariable Integer id,
             @Valid @RequestBody EstadoChangeRequestDTO request) {
@@ -63,7 +58,6 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('ROL_DELETE')")
     public void delete(@PathVariable Integer id) {
         roleService.delete(id);
     }

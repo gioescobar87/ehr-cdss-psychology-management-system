@@ -22,13 +22,11 @@ public class RolePermisoController {
     }
 
     @GetMapping("/{id}/permisos")
-    @PreAuthorize("hasAuthority('PERMISO_READ')")
     public List<RolPermisoResponseDTO> getPermissions(@PathVariable Integer id) {
         return rolePermisoService.getPermissionsByRole(id);
     }
 
     @PostMapping("/{id}/permisos")
-    @PreAuthorize("hasAuthority('PERMISO_WRITE')")
     public void assign(
             @PathVariable Integer id,
             @Valid @RequestBody RolePermisoRequestDTO request) {
@@ -37,7 +35,6 @@ public class RolePermisoController {
     }
 
     @DeleteMapping("/{id}/permisos/{permisoId}")
-    @PreAuthorize("hasAuthority('PERMISO_DELETE')")
     public void remove(
             @PathVariable Integer id,
             @PathVariable Integer permisoId) {

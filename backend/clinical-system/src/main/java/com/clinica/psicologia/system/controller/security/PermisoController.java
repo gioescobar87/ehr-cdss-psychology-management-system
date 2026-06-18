@@ -23,26 +23,22 @@ public class PermisoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERMISO_READ')")
     public List<PermisoResponseDTO> findAll() {
         return permisoService.findAll();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERMISO_READ')")
     public PermisoResponseDTO findById(@PathVariable Integer id) {
         return permisoService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('PERMISO_WRITE')")
     public PermisoResponseDTO create(@Valid @RequestBody PermisoRequestDTO request) {
         return permisoService.create(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERMISO_WRITE')")
     public PermisoResponseDTO update(
             @PathVariable Integer id,
             @Valid @RequestBody PermisoRequestDTO request) {
