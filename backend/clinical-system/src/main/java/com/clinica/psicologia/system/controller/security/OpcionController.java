@@ -37,6 +37,7 @@ public class OpcionController {
         return new String();
     }
 
+    @GetMapping
     public List<OpcionResponseDTO> findAll() {
         return opcionService.findAll();
     }
