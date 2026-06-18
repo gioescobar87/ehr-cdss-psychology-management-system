@@ -3,7 +3,6 @@ package com.clinica.psicologia.system.controller.security;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.clinica.psicologia.system.dto.request.security.PermisoRequestDTO;
@@ -47,7 +46,6 @@ public class PermisoController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('PERMISO_DELETE')")
     public void delete(@PathVariable Integer id) {
         permisoService.delete(id);
     }
