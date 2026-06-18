@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -44,13 +47,6 @@ public class SecurityConfig {
                 this.accessDeniedHandler = accessDeniedHandler;
         }
 
-        /*
-         * @Bean
-         * public PasswordEncoder passwordEncoder(){
-         * return new BCryptPasswordEncoder();
-         * }
-         */
-
         @Bean
         public DaoAuthenticationProvider authenticationProvider() {
 
@@ -60,23 +56,6 @@ public class SecurityConfig {
 
                 return provider;
         }
-
-        /*
-         * //TEMPORALMENTE PERMITIRÁ ACCESO LIBRE
-         * 
-         * @Bean
-         * public SecurityFilterChain filterChain(HttpSecurity http)
-         * throws Exception {
-         * 
-         * http
-         * .csrf(csrf -> csrf.disable())
-         * .authorizeHttpRequests(auth ->
-         * auth.anyRequest().permitAll()
-         * );
-         * 
-         * return http.build();
-         * }
-         */
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -108,56 +87,56 @@ public class SecurityConfig {
 
                                                 // READ
                                                 .requestMatchers(HttpMethod.GET, "/api/usuarios")
-                                                .hasAuthority("USUARIO_READ")
+                                                .access(hasPermission("USUARIO_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/usuarios/*")
-                                                .hasAuthority("USUARIO_READ")
+                                                .access(hasPermission("USUARIO_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/usuarios/*/roles")
-                                                .hasAuthority("USUARIO_READ")
+                                                .access(hasPermission("USUARIO_READ"))
 
                                                 // WRITE (CREATE + UPDATE + STATUS + ROLES ASSIGNMENT)
                                                 .requestMatchers(HttpMethod.POST, "/api/usuarios")
-                                                .hasAuthority("USUARIO_WRITE")
+                                                .access(hasPermission("USUARIO_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PUT, "/api/usuarios/*")
-                                                .hasAuthority("USUARIO_WRITE")
+                                                .access(hasPermission("USUARIO_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PATCH, "/api/usuarios/*/estado")
-                                                .hasAuthority("USUARIO_WRITE")
+                                                .access(hasPermission("USUARIO_WRITE"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/usuarios/*/roles")
-                                                .hasAuthority("USUARIO_WRITE")
+                                                .access(hasPermission("USUARIO_WRITE"))
 
                                                 // DELETE USER ONLY
                                                 .requestMatchers(HttpMethod.DELETE, "/api/usuarios/*")
-                                                .hasAuthority("USUARIO_DELETE")
+                                                .access(hasPermission("USUARIO_DELETE"))
 
                                                 // DELETE ROLE ASSIGNMENT
                                                 .requestMatchers(HttpMethod.DELETE, "/api/usuarios/*/roles/*")
-                                                .hasAuthority("USUARIO_WRITE")
+                                                .access(hasPermission("USUARIO_WRITE"))
 
                                                 // =========================
                                                 // ROLE MANAGEMENT
                                                 // =========================
 
                                                 .requestMatchers(HttpMethod.GET, "/api/roles")
-                                                .hasAuthority("ROL_READ")
+                                                .access(hasPermission("ROL_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/roles/*")
-                                                .hasAuthority("ROL_READ")
+                                                .access(hasPermission("ROL_READ"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/roles")
-                                                .hasAuthority("ROL_WRITE")
+                                                .access(hasPermission("ROL_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PUT, "/api/roles/*")
-                                                .hasAuthority("ROL_WRITE")
+                                                .access(hasPermission("ROL_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PATCH, "/api/roles/*/estado")
-                                                .hasAuthority("ROL_WRITE")
+                                                .access(hasPermission("ROL_WRITE"))
 
                                                 .requestMatchers(HttpMethod.DELETE, "/api/roles/*")
-                                                .hasAuthority("ROL_DELETE")
+                                                .access(hasPermission("ROL_DELETE"))
 
                                                 // =========================
                                                 // PERMISSION MANAGEMENT
@@ -165,32 +144,22 @@ public class SecurityConfig {
 
                                                 // READ
                                                 .requestMatchers(HttpMethod.GET, "/api/permisos")
-                                                .hasAuthority("PERMISO_READ")
+                                                .access(hasPermission("PERMISO_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/permisos/*")
-                                                .hasAuthority("PERMISO_READ")
+                                                .access(hasPermission("PERMISO_READ"))
 
                                                 // CREATE
                                                 .requestMatchers(HttpMethod.POST, "/api/permisos")
-                                                .hasAuthority("PERMISO_WRITE")
+                                                .access(hasPermission("PERMISO_WRITE"))
 
                                                 // UPDATE
                                                 .requestMatchers(HttpMethod.PUT, "/api/permisos/*")
-                                                .hasAuthority("PERMISO_WRITE")
+                                                .access(hasPermission("PERMISO_WRITE"))
 
                                                 // DELETE
                                                 .requestMatchers(HttpMethod.DELETE, "/api/permisos/*")
-                                                .hasAuthority("PERMISO_DELETE")
-
-                                                // ROLE-PERMISSION ASSIGNMENTS
-                                                .requestMatchers(HttpMethod.GET, "/api/roles/*/permisos")
-                                                .hasAuthority("PERMISO_READ")
-
-                                                .requestMatchers(HttpMethod.POST, "/api/roles/*/permisos")
-                                                .hasAuthority("PERMISO_WRITE")
-
-                                                .requestMatchers(HttpMethod.DELETE, "/api/roles/*/permisos/*")
-                                                .hasAuthority("PERMISO_DELETE")
+                                                .access(hasPermission("PERMISO_DELETE"))
 
                                                 // =========================
                                                 // ROLE-PERMISSION ASSIGNMENT
@@ -198,34 +167,34 @@ public class SecurityConfig {
 
                                                 // GET ROLE PERMISSIONS
                                                 .requestMatchers(HttpMethod.GET, "/api/roles/*/permisos")
-                                                .hasAuthority("ROL_READ")
+                                                .access(hasPermission("ROL_READ"))
 
                                                 // ASSIGN PERMISSION
                                                 .requestMatchers(HttpMethod.POST, "/api/roles/*/permisos")
-                                                .hasAuthority("ROL_WRITE")
+                                                .access(hasPermission("ROL_WRITE"))
 
                                                 // REMOVE PERMISSION
                                                 .requestMatchers(HttpMethod.DELETE, "/api/roles/*/permisos/*")
-                                                .hasAuthority("ROL_WRITE")
+                                                .access(hasPermission("ROL_WRITE"))
 
                                                 // =========================
                                                 // MODULE MANAGEMENT
                                                 // =========================
 
                                                 .requestMatchers(HttpMethod.GET, "/api/modulos/**")
-                                                .hasAuthority("MODULO_READ")
+                                                .access(hasPermission("MODULO_READ"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/modulos/**")
-                                                .hasAuthority("MODULO_WRITE")
+                                                .access(hasPermission("MODULO_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PUT, "/api/modulos/**")
-                                                .hasAuthority("MODULO_WRITE")
+                                                .access(hasPermission("MODULO_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PATCH, "/api/modulos/**")
-                                                .hasAuthority("MODULO_WRITE")
+                                                .access(hasPermission("MODULO_WRITE"))
 
                                                 .requestMatchers(HttpMethod.DELETE, "/api/modulos/**")
-                                                .hasAuthority("MODULO_DELETE")
+                                                .access(hasPermission("MODULO_DELETE"))
 
                                                 // =========================
                                                 // OPTION MANAGEMENT
@@ -233,114 +202,125 @@ public class SecurityConfig {
 
                                                 // READ
                                                 .requestMatchers(HttpMethod.GET, "/api/opciones")
-                                                .hasAuthority("OPCION_READ")
+                                                .access(hasPermission("OPCION_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/opciones/tree")
-                                                .hasAuthority("OPCION_READ")
+                                                .access(hasPermission("OPCION_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/opciones/*")
-                                                .hasAuthority("OPCION_READ")
+                                                .access(hasPermission("OPCION_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/opciones/modulo/*")
-                                                .hasAuthority("OPCION_READ")
+                                                .access(hasPermission("OPCION_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/opciones/*/hijas")
-                                                .hasAuthority("OPCION_READ")
+                                                .access(hasPermission("OPCION_READ"))
 
                                                 // CREATE
                                                 .requestMatchers(HttpMethod.POST, "/api/opciones")
-                                                .hasAuthority("OPCION_WRITE")
+                                                .access(hasPermission("OPCION_WRITE"))
 
                                                 // UPDATE
                                                 .requestMatchers(HttpMethod.PUT, "/api/opciones/*")
-                                                .hasAuthority("OPCION_WRITE")
+                                                .access(hasPermission("OPCION_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PATCH, "/api/opciones/*/estado")
-                                                .hasAuthority("OPCION_WRITE")
+                                                .access(hasPermission("OPCION_WRITE"))
 
                                                 // DELETE
                                                 .requestMatchers(HttpMethod.DELETE, "/api/opciones/*")
-                                                .hasAuthority("OPCION_DELETE")
+                                                .access(hasPermission("OPCION_DELETE"))
+
+                                                // =========================
+                                                // ROLE OPTION ASSIGNMENT
+                                                // =========================
+
+                                                .requestMatchers(HttpMethod.GET, "/api/roles/*/opciones")
+                                                .access(hasPermission("ROL_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/roles/*/opciones")
+                                                .access(hasPermission("ROL_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/roles/*/opciones/*")
+                                                .access(hasPermission("ROL_WRITE"))
 
                                                 // =========================
                                                 // PATIENT MODULE
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/pacientes/**")
-                                                .hasAuthority("PACIENTE_READ")
+                                                .access(hasPermission("PACIENTE_READ"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/pacientes/**")
-                                                .hasAuthority("PACIENTE_WRITE")
+                                                .access(hasPermission("PACIENTE_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PUT, "/api/pacientes/**")
-                                                .hasAuthority("PACIENTE_WRITE")
+                                                .access(hasPermission("PACIENTE_WRITE"))
 
                                                 .requestMatchers(HttpMethod.PUT, "/api/pacientes/reasignar/**")
-                                                .hasAuthority("PACIENTE_REASIGNAR")
+                                                .access(hasPermission("PACIENTE_REASIGNAR"))
 
                                                 // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET,
-                                                                "/api/api/historial-medico/**")
-                                                .hasAuthority("PACIENTE_READ")
+                                                .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
+                                                .access(hasPermission("PACIENTE_READ"))
 
-                                                .requestMatchers(HttpMethod.POST,
-                                                                "/api/api/historial-medico/**")
-                                                .hasAuthority("PACIENTE_WRITE")
+                                                .requestMatchers(HttpMethod.POST, "/api/api/historial-medico/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
 
                                                 // =========================
                                                 // CLINICAL SESSIONS
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/sesiones/**")
-                                                .hasAuthority("SESION_READ")
+                                                .access(hasPermission("SESION_READ"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/sesiones/**")
-                                                .hasAuthority("SESION_WRITE")
+                                                .access(hasPermission("SESION_WRITE"))
 
                                                 // =========================
                                                 // APPOINTMENTS
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/citas/**")
-                                                .hasAuthority("CITA_READ")
+                                                .access(hasPermission("CITA_READ"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/citas/**")
-                                                .hasAuthority("CITA_WRITE")
+                                                .access(hasPermission("CITA_WRITE"))
 
                                                 // =========================
                                                 // CDSS DIAGNOSTIC ENGINE
                                                 // =========================
                                                 .requestMatchers("/api/diagnostico/ejecutar/**")
-                                                .hasAuthority("DIAGNOSTICO_EXECUTE")
+                                                .access(hasPermission("DIAGNOSTICO_EXECUTE"))
 
                                                 .requestMatchers("/api/diagnostico/validar/**")
-                                                .hasAuthority("DIAGNOSTICO_VALIDAR")
+                                                .access(hasPermission("DIAGNOSTICO_VALIDAR"))
 
                                                 // =========================
                                                 // REPORTS
                                                 // =========================
                                                 .requestMatchers("/api/reportes/**")
-                                                .hasAuthority("REPORTE_READ")
+                                                .access(hasPermission("REPORTE_READ"))
 
                                                 // =========================
                                                 // AUDIT LOG
                                                 // =========================
                                                 .requestMatchers("/api/bitacora/**")
-                                                .hasAuthority("BITACORA_READ")
+                                                .access(hasPermission("BITACORA_READ"))
 
                                                 // =========================
                                                 // CATALOG MANAGEMENT
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/catalogos/**")
-                                                .hasAuthority("CATALOGO_READ")
+                                                .access(hasPermission("CATALOGO_READ"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/catalogos/**")
-                                                .hasAuthority("CATALOGO_WRITE")
+                                                .access(hasPermission("CATALOGO_WRITE"))
 
                                                 // =========================
                                                 // ADMIN OVERRIDE
                                                 // =========================
                                                 .requestMatchers("/api/admin/**")
-                                                .hasAuthority("ADMIN_FULL")
+                                                .access(hasPermission("ADMIN_FULL"))
 
                                                 // =========================
                                                 // FALLBACK
@@ -356,5 +336,19 @@ public class SecurityConfig {
         public AuthenticationManager authenticationManager(
                         AuthenticationConfiguration config) throws Exception {
                 return config.getAuthenticationManager();
+        }
+
+        private AuthorizationManager<RequestAuthorizationContext> hasPermission(String permission) {
+
+                return (authentication, context) -> {
+
+                        boolean granted = authentication.get()
+                                        .getAuthorities()
+                                        .stream()
+                                        .anyMatch(a -> a.getAuthority().equals("ADMIN_FULL")
+                                                        || a.getAuthority().equals(permission));
+
+                        return new AuthorizationDecision(granted);
+                };
         }
 }
