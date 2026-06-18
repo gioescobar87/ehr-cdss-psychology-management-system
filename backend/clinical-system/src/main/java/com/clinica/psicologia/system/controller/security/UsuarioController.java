@@ -35,6 +35,7 @@ public class UsuarioController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public UsuarioResponseDTO create(@Valid @RequestBody UsuarioRequestDTO request) {
         return usuarioService.create(request);
     }
