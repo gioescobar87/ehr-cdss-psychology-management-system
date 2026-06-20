@@ -316,6 +316,15 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/api/catalogos/**")
                                                 .access(hasPermission("CATALOGO_WRITE"))
 
+                                                .requestMatchers(HttpMethod.PUT, "/api/catalogos/**")
+                                                .access(hasPermission("CATALOGO_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/catalogos/**")
+                                                .access(hasPermission("CATALOGO_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/catalogos/**")
+                                                .access(hasPermission("CATALOGO_WRITE"))
+
                                                 // =========================
                                                 // ADMIN OVERRIDE
                                                 // =========================
@@ -325,6 +334,7 @@ public class SecurityConfig {
                                                 // =========================
                                                 // FALLBACK
                                                 // =========================
+                                                .requestMatchers("/error").permitAll()
                                                 .anyRequest().authenticated())
                                 .authenticationProvider(authenticationProvider())
                                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
