@@ -15,7 +15,6 @@ import com.clinica.psicologia.system.security.exception.custom.DuplicateResource
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.catalog.ParentescoService;
 
-import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 
 @Service
