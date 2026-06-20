@@ -22,7 +22,7 @@ import com.clinica.psicologia.system.service.catalog.NivelEscolaridadService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("api/catalogos/nivel-escolaridad")
+@RequestMapping("/api/catalogos/nivel-escolaridad")
 public class NivelEscolaridadController {
 
     private final NivelEscolaridadService service;
