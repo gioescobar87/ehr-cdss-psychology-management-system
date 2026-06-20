@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.service.patient.impl;
+package com.clinica.psicologia.system.serv_implementation.patient;
 
 import java.util.List;
 

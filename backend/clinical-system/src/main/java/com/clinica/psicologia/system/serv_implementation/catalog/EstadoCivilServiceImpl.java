@@ -1,30 +1,28 @@
-package com.clinica.psicologia.system.service.catalog.impl;
+package com.clinica.psicologia.system.serv_implementation.catalog;
 
 import org.springframework.stereotype.Service;
 
-import com.clinica.psicologia.system.dto.request.catalog.NivelRiesgoRequestDTO;
-import com.clinica.psicologia.system.dto.response.catalog.NivelRiesgoResponseDTO;
-import com.clinica.psicologia.system.mapper.catalog.NivelRiesgoMapper;
-import com.clinica.psicologia.system.model.catalog.NivelRiesgo;
+import com.clinica.psicologia.system.dto.request.catalog.EstadoCivilRequestDTO;
+import com.clinica.psicologia.system.dto.response.catalog.EstadoCivilResponseDTO;
+import com.clinica.psicologia.system.mapper.catalog.EstadoCivilMapper;
+import com.clinica.psicologia.system.model.catalog.EstadoCivil;
+import com.clinica.psicologia.system.repository.catalog.EstadoCivilRepository;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
-import com.clinica.psicologia.system.repository.catalog.NivelRiesgoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
-import com.clinica.psicologia.system.service.catalog.NivelRiesgoService;
+import com.clinica.psicologia.system.service.catalog.EstadoCivilService;
 
 @Service
-public class NivelRiesgoServiceImpl
-        extends AbstractCatalogService<NivelRiesgo, NivelRiesgoRequestDTO, NivelRiesgoResponseDTO>
-        implements NivelRiesgoService {
+public class EstadoCivilServiceImpl
+        extends AbstractCatalogService<EstadoCivil, EstadoCivilRequestDTO, EstadoCivilResponseDTO>
+        implements EstadoCivilService {
 
-    private final NivelRiesgoRepository repository;
+    private final EstadoCivilRepository repository;
 
-    private final String duplicateMessage = "Risk level already exists";
-
-    public NivelRiesgoServiceImpl(
-            NivelRiesgoRepository repository,
+    public EstadoCivilServiceImpl(
+            EstadoCivilRepository repository,
             EstadoRepository estadoRepository,
-            NivelRiesgoMapper mapper) {
+            EstadoCivilMapper mapper) {
 
         super(
                 repository,
@@ -35,21 +33,21 @@ public class NivelRiesgoServiceImpl
     }
 
     @Override
-    protected NivelRiesgo createEntity() {
+    protected EstadoCivil createEntity() {
 
-        return new NivelRiesgo();
+        return new EstadoCivil();
     }
 
     @Override
     protected String getNombre(
-            NivelRiesgoRequestDTO request) {
+            EstadoCivilRequestDTO request) {
 
         return request.getNombre();
     }
 
     @Override
     protected Integer extractEstadoId(
-            NivelRiesgoRequestDTO request) {
+            EstadoCivilRequestDTO request) {
 
         return request.getEstadoId();
     }
@@ -61,7 +59,7 @@ public class NivelRiesgoServiceImpl
         if (repository.existsByNombre(nombre)) {
 
             throw new DuplicateResourceException(
-                    duplicateMessage);
+                    "Marital status already exists");
         }
     }
 
@@ -75,7 +73,7 @@ public class NivelRiesgoServiceImpl
                 id)) {
 
             throw new DuplicateResourceException(
-                    duplicateMessage);
+                    "Marital status already exists");
         }
     }
 }

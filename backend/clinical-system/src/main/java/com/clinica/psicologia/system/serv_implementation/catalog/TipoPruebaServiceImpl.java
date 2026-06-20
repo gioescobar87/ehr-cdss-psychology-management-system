@@ -1,27 +1,29 @@
-package com.clinica.psicologia.system.service.catalog.impl;
+package com.clinica.psicologia.system.serv_implementation.catalog;
 
 import org.springframework.stereotype.Service;
 
-import com.clinica.psicologia.system.dto.request.catalog.NivelSeveridadAlergiaRequestDTO;
-import com.clinica.psicologia.system.dto.response.catalog.NivelSeveridadAlergiaResponseDTO;
-import com.clinica.psicologia.system.mapper.catalog.NivelSeveridadAlergiaMapper;
-import com.clinica.psicologia.system.model.catalog.NivelSeveridadAlergia;
+import com.clinica.psicologia.system.dto.request.catalog.TipoPruebaRequestDTO;
+import com.clinica.psicologia.system.dto.response.catalog.TipoPruebaResponseDTO;
+import com.clinica.psicologia.system.mapper.catalog.TipoPruebaMapper;
+import com.clinica.psicologia.system.model.catalog.TipoPrueba;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
-import com.clinica.psicologia.system.repository.catalog.NivelSeveridadAlergiaRepository;
+import com.clinica.psicologia.system.repository.catalog.TipoPruebaRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
-import com.clinica.psicologia.system.service.catalog.NivelSeveridadAlergiaService;
+import com.clinica.psicologia.system.service.catalog.TipoPruebaService;
 
 @Service
-public class NivelSeveridadAlergiaServiceImpl extends AbstractCatalogService<NivelSeveridadAlergia, NivelSeveridadAlergiaRequestDTO, NivelSeveridadAlergiaResponseDTO> implements NivelSeveridadAlergiaService {
-    private final NivelSeveridadAlergiaRepository repository;
+public class TipoPruebaServiceImpl
+        extends AbstractCatalogService<TipoPrueba, TipoPruebaRequestDTO, TipoPruebaResponseDTO>
+        implements TipoPruebaService {
+private final TipoPruebaRepository repository;
 
     private final String duplicateMessage = "Risk level already exists";
 
-    public NivelSeveridadAlergiaServiceImpl(
-            NivelSeveridadAlergiaRepository repository,
+    public TipoPruebaServiceImpl(
+            TipoPruebaRepository repository,
             EstadoRepository estadoRepository,
-            NivelSeveridadAlergiaMapper mapper) {
+            TipoPruebaMapper mapper) {
 
         super(
                 repository,
@@ -32,21 +34,21 @@ public class NivelSeveridadAlergiaServiceImpl extends AbstractCatalogService<Niv
     }
 
     @Override
-    protected NivelSeveridadAlergia createEntity() {
+    protected TipoPrueba createEntity() {
 
-        return new NivelSeveridadAlergia();
+        return new TipoPrueba();
     }
 
     @Override
     protected String getNombre(
-            NivelSeveridadAlergiaRequestDTO request) {
+            TipoPruebaRequestDTO request) {
 
         return request.getNombre();
     }
 
     @Override
     protected Integer extractEstadoId(
-            NivelSeveridadAlergiaRequestDTO request) {
+            TipoPruebaRequestDTO request) {
 
         return request.getEstadoId();
     }

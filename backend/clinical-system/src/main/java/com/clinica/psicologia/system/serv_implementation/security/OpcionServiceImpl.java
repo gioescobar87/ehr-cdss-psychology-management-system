@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.service.security.impl;
+package com.clinica.psicologia.system.serv_implementation.security;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.service.security.impl;
+package com.clinica.psicologia.system.serv_implementation.security;
 
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import java.util.List;

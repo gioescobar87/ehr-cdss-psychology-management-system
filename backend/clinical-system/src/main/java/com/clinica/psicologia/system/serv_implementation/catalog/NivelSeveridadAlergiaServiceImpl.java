@@ -1,29 +1,27 @@
-package com.clinica.psicologia.system.service.catalog.impl;
+package com.clinica.psicologia.system.serv_implementation.catalog;
 
 import org.springframework.stereotype.Service;
 
-import com.clinica.psicologia.system.dto.request.catalog.TipoSesionRequestDTO;
-import com.clinica.psicologia.system.dto.response.catalog.TipoSesionResponseDTO;
-import com.clinica.psicologia.system.mapper.catalog.TipoSesionMapper;
-import com.clinica.psicologia.system.model.catalog.TipoSesion;
+import com.clinica.psicologia.system.dto.request.catalog.NivelSeveridadAlergiaRequestDTO;
+import com.clinica.psicologia.system.dto.response.catalog.NivelSeveridadAlergiaResponseDTO;
+import com.clinica.psicologia.system.mapper.catalog.NivelSeveridadAlergiaMapper;
+import com.clinica.psicologia.system.model.catalog.NivelSeveridadAlergia;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
-import com.clinica.psicologia.system.repository.catalog.TipoSesionRepository;
+import com.clinica.psicologia.system.repository.catalog.NivelSeveridadAlergiaRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
-import com.clinica.psicologia.system.service.catalog.TipoSesionService;
+import com.clinica.psicologia.system.service.catalog.NivelSeveridadAlergiaService;
 
 @Service
-public class TipoSesionServiceImpl extends
-        AbstractCatalogService<TipoSesion, TipoSesionRequestDTO, TipoSesionResponseDTO> implements TipoSesionService {
-            
-    private final TipoSesionRepository repository;
+public class NivelSeveridadAlergiaServiceImpl extends AbstractCatalogService<NivelSeveridadAlergia, NivelSeveridadAlergiaRequestDTO, NivelSeveridadAlergiaResponseDTO> implements NivelSeveridadAlergiaService {
+    private final NivelSeveridadAlergiaRepository repository;
 
     private final String duplicateMessage = "Risk level already exists";
 
-    public TipoSesionServiceImpl(
-            TipoSesionRepository repository,
+    public NivelSeveridadAlergiaServiceImpl(
+            NivelSeveridadAlergiaRepository repository,
             EstadoRepository estadoRepository,
-            TipoSesionMapper mapper) {
+            NivelSeveridadAlergiaMapper mapper) {
 
         super(
                 repository,
@@ -34,21 +32,21 @@ public class TipoSesionServiceImpl extends
     }
 
     @Override
-    protected TipoSesion createEntity() {
+    protected NivelSeveridadAlergia createEntity() {
 
-        return new TipoSesion();
+        return new NivelSeveridadAlergia();
     }
 
     @Override
     protected String getNombre(
-            TipoSesionRequestDTO request) {
+            NivelSeveridadAlergiaRequestDTO request) {
 
         return request.getNombre();
     }
 
     @Override
     protected Integer extractEstadoId(
-            TipoSesionRequestDTO request) {
+            NivelSeveridadAlergiaRequestDTO request) {
 
         return request.getEstadoId();
     }

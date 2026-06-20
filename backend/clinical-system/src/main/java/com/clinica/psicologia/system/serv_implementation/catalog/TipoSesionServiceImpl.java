@@ -1,29 +1,29 @@
-package com.clinica.psicologia.system.service.catalog.impl;
+package com.clinica.psicologia.system.serv_implementation.catalog;
 
 import org.springframework.stereotype.Service;
 
-import com.clinica.psicologia.system.dto.request.catalog.TipoPruebaRequestDTO;
-import com.clinica.psicologia.system.dto.response.catalog.TipoPruebaResponseDTO;
-import com.clinica.psicologia.system.mapper.catalog.TipoPruebaMapper;
-import com.clinica.psicologia.system.model.catalog.TipoPrueba;
+import com.clinica.psicologia.system.dto.request.catalog.TipoSesionRequestDTO;
+import com.clinica.psicologia.system.dto.response.catalog.TipoSesionResponseDTO;
+import com.clinica.psicologia.system.mapper.catalog.TipoSesionMapper;
+import com.clinica.psicologia.system.model.catalog.TipoSesion;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
-import com.clinica.psicologia.system.repository.catalog.TipoPruebaRepository;
+import com.clinica.psicologia.system.repository.catalog.TipoSesionRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
-import com.clinica.psicologia.system.service.catalog.TipoPruebaService;
+import com.clinica.psicologia.system.service.catalog.TipoSesionService;
 
 @Service
-public class TipoPruebaServiceImpl
-        extends AbstractCatalogService<TipoPrueba, TipoPruebaRequestDTO, TipoPruebaResponseDTO>
-        implements TipoPruebaService {
-private final TipoPruebaRepository repository;
+public class TipoSesionServiceImpl extends
+        AbstractCatalogService<TipoSesion, TipoSesionRequestDTO, TipoSesionResponseDTO> implements TipoSesionService {
+
+    private final TipoSesionRepository repository;
 
     private final String duplicateMessage = "Risk level already exists";
 
-    public TipoPruebaServiceImpl(
-            TipoPruebaRepository repository,
+    public TipoSesionServiceImpl(
+            TipoSesionRepository repository,
             EstadoRepository estadoRepository,
-            TipoPruebaMapper mapper) {
+            TipoSesionMapper mapper) {
 
         super(
                 repository,
@@ -34,21 +34,21 @@ private final TipoPruebaRepository repository;
     }
 
     @Override
-    protected TipoPrueba createEntity() {
+    protected TipoSesion createEntity() {
 
-        return new TipoPrueba();
+        return new TipoSesion();
     }
 
     @Override
     protected String getNombre(
-            TipoPruebaRequestDTO request) {
+            TipoSesionRequestDTO request) {
 
         return request.getNombre();
     }
 
     @Override
     protected Integer extractEstadoId(
-            TipoPruebaRequestDTO request) {
+            TipoSesionRequestDTO request) {
 
         return request.getEstadoId();
     }

@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.service.catalog.impl;
+package com.clinica.psicologia.system.serv_implementation.catalog;
 
 import org.springframework.stereotype.Service;
 

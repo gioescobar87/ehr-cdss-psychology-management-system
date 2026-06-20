@@ -1,30 +1,30 @@
-package com.clinica.psicologia.system.service.catalog.impl;
+package com.clinica.psicologia.system.serv_implementation.catalog;
 
 import org.springframework.stereotype.Service;
 
-import com.clinica.psicologia.system.dto.request.catalog.NivelConsistenciaRequestDTO;
-import com.clinica.psicologia.system.dto.response.catalog.NivelConsistenciaResponseDTO;
-import com.clinica.psicologia.system.mapper.catalog.NivelConsistenciaMapper;
-import com.clinica.psicologia.system.model.catalog.NivelConsistencia;
+import com.clinica.psicologia.system.dto.request.catalog.NivelRiesgoRequestDTO;
+import com.clinica.psicologia.system.dto.response.catalog.NivelRiesgoResponseDTO;
+import com.clinica.psicologia.system.mapper.catalog.NivelRiesgoMapper;
+import com.clinica.psicologia.system.model.catalog.NivelRiesgo;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
-import com.clinica.psicologia.system.repository.catalog.NivelConsistenciaRepository;
+import com.clinica.psicologia.system.repository.catalog.NivelRiesgoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
-import com.clinica.psicologia.system.service.catalog.NivelConsistenciaService;
+import com.clinica.psicologia.system.service.catalog.NivelRiesgoService;
 
 @Service
-public class NivelConsistenciaServiceImpl
-        extends AbstractCatalogService<NivelConsistencia, NivelConsistenciaRequestDTO, NivelConsistenciaResponseDTO>
-        implements NivelConsistenciaService {
+public class NivelRiesgoServiceImpl
+        extends AbstractCatalogService<NivelRiesgo, NivelRiesgoRequestDTO, NivelRiesgoResponseDTO>
+        implements NivelRiesgoService {
 
-    private final NivelConsistenciaRepository repository;
+    private final NivelRiesgoRepository repository;
 
-    private final String duplicateMessage = "Consistency level already exists";
+    private final String duplicateMessage = "Risk level already exists";
 
-    public NivelConsistenciaServiceImpl(
-            NivelConsistenciaRepository repository,
+    public NivelRiesgoServiceImpl(
+            NivelRiesgoRepository repository,
             EstadoRepository estadoRepository,
-            NivelConsistenciaMapper mapper) {
+            NivelRiesgoMapper mapper) {
 
         super(
                 repository,
@@ -35,21 +35,21 @@ public class NivelConsistenciaServiceImpl
     }
 
     @Override
-    protected NivelConsistencia createEntity() {
+    protected NivelRiesgo createEntity() {
 
-        return new NivelConsistencia();
+        return new NivelRiesgo();
     }
 
     @Override
     protected String getNombre(
-            NivelConsistenciaRequestDTO request) {
+            NivelRiesgoRequestDTO request) {
 
         return request.getNombre();
     }
 
     @Override
     protected Integer extractEstadoId(
-            NivelConsistenciaRequestDTO request) {
+            NivelRiesgoRequestDTO request) {
 
         return request.getEstadoId();
     }
