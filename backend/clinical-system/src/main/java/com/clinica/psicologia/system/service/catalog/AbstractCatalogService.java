@@ -11,28 +11,19 @@ import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundE
 
 import jakarta.transaction.Transactional;
 
-public abstract class AbstractCatalogService<
-        ENTITY extends BaseCatalog,
-        REQUEST,
-        RESPONSE>
+public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST, RESPONSE>
         implements CatalogService<REQUEST, RESPONSE> {
 
     protected final CatalogRepository<ENTITY> repository;
 
     protected final EstadoRepository estadoRepository;
 
-    protected final CatalogoMapper<
-            ENTITY,
-            REQUEST,
-            RESPONSE> mapper;
+    protected final CatalogoMapper<ENTITY, REQUEST, RESPONSE> mapper;
 
     protected AbstractCatalogService(
             CatalogRepository<ENTITY> repository,
             EstadoRepository estadoRepository,
-            CatalogoMapper<
-                    ENTITY,
-                    REQUEST,
-                    RESPONSE> mapper) {
+            CatalogoMapper<ENTITY, REQUEST, RESPONSE> mapper) {
 
         this.repository = repository;
         this.estadoRepository = estadoRepository;
@@ -60,6 +51,7 @@ public abstract class AbstractCatalogService<
     @Transactional
     public RESPONSE create(REQUEST request) {
         validateDuplicate(getNombre(request));
+        validateAdditionalFields(request);
 
         Estado estado = estadoRepository.findById(extractEstadoId(request))
                 .orElseThrow(() -> new ResourceNotFoundException("State not found - CAT"));
@@ -80,6 +72,7 @@ public abstract class AbstractCatalogService<
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found - CAT"));
 
         validateDuplicate(getNombre(request), id);
+        validateAdditionalFields(request,id);
 
         Estado estado = estadoRepository.findById(extractEstadoId(request))
                 .orElseThrow(() -> new ResourceNotFoundException("State not found - CAT"));
@@ -120,4 +113,8 @@ public abstract class AbstractCatalogService<
     protected abstract void validateDuplicate(String nombre);
 
     protected abstract void validateDuplicate(String nombre, Integer id);
+
+    protected void validateAdditionalFields(REQUEST request){}
+
+    protected void validateAdditionalFields(REQUEST request, Integer id){}
 }
