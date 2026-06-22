@@ -15,11 +15,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/roles")
-public class RoleController {
+public class RolController {
 
     private final RoleService roleService;
 
-    public RoleController(RoleService roleService) {
+    public RolController(RoleService roleService) {
         this.roleService = roleService;
     }
 

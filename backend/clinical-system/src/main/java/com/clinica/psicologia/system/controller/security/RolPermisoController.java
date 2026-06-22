@@ -13,11 +13,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/roles")
-public class RolePermisoController {
+public class RolPermisoController {
 
     private final RolePermisoService rolePermisoService;
 
-    public RolePermisoController(RolePermisoService rolePermisoService) {
+    public RolPermisoController(RolePermisoService rolePermisoService) {
         this.rolePermisoService = rolePermisoService;
     }
 

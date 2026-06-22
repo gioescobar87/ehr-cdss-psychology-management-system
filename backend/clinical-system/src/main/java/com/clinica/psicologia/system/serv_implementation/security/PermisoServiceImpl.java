@@ -117,7 +117,7 @@ public class PermisoServiceImpl implements PermisoService {
         dto.setNombre(permiso.getNombre());
         dto.setDescripcion(permiso.getDescripcion());
         dto.setEstadoId(permiso.getEstado().getId());
-        dto.setEstado(permiso.getEstado().getNombreEstado());
+        dto.setEstado(permiso.getEstado().getNombre());
         return dto;
     }
 }

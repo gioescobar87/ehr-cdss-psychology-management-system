@@ -35,7 +35,7 @@ public class SecurityUserService implements UserDetailsService {
                                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
                 String estado = usuario.getEstado()
-                                .getNombreEstado()
+                                .getNombre()
                                 .trim()
                                 .toUpperCase();
 
