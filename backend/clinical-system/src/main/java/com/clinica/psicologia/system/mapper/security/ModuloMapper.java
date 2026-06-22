@@ -16,7 +16,7 @@ public class ModuloMapper {
         dto.setNombre(modulo.getNombre());
         dto.setDescripcion(modulo.getDescripcion());
         dto.setEstadoId(modulo.getEstado().getId());
-        dto.setEstado(modulo.getEstado().getNombreEstado());
+        dto.setEstado(modulo.getEstado().getNombre());
         return dto;
     }
 

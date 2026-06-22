@@ -24,7 +24,7 @@ public class UsuarioMapper {
 
         if (usuario.getEstado() != null) {
             dto.setEstadoId(usuario.getEstado().getId());
-            dto.setEstado(usuario.getEstado().getNombreEstado());
+            dto.setEstado(usuario.getEstado().getNombre());
         }
 
         dto.setFechaCreacion(usuario.getFechaCreacion());

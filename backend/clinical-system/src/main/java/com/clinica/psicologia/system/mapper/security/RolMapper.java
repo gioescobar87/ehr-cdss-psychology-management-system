@@ -20,7 +20,7 @@ public class RolMapper {
 
         if (rol.getEstado() != null) {
             dto.setEstadoId(rol.getEstado().getId());
-            dto.setEstado(rol.getEstado().getNombreEstado());
+            dto.setEstado(rol.getEstado().getNombre());
         }
 
         return dto;

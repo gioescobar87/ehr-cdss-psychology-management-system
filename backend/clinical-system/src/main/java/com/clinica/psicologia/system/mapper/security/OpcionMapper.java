@@ -43,7 +43,7 @@ public class OpcionMapper {
 
         dto.setEstadoId(opcion.getEstado().getId());
 
-        dto.setEstado(opcion.getEstado().getNombreEstado());
+        dto.setEstado(opcion.getEstado().getNombre());
 
         return dto;
     }

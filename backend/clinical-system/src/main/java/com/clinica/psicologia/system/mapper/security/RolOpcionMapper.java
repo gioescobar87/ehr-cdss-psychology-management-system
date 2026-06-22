@@ -35,7 +35,7 @@ public class RolOpcionMapper {
 
         dto.setEstado(
                 entity.getEstado()
-                        .getNombreEstado());
+                        .getNombre());
 
         return dto;
     }
