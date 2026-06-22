@@ -17,7 +17,7 @@ public class ParentescoMapper {
         dto.setId(entity.getId());
         dto.setNombre(entity.getNombre());
         dto.setEstadoId(entity.getEstado().getId());
-        dto.setEstado(entity.getEstado().getNombreEstado());
+        dto.setEstado(entity.getEstado().getNombre());
 
         return dto;
     }

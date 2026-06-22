@@ -21,7 +21,7 @@ public class TipoRiesgoMapper implements CatalogoMapper<TipoRiesgo, TipoRiesgoRe
         dto.setDescripcion(entity.getDescripcion());
 
         dto.setEstadoId(entity.getEstado().getId());
-        dto.setEstado(entity.getEstado().getNombreEstado());
+        dto.setEstado(entity.getEstado().getNombre());
 
         return dto;
     }

@@ -21,7 +21,7 @@ public class NivelSeveridadAlergiaMapper implements CatalogoMapper<NivelSeverida
         dto.setDescripcion(entity.getDescripcion());
 
         dto.setEstadoId(entity.getEstado().getId());
-        dto.setEstado(entity.getEstado().getNombreEstado());
+        dto.setEstado(entity.getEstado().getNombre());
 
         return dto;
     }
