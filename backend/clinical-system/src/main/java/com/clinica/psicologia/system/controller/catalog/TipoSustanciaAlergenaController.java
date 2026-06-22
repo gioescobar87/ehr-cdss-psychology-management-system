@@ -22,7 +22,7 @@ import com.clinica.psicologia.system.service.catalog.TipoSustanciaAlergenaServic
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/catalogos/sustancia-alergena")
+@RequestMapping("/api/catalogos/tipo-sustancia-alergena")
 public class TipoSustanciaAlergenaController {
     
     private final TipoSustanciaAlergenaService service;
