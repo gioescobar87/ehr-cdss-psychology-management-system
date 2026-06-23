@@ -18,18 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
+import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
+import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
 import com.clinica.psicologia.system.service.patient.PacienteService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/pacientes")
+@RequestMapping("/api/pacientes")
 @RequiredArgsConstructor
 public class PacienteController {
 
     private final PacienteService service;
+    private final ContactoEmergenciaService contactoEmergenciaService;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
@@ -77,5 +80,10 @@ public class PacienteController {
 
             return ResponseEntity.badRequest().body(errors);
         }
+    }
+
+    @GetMapping("/{id}/contactos-emergencia")
+    public ResponseEntity<List<ContactoEmergenciaResponseDTO>> obtenerContactosEmergencia(@PathVariable Integer id){
+        return ResponseEntity.ok(contactoEmergenciaService.obtenerPorPaciente(id));
     }
 }

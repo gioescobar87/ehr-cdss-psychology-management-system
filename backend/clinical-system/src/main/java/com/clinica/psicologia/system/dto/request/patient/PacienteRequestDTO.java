@@ -19,8 +19,8 @@ public record PacienteRequestDTO(
     String sexo,
     
     String ocupacion,
-    Long estadoCivilId,
-    Long nivelEscolaridadId
+    Integer estadoCivilId,
+    Integer nivelEscolaridadId
 ) {
     
 }
