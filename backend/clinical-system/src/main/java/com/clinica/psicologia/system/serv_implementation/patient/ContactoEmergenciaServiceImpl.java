@@ -15,6 +15,7 @@ import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.catalog.ParentescoRepository;
 import com.clinica.psicologia.system.repository.patient.ContactoEmergenciaRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
+import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
 
 import jakarta.transaction.Transactional;
@@ -33,31 +34,22 @@ public class ContactoEmergenciaServiceImpl
     private final ContactoEmergenciaMapper mapper;
 
     @Override
-    public ContactoEmergenciaResponseDTO crear(
+    public ContactoEmergenciaResponseDTO create(
             ContactoEmergenciaRequestDTO dto) {
 
         Paciente paciente = pacienteRepository
                 .findById(dto.getPacienteId())
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Paciente no encontrado: "
-                                        + dto.getPacienteId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado: " + dto.getPacienteId()));
 
         Parentesco parentesco = parentescoRepository
-                .findById(dto.getParentesco())
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Parentesco no encontrado: "
-                                        + dto.getParentesco()));
+                .findById(dto.getParentescoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Parentesco no encontrado: " + dto.getParentescoId()));
 
         Estado estadoActivo = estadoRepository
                 .findById(1)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Estado ACTIVO no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Estado ACTIVO no encontrado"));
 
-        ContactoEmergencia entity =
-                new ContactoEmergencia();
+        ContactoEmergencia entity = new ContactoEmergencia();
 
         entity.setPaciente(paciente);
         entity.setParentesco(parentesco);
@@ -74,7 +66,7 @@ public class ContactoEmergenciaServiceImpl
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
-    public List<ContactoEmergenciaResponseDTO> obtenerTodos() {
+    public List<ContactoEmergenciaResponseDTO> findAll() {
 
         return mapper.toResponseDTOList(
                 repository.findAll());
@@ -82,22 +74,19 @@ public class ContactoEmergenciaServiceImpl
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
-    public ContactoEmergenciaResponseDTO obtenerPorId(
+    public ContactoEmergenciaResponseDTO findById(
             Integer id) {
 
         ContactoEmergencia entity = repository
                 .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Contacto de emergencia no encontrado: "
-                                        + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Contacto de emergencia no encontrado: " + id));
 
         return mapper.toResponseDTO(entity);
     }
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
-    public List<ContactoEmergenciaResponseDTO> obtenerPorPaciente(
+    public List<ContactoEmergenciaResponseDTO> getByPatient(
             Integer pacienteId) {
 
         return mapper.toResponseDTOList(
@@ -105,23 +94,17 @@ public class ContactoEmergenciaServiceImpl
     }
 
     @Override
-    public ContactoEmergenciaResponseDTO actualizar(
+    public ContactoEmergenciaResponseDTO update(
             Integer id,
             ContactoEmergenciaRequestDTO dto) {
 
         ContactoEmergencia entity = repository
                 .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Contacto de emergencia no encontrado: "
-                                        + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Contacto de emergencia no encontrado: " + id));
 
         Parentesco parentesco = parentescoRepository
-                .findById(dto.getParentesco())
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Parentesco no encontrado: "
-                                        + dto.getParentesco()));
+                .findById(dto.getParentescoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Parentesco no encontrado: " + dto.getParentescoId()));
 
         entity.setNombre(dto.getNombre());
         entity.setParentesco(parentesco);
@@ -135,23 +118,25 @@ public class ContactoEmergenciaServiceImpl
     }
 
     @Override
-    public void desactivar(Integer id) {
+    @Transactional
+    public void changeStatus(Integer id, Integer estadoId) {
+        ContactoEmergencia entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Relationship not found"));
 
-        ContactoEmergencia entity = repository
-                .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Contacto de emergencia no encontrado: "
-                                        + id));
+        Estado estado = estadoRepository.findById(estadoId)
+                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
 
-        Estado estadoInactivo = estadoRepository
-                .findById(2)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Estado INACTIVO no encontrado"));
-
-        entity.setEstado(estadoInactivo);
+        entity.setEstado(estado);
 
         repository.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Integer id) {
+        ContactoEmergencia entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Relationship not found"));
+
+        repository.delete(entity);
     }
 }

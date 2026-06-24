@@ -1,7 +1,7 @@
 package com.clinica.psicologia.system.dto.request.patient;
 
 import jakarta.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,18 +9,21 @@ import lombok.Setter;
 @Setter
 public class ContactoEmergenciaRequestDTO {
     
-    Integer pacienteId;
+    private Integer pacienteId;
 
-    @NotBlank(message = "El nombre es obligatorio")
+    private @NotBlank(message = "El nombre es obligatorio")
     String nombre;
 
-    Integer parentesco;
+    private Integer parentescoId;
 
     @NotBlank(message = "El teléfono es obligatorio")
-    String telefono;
+    private String telefono;
 
     @NotBlank(message = "La dirección es obligatoria")
-    String direccion;
+    private String direccion;
 
-    String observaciones;
+    private String observaciones;
+
+    @NotNull(message = "El estado es obligatorio")
+    private Integer estadoId;
 }

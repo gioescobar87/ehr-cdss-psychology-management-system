@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.clinica.psicologia.system.dto.request.patient.ContactoEmergenciaRequestDTO;
 import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
 import com.clinica.psicologia.system.model.patient.ContactoEmergencia;
 
@@ -32,5 +33,12 @@ public class ContactoEmergenciaMapper {
         return contactoEmergencias.stream()
                 .map(this::toResponseDTO)
                 .toList();
+    }
+
+    public void updateEntity(ContactoEmergencia entity, ContactoEmergenciaRequestDTO request){
+        entity.setNombre(request.getNombre());
+        entity.setTelefono(entity.getTelefono());
+        entity.setDireccion(entity.getDireccion());
+        entity.setObservaciones(entity.getObservaciones());
     }
 }

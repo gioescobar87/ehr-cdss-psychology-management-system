@@ -7,15 +7,17 @@ import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResp
 
 public interface ContactoEmergenciaService {
 
-    ContactoEmergenciaResponseDTO crear(ContactoEmergenciaRequestDTO dto);
+    ContactoEmergenciaResponseDTO create(ContactoEmergenciaRequestDTO request);
 
-    List<ContactoEmergenciaResponseDTO> obtenerTodos();
+    List<ContactoEmergenciaResponseDTO> findAll();
 
-    ContactoEmergenciaResponseDTO obtenerPorId(Integer id);
+    ContactoEmergenciaResponseDTO findById(Integer id);
 
-    List<ContactoEmergenciaResponseDTO> obtenerPorPaciente(Integer pacienteId);
+    List<ContactoEmergenciaResponseDTO> getByPatient(Integer pacienteId);
 
-    ContactoEmergenciaResponseDTO actualizar(Integer id, ContactoEmergenciaRequestDTO dto);
+    ContactoEmergenciaResponseDTO update(Integer id, ContactoEmergenciaRequestDTO request);
 
-    void desactivar(Integer id);
+    void changeStatus(Integer id, Integer estadoId);
+
+    void delete(Integer id);
 }
