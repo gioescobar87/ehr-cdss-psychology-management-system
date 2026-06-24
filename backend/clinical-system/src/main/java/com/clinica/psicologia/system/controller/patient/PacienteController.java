@@ -27,7 +27,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/pacientes")
+@RequestMapping("/api/paciente")
 @RequiredArgsConstructor
 public class PacienteController {
 
@@ -82,8 +82,8 @@ public class PacienteController {
         }
     }
 
-    @GetMapping("/{id}/contactos-emergencia")
+    @GetMapping("/{id}/contacto-emergencia")
     public ResponseEntity<List<ContactoEmergenciaResponseDTO>> obtenerContactosEmergencia(@PathVariable Integer id){
-        return ResponseEntity.ok(contactoEmergenciaService.obtenerPorPaciente(id));
+        return ResponseEntity.ok(contactoEmergenciaService.getByPatient(id));
     }
 }
