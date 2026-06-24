@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
+import com.clinica.psicologia.system.dto.response.patient.PacienteAlergiaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
+import com.clinica.psicologia.system.service.patient.PacienteAlergiaService;
 import com.clinica.psicologia.system.service.patient.PacienteService;
 
 import jakarta.validation.Valid;
@@ -33,14 +35,15 @@ public class PacienteController {
 
     private final PacienteService service;
     private final ContactoEmergenciaService contactoEmergenciaService;
+    private final PacienteAlergiaService pacienteAlergiaService;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
             @Valid @RequestBody PacienteRequestDTO dto) {
 
         return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(service.crearPaciente(dto));
+                .status(HttpStatus.CREATED)
+                .body(service.crearPaciente(dto));
     }
 
     @GetMapping
@@ -73,17 +76,21 @@ public class PacienteController {
 
             ex.getBindingResult()
                     .getFieldErrors()
-                    .forEach(error ->
-                            errors.put(
-                                    error.getField(),
-                                    error.getDefaultMessage()));
+                    .forEach(error -> errors.put(
+                            error.getField(),
+                            error.getDefaultMessage()));
 
             return ResponseEntity.badRequest().body(errors);
         }
     }
 
     @GetMapping("/{id}/contacto-emergencia")
-    public ResponseEntity<List<ContactoEmergenciaResponseDTO>> obtenerContactosEmergencia(@PathVariable Integer id){
+    public ResponseEntity<List<ContactoEmergenciaResponseDTO>> obtenerContactosEmergencia(@PathVariable Integer id) {
         return ResponseEntity.ok(contactoEmergenciaService.getByPatient(id));
+    }
+
+    @GetMapping("/{id}/alergias")
+    public ResponseEntity<List<PacienteAlergiaResponseDTO>> obtenerAlergias(@PathVariable Integer id) {
+        return ResponseEntity.ok(pacienteAlergiaService.getByPatient(id));
     }
 }
