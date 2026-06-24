@@ -13,7 +13,7 @@ import com.clinica.psicologia.system.service.catalog.SustanciaAlergenaService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/catalogos/sustancias-alergenas")
+@RequestMapping("/api/catalogos/sustancia-alergena")
 public class SustanciaAlergenaController {
 
     private final SustanciaAlergenaService service;
