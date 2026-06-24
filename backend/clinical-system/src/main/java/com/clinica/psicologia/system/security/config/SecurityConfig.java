@@ -247,17 +247,36 @@ public class SecurityConfig {
                                                 // =========================
                                                 // PATIENT MODULE
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET, "/api/pacientes/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/**")
                                                 .access(hasPermission("PACIENTE_READ"))
 
-                                                .requestMatchers(HttpMethod.POST, "/api/pacientes/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/paciente/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
-                                                .requestMatchers(HttpMethod.PUT, "/api/pacientes/**")
+                                                .requestMatchers(HttpMethod.PUT, "/api/paciente/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
-                                                .requestMatchers(HttpMethod.PUT, "/api/pacientes/reasignar/**")
+                                                .requestMatchers(HttpMethod.PUT, "/api/paciente/reasignar/**")
                                                 .access(hasPermission("PACIENTE_REASIGNAR"))
+
+                                                // =========================
+                                                // EMERGENCY CONTACTS
+                                                // =========================     "/api/contacto-emergencia"
+
+                                                .requestMatchers(HttpMethod.GET, "/api/contacto-emergencia/**")
+                                                .access(hasPermission("PACIENTE_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/contacto-emergencia/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/contacto-emergencia/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/contacto-emergencia/*/estado")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/contacto-emergencia/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
 
                                                 // =========================
                                                 // MEDICAL HISTORY
