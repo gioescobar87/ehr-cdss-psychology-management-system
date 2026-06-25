@@ -256,8 +256,14 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.PUT, "/api/paciente/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
-                                                .requestMatchers(HttpMethod.PUT, "/api/paciente/reasignar/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/paciente/*/asignar")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/paciente/*/reasignar")
                                                 .access(hasPermission("PACIENTE_REASIGNAR"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/historial-asignaciones")
+                                                .access(hasPermission("PACIENTE_WRITE"))
 
                                                 // =========================
                                                 // EMERGENCY CONTACTS
