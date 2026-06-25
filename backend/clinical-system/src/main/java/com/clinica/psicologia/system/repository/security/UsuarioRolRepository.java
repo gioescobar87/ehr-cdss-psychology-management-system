@@ -20,4 +20,6 @@ public interface UsuarioRolRepository extends JpaRepository<UsuarioRol, Integer>
     void deleteByUsuarioAndRol(Usuario usuario, Rol rol);
 
     boolean existsByRol(Rol rol);
+
+    boolean existsByUsuarioAndRolNombre(Usuario usuario, String nombre);
 }
