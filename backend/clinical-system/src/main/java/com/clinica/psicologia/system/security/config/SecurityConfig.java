@@ -302,6 +302,29 @@ public class SecurityConfig {
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
                                                 // =========================
+                                                // PACIENTE MEDICAMENTOS
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET,
+                                                                "/api/paciente-medicamentos/**")
+                                                .access(hasPermission("PACIENTE_READ"))
+
+                                                .requestMatchers(HttpMethod.POST,
+                                                                "/api/paciente-medicamentos/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT,
+                                                                "/api/paciente-medicamentos/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH,
+                                                                "/api/paciente-medicamentos/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE,
+                                                                "/api/paciente-medicamentos/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
