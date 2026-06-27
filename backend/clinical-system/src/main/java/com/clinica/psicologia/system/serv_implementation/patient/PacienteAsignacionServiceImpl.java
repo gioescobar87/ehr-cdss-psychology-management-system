@@ -16,6 +16,7 @@ import com.clinica.psicologia.system.repository.patient.PacienteAsignacionReposi
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRolRepository;
+import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.patient.PacienteAsignacionService;
@@ -41,7 +42,7 @@ public class PacienteAsignacionServiceImpl
     // ASIGNAR PACIENTE
     // =====================================================
     @Override
-    public void asignarPaciente(
+    public PacienteAsignacionResponseDTO asignarPaciente(
             Integer pacienteId,
             AsignarPacienteRequestDTO request) {
 
@@ -55,7 +56,7 @@ public class PacienteAsignacionServiceImpl
 
         repository.findFirstByPacienteIdAndFechaFinIsNull(pacienteId)
                 .ifPresent(a -> {
-                    throw new DuplicateResourceException("El paciente ya posee una asignación activa");
+                    throw new BusinessRuleException("El paciente ya posee una asignación activa");
                 });
 
         PacienteAsignacion asignacion = new PacienteAsignacion();
@@ -65,17 +66,19 @@ public class PacienteAsignacionServiceImpl
         asignacion.setFechaAsignacion(LocalDateTime.now());
         asignacion.setMotivoAsignacion(request.getMotivoAsignacion());
 
-        repository.save(asignacion);
+        asignacion = repository.save(asignacion);
+
+        return mapper.toResponse(asignacion);
     }
 
     // =====================================================
     // REASIGNAR PACIENTE
     // =====================================================
     @Override
-    public void reasignarPaciente(Integer pacienteId, ReasignarPacienteRequestDTO request) {
+    public PacienteAsignacionResponseDTO reasignarPaciente(Integer pacienteId, ReasignarPacienteRequestDTO request) {
 
         PacienteAsignacion actual = repository.findFirstByPacienteIdAndFechaFinIsNull(pacienteId)
-                .orElseThrow(() -> new ResourceNotFoundException("El paciente no posee asignación activa"));
+                .orElseThrow(() -> new BusinessRuleException("El paciente no posee asignación activa"));
 
         Usuario nuevoPsicologo = usuarioRepository.findById(request.getNuevoPsicologoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Psicólogo no encontrado"));
@@ -83,7 +86,7 @@ public class PacienteAsignacionServiceImpl
         validarPsicologo(nuevoPsicologo);
 
         if (actual.getPsicologo().getId().equals(request.getNuevoPsicologoId())) {
-            throw new DuplicateResourceException("El paciente ya está asignado a este psicólogo");
+            throw new BusinessRuleException("El paciente ya está asignado a este psicólogo");
         }
 
         Usuario usuarioCambio = usuarioRepository.findById(
@@ -97,7 +100,6 @@ public class PacienteAsignacionServiceImpl
 
         actual.setFechaFin(LocalDateTime.now());
         actual.setJustificacionReasignacion(request.getJustificacionReasignacion());
-
         actual.setUsuarioCambio(usuarioCambio);
 
         repository.save(actual);
@@ -117,7 +119,9 @@ public class PacienteAsignacionServiceImpl
 
         nueva.setMotivoAsignacion("Reasignación de paciente");
 
-        repository.save(nueva);
+        nueva = repository.save(nueva);
+
+        return mapper.toResponse(nueva);
     }
 
     // =====================================================
@@ -144,5 +148,14 @@ public class PacienteAsignacionServiceImpl
         if (!esPsicologo) {
             throw new DuplicateResourceException("El usuario seleccionado no posee el rol PSICOLOGO");
         }
+    }
+
+    @Transactional
+    public void deleteByPaciente(Integer pacienteId) {
+
+        Paciente paciente = pacienteRepository.findById(pacienteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
+
+        repository.deleteByPaciente(paciente);
     }
 }

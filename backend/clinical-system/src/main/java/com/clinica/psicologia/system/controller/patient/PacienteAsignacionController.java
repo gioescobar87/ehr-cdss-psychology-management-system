@@ -3,6 +3,8 @@ package com.clinica.psicologia.system.controller.patient;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/pacientes")
+@RequestMapping("/api/paciente")
 @RequiredArgsConstructor
 public class PacienteAsignacionController {
 
@@ -28,17 +30,25 @@ public class PacienteAsignacionController {
 
     @PostMapping("/{id}/asignar")
     @ResponseStatus(HttpStatus.CREATED)
-    public void asignarPaciente(@PathVariable Integer id, @Valid @RequestBody AsignarPacienteRequestDTO request) {
-        service.asignarPaciente(id, request);
+    public PacienteAsignacionResponseDTO asignarPaciente(@PathVariable Integer id,
+            @Valid @RequestBody AsignarPacienteRequestDTO request) {
+        return service.asignarPaciente(id, request);
     }
 
     @PostMapping("/{id}/reasignar")
-    public void reasignarPaciente(@PathVariable Integer id, @Valid @RequestBody ReasignarPacienteRequestDTO request) {
-        service.reasignarPaciente(id, request);
+    public PacienteAsignacionResponseDTO reasignarPaciente(@PathVariable Integer id,
+            @Valid @RequestBody ReasignarPacienteRequestDTO request) {
+        return service.reasignarPaciente(id, request);
     }
 
-    @GetMapping("/{id}/historial-asignaciones")
+    @GetMapping("/{id}/asignaciones")
     public List<PacienteAsignacionResponseDTO> historialAsignaciones(@PathVariable Integer id) {
         return service.historialAsignaciones(id);
+    }
+
+    @DeleteMapping("/{id}/asignaciones")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteByPaciente(@PathVariable Integer id) {
+        service.deleteByPaciente(id);
     }
 }

@@ -8,9 +8,11 @@ import com.clinica.psicologia.system.dto.response.patient.PacienteAsignacionResp
 
 public interface PacienteAsignacionService {
 
-    void asignarPaciente(Integer pacienteId,AsignarPacienteRequestDTO request);
+    PacienteAsignacionResponseDTO asignarPaciente(Integer pacienteId,AsignarPacienteRequestDTO request);
 
-    void reasignarPaciente(Integer pacienteId,ReasignarPacienteRequestDTO request);
+    PacienteAsignacionResponseDTO reasignarPaciente(Integer pacienteId,ReasignarPacienteRequestDTO request);
 
     List<PacienteAsignacionResponseDTO> historialAsignaciones(Integer pacienteId);
+
+    void deleteByPaciente(Integer pacienteId);
 }
