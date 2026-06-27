@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteAlergiaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteMedicamentoResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
+import com.clinica.psicologia.system.service.clinical.CitaService;
 import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
 import com.clinica.psicologia.system.service.patient.PacienteAlergiaService;
 import com.clinica.psicologia.system.service.patient.PacienteMedicamentoService;
@@ -39,6 +41,7 @@ public class PacienteController {
     private final ContactoEmergenciaService contactoEmergenciaService;
     private final PacienteAlergiaService pacienteAlergiaService;
     private final PacienteMedicamentoService pacienteMedicamentoService;
+    private final CitaService citaService;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
@@ -100,5 +103,10 @@ public class PacienteController {
     @GetMapping("/{id}/medicamento")
     public ResponseEntity<List<PacienteMedicamentoResponseDTO>> obtenerMedicamento(@PathVariable Integer id) {
         return ResponseEntity.ok(pacienteMedicamentoService.getByPatient(id));
+    }
+
+    @GetMapping("/{id}/cita")
+    public ResponseEntity<List<CitaResponseDTO>> getByPatient(@PathVariable Integer pacienteId) {
+        return ResponseEntity.ok(citaService.getByPatient(pacienteId));
     }
 }

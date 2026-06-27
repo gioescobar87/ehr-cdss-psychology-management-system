@@ -3,13 +3,16 @@ package com.clinica.psicologia.system.controller.security;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.clinica.psicologia.system.dto.request.security.UsuarioRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.UsuarioRolRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.security.UsuarioResponseDTO;
 import com.clinica.psicologia.system.dto.response.security.UsuarioRolResponseDTO;
+import com.clinica.psicologia.system.service.clinical.CitaService;
 import com.clinica.psicologia.system.service.security.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -19,9 +22,11 @@ import jakarta.validation.Valid;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final CitaService citaService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, CitaService citaService) {
         this.usuarioService = usuarioService;
+        this.citaService = citaService;
     }
 
     @GetMapping
@@ -86,5 +91,10 @@ public class UsuarioController {
             @PathVariable Integer rolId) {
 
         usuarioService.removeRole(id, rolId);
+    }
+
+    @GetMapping("/{id}/cita")
+    public ResponseEntity<List<CitaResponseDTO>> getByPatient(@PathVariable Integer pacienteId) {
+        return ResponseEntity.ok(citaService.getByPatient(pacienteId));
     }
 }
