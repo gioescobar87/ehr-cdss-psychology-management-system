@@ -253,18 +253,18 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/api/paciente/*/reasignar")
                                                 .access(hasPermission("PACIENTE_REASIGNAR"))
 
-                                                .requestMatchers(HttpMethod.GET,"/api/paciente/*/asignaciones")
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/asignaciones")
                                                 .access(hasPermission("PACIENTE_READ"))
 
-                                                .requestMatchers(HttpMethod.DELETE,"/api/paciente/*/asignaciones")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/paciente/*/asignaciones")
                                                 .access(hasPermission("PACIENTE_DELETE"))
 
-                                                .requestMatchers(HttpMethod.GET,"/api/paciente/*/alergia")
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/alergia")
                                                 .access(hasPermission("PACIENTE_READ"))
 
-                                                .requestMatchers(HttpMethod.GET,"/api/paciente/*/medicamento")
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/medicamento")
                                                 .access(hasPermission("PACIENTE_READ"))
-                                                
+
                                                 .requestMatchers(HttpMethod.GET, "/api/paciente/**")
                                                 .access(hasPermission("PACIENTE_READ"))
 
@@ -314,24 +314,19 @@ public class SecurityConfig {
                                                 // =========================
                                                 // PACIENTE MEDICAMENTOS
                                                 // =========================
-                                                .requestMatchers(HttpMethod.GET,
-                                                                "/api/paciente-medicamentos/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente-medicamentos/**")
                                                 .access(hasPermission("PACIENTE_READ"))
 
-                                                .requestMatchers(HttpMethod.POST,
-                                                                "/api/paciente-medicamentos/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/paciente-medicamentos/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
-                                                .requestMatchers(HttpMethod.PUT,
-                                                                "/api/paciente-medicamentos/**")
+                                                .requestMatchers(HttpMethod.PUT, "/api/paciente-medicamentos/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
-                                                .requestMatchers(HttpMethod.PATCH,
-                                                                "/api/paciente-medicamentos/**")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/paciente-medicamentos/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
-                                                .requestMatchers(HttpMethod.DELETE,
-                                                                "/api/paciente-medicamentos/**")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/paciente-medicamentos/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
                                                 // =========================
@@ -355,11 +350,21 @@ public class SecurityConfig {
                                                 // =========================
                                                 // APPOINTMENTS
                                                 // =========================
+
                                                 .requestMatchers(HttpMethod.GET, "/api/citas/**")
                                                 .access(hasPermission("CITA_READ"))
 
                                                 .requestMatchers(HttpMethod.POST, "/api/citas/**")
                                                 .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/citas/**")
+                                                .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/citas/**")
+                                                .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/citas/**")
+                                                .access(hasPermission("CITA_DELETE"))
 
                                                 // =========================
                                                 // CDSS DIAGNOSTIC ENGINE
