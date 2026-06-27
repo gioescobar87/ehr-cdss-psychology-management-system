@@ -108,12 +108,12 @@ public class GlobalExceptionHandler {
 
                 ErrorResponse response = new ErrorResponse(
                                 LocalDateTime.now(),
-                                HttpStatus.BAD_REQUEST.value(),
+                                HttpStatus.CONFLICT.value(),
                                 "Business Rule Violation",
                                 ex.getMessage());
 
                 return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
+                                .status(HttpStatus.CONFLICT)
                                 .body(response);
         }
 }
