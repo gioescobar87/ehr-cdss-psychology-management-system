@@ -13,7 +13,7 @@ import com.clinica.psicologia.system.service.patient.PacienteAlergiaService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/paciente-alergias")
+@RequestMapping("/api/paciente-alergia")
 public class PacienteAlergiaController {
 
     private final PacienteAlergiaService service;
