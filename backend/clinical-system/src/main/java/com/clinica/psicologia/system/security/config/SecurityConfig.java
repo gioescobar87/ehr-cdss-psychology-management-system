@@ -351,6 +351,13 @@ public class SecurityConfig {
                                                 // APPOINTMENTS
                                                 // =========================
 
+                                                
+                                                .requestMatchers(HttpMethod.POST, "/api/citas/*/cancelar")
+                                                .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/citas/*/cancelacion")
+                                                .access(hasPermission("CITA_READ"))
+                                                
                                                 .requestMatchers(HttpMethod.GET, "/api/citas/**")
                                                 .access(hasPermission("CITA_READ"))
 

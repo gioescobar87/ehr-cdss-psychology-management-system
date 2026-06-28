@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import com.clinica.psicologia.system.dto.request.clinical.CancelarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.CitaRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.service.clinical.CitaService;
 
@@ -66,4 +68,13 @@ public class CitaController {
         return service.getByUser(usuarioId);
     }
 
+    @PostMapping("/{id}/cancelar")
+    public CitaResponseDTO cancelar(@PathVariable Integer id, @Valid @RequestBody CancelarCitaRequestDTO request) {
+        return service.cancelar(id, request);
+    }
+
+    @GetMapping("/{id}/cancelacion")
+    public CancelacionResponseDTO getCancelacion(@PathVariable Integer id) {
+        return service.getCancelacion(id);
+    }
 }
