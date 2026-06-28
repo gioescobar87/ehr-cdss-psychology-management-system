@@ -3,7 +3,9 @@ package com.clinica.psicologia.system.service.clinical;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.clinica.psicologia.system.dto.request.clinical.CancelarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.CitaRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 
 public interface CitaService {
@@ -25,10 +27,11 @@ public interface CitaService {
     List<CitaResponseDTO> getAgenda(
             LocalDate fecha);
 
-    List<CitaResponseDTO> getByPatient(
-            Integer pacienteId);
+    List<CitaResponseDTO> getByPatient(Integer pacienteId);
 
-    List<CitaResponseDTO> getByUser(
-            Integer usuarioId);
+    List<CitaResponseDTO> getByUser(Integer usuarioId);
 
+    CitaResponseDTO cancelar(Integer citaId, CancelarCitaRequestDTO request);
+
+    CancelacionResponseDTO getCancelacion(Integer citaId);
 }
