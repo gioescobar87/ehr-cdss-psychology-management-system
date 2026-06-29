@@ -353,6 +353,26 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/api/cita/**")
                                                 .access(hasPermission("CITA_DELETE"))
 
+                                                // =========================
+                                                // INTERVENTION
+                                                // =========================
+                                                .requestMatchers(HttpMethod.POST, "/api/intervencion")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/intervencion")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/intervencion/{id}")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/intervencion/{id}")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/intervencion/{id]/estado")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/intervencion/{id}")
+                                                .access(hasPermission("SESION_WRITE"))
 
                                                 // =========================
                                                 // MEDICAL HISTORY
