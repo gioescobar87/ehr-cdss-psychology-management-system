@@ -250,7 +250,7 @@ public class CitaServiceImpl implements CitaService {
                 cancelacionRepository.save(cancelacion);
 
                 Estado estadoCancelado = estadoRepository
-                                .findById(3)
+                                .findById(7)
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Estado CANCELADO no encontrado."));
 

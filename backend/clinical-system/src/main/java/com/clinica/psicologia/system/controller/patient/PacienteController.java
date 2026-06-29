@@ -106,7 +106,7 @@ public class PacienteController {
     }
 
     @GetMapping("/{id}/cita")
-    public ResponseEntity<List<CitaResponseDTO>> getByPatient(@PathVariable Integer pacienteId) {
-        return ResponseEntity.ok(citaService.getByPatient(pacienteId));
+    public ResponseEntity<List<CitaResponseDTO>> getByPatient(@PathVariable Integer id) {
+        return ResponseEntity.ok(citaService.getByPatient(id));
     }
 }

@@ -330,6 +330,31 @@ public class SecurityConfig {
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
                                                 // =========================
+                                                // APPOINTMENTS
+                                                // =========================
+                                                .requestMatchers(HttpMethod.POST, "/api/cita/*/cancelar")
+                                                .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/cita/*/cancelacion")
+                                                .access(hasPermission("CITA_READ"))
+                                                
+                                                .requestMatchers(HttpMethod.GET, "/api/cita/**")
+                                                .access(hasPermission("CITA_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/cita/**")
+                                                .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/cita/**")
+                                                .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/cita/**")
+                                                .access(hasPermission("CITA_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/cita/**")
+                                                .access(hasPermission("CITA_DELETE"))
+
+
+                                                // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
@@ -346,33 +371,7 @@ public class SecurityConfig {
 
                                                 .requestMatchers(HttpMethod.POST, "/api/sesiones/**")
                                                 .access(hasPermission("SESION_WRITE"))
-
-                                                // =========================
-                                                // APPOINTMENTS
-                                                // =========================
-
                                                 
-                                                .requestMatchers(HttpMethod.POST, "/api/citas/*/cancelar")
-                                                .access(hasPermission("CITA_WRITE"))
-
-                                                .requestMatchers(HttpMethod.GET, "/api/citas/*/cancelacion")
-                                                .access(hasPermission("CITA_READ"))
-                                                
-                                                .requestMatchers(HttpMethod.GET, "/api/citas/**")
-                                                .access(hasPermission("CITA_READ"))
-
-                                                .requestMatchers(HttpMethod.POST, "/api/citas/**")
-                                                .access(hasPermission("CITA_WRITE"))
-
-                                                .requestMatchers(HttpMethod.PUT, "/api/citas/**")
-                                                .access(hasPermission("CITA_WRITE"))
-
-                                                .requestMatchers(HttpMethod.PATCH, "/api/citas/**")
-                                                .access(hasPermission("CITA_WRITE"))
-
-                                                .requestMatchers(HttpMethod.DELETE, "/api/citas/**")
-                                                .access(hasPermission("CITA_DELETE"))
-
                                                 // =========================
                                                 // CDSS DIAGNOSTIC ENGINE
                                                 // =========================

@@ -39,6 +39,7 @@ public class CitaController {
 
     @PutMapping("/{id}")
     public CitaResponseDTO update(@PathVariable Integer id, @Valid @RequestBody CitaRequestDTO request) {
+        System.out.println("PATH VARIABLE: "+id);
         return service.update(id, request);
     }
 
