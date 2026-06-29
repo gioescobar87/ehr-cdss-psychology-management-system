@@ -117,4 +117,8 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
     protected void validateAdditionalFields(REQUEST request){}
 
     protected void validateAdditionalFields(REQUEST request, Integer id){}
+
+    protected void validateAdditionalFields(ENTITY entity, REQUEST request) {}
+
+    protected void validateAdditionalFields(ENTITY entity, REQUEST request, Integer id) {}
 }
