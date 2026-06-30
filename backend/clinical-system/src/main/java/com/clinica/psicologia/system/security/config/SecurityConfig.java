@@ -368,7 +368,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.PUT, "/api/intervencion/{id}")
                                                 .access(hasPermission("SESION_WRITE"))
 
-                                                .requestMatchers(HttpMethod.PATCH, "/api/intervencion/{id]/estado")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/intervencion/{id}/estado")
                                                 .access(hasPermission("SESION_WRITE"))
 
                                                 .requestMatchers(HttpMethod.DELETE, "/api/intervencion/{id}")
