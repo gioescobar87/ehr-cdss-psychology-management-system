@@ -10,9 +10,11 @@ import com.clinica.psicologia.system.dto.request.security.UsuarioRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.UsuarioRolRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.dto.response.security.UsuarioResponseDTO;
 import com.clinica.psicologia.system.dto.response.security.UsuarioRolResponseDTO;
 import com.clinica.psicologia.system.service.clinical.CitaService;
+import com.clinica.psicologia.system.service.clinical.SesionService;
 import com.clinica.psicologia.system.service.security.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -23,10 +25,12 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final CitaService citaService;
+    private final SesionService sesionService;
 
-    public UsuarioController(UsuarioService usuarioService, CitaService citaService) {
+    public UsuarioController(UsuarioService usuarioService, CitaService citaService, SesionService sesionService) {
         this.usuarioService = usuarioService;
         this.citaService = citaService;
+        this.sesionService = sesionService;
     }
 
     @GetMapping
@@ -94,7 +98,12 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}/cita")
-    public ResponseEntity<List<CitaResponseDTO>> getByPatient(@PathVariable Integer pacienteId) {
-        return ResponseEntity.ok(citaService.getByPatient(pacienteId));
+    public ResponseEntity<List<CitaResponseDTO>> obtenerCitas(@PathVariable Integer usuarioId) {
+        return ResponseEntity.ok(citaService.getByUser(usuarioId));
+    }
+
+    @GetMapping("/{id}/sesion")
+    public ResponseEntity<List<SesionResponseDTO>> obtenerSesiones(@PathVariable Integer usuarioId) {
+        return ResponseEntity.ok(sesionService.getByUser(usuarioId));
     }
 }
