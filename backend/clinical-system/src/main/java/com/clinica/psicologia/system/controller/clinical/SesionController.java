@@ -2,6 +2,7 @@ package com.clinica.psicologia.system.controller.clinical;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.request.clinical.SesionRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.NotaSesionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
+import com.clinica.psicologia.system.service.clinical.NotaSesionService;
 import com.clinica.psicologia.system.service.clinical.SesionService;
 
 import jakarta.validation.Valid;
@@ -24,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class SesionController {
 
     private final SesionService service;
+    private final NotaSesionService notaSesionService;
 
     @PostMapping
     public SesionResponseDTO create(
@@ -55,8 +59,11 @@ public class SesionController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
-
         service.delete(id);
     }
 
+    @GetMapping("/{id}/notas-sesion")
+    public ResponseEntity<List<NotaSesionResponseDTO>> obtenerNotasSesion(@PathVariable Integer id){
+        return ResponseEntity.ok(notaSesionService.getBySesion(id));
+    }
 }
