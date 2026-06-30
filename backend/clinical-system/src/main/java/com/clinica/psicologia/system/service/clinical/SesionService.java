@@ -1,15 +1,24 @@
 package com.clinica.psicologia.system.service.clinical;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-import com.clinica.psicologia.system.repository.clinical.SesionRepository;
+import com.clinica.psicologia.system.dto.request.clinical.SesionRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+public interface SesionService {
 
-@Service
-@RequiredArgsConstructor
-@Transactional
-public class SesionService {
-    private final SesionRepository repository;
+    SesionResponseDTO create(SesionRequestDTO request);
+
+    List<SesionResponseDTO> findAll();
+
+    SesionResponseDTO findById(Integer id);
+
+    SesionResponseDTO update(Integer id, SesionRequestDTO request);
+
+    void delete(Integer id);
+
+    List<SesionResponseDTO> getByPatient(Integer pacienteId);
+
+    List<SesionResponseDTO> getByUser(Integer usuarioId);
+
 }
