@@ -4,6 +4,7 @@ import com.clinica.psicologia.system.model.base.BaseEntity;
 import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.util.encryption.StringEncryptConverter;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,12 +23,14 @@ public class NotaSesion extends BaseEntity{
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    @NotNull
     @Convert(converter = StringEncryptConverter.class)
     private String contenido;
 
-    @Column(name="tipo_nota")
+    @Column(length = 100)
     private String tipoNota;
 
+    @NotNull
     @Column(name="fecha_registro")
     private LocalDateTime fechaRegistro;
 }
