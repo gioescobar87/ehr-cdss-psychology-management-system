@@ -19,6 +19,7 @@ import com.clinica.psicologia.system.repository.clinical.SesionRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
+import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.clinical.SesionService;
 
@@ -54,6 +55,15 @@ public class SesionServiceImpl implements SesionService {
 
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
+
+        if (repository.existsByPacienteIdAndUsuarioIdAndFechaSesion(
+                request.getPacienteId(),
+                request.getUsuarioId(),
+                request.getFechaSesion())) {
+
+            throw new DuplicateResourceException(
+                    "Ya existe una sesión registrada para este paciente, psicólogo y fecha.");
+        }
 
         TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
@@ -99,6 +109,16 @@ public class SesionServiceImpl implements SesionService {
 
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
+
+        if (repository.existsByPacienteIdAndUsuarioIdAndFechaSesionAndIdNot(
+                request.getPacienteId(),
+                request.getUsuarioId(),
+                request.getFechaSesion(),
+                id)) {
+
+            throw new DuplicateResourceException(
+                    "Ya existe una sesión registrada para este paciente, psicólogo y fecha.");
+        }
 
         TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
