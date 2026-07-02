@@ -27,7 +27,7 @@ public class SesionMapper {
         dto.setFechaSesion(entity.getFechaSesion());
         dto.setObservacionesGenerales(entity.getObservacionesGenerales());
 
-        dto.setEstadoId(entity.getId());
+        dto.setEstadoId(entity.getEstado().getId());
         dto.setEstado(entity.getEstado().getNombre());
 
         return dto;

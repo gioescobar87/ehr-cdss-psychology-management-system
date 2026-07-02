@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.request.clinical.SesionRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.NotaSesionResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.SesionIntervencionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.service.clinical.NotaSesionService;
+import com.clinica.psicologia.system.service.clinical.SesionIntervencionService;
 import com.clinica.psicologia.system.service.clinical.SesionService;
 
 import jakarta.validation.Valid;
@@ -28,6 +30,7 @@ public class SesionController {
 
     private final SesionService service;
     private final NotaSesionService notaSesionService;
+    private final SesionIntervencionService sesionIntervencionService;
 
     @PostMapping
     public SesionResponseDTO create(
@@ -65,5 +68,10 @@ public class SesionController {
     @GetMapping("/{id}/notas-sesion")
     public ResponseEntity<List<NotaSesionResponseDTO>> obtenerNotasSesion(@PathVariable Integer id){
         return ResponseEntity.ok(notaSesionService.getBySesion(id));
+    }
+
+    @GetMapping("/{id}/sesiones-intervencion")
+    public ResponseEntity<List<SesionIntervencionResponseDTO>> obtenerSesionesIntervencion(@PathVariable Integer id){
+        return ResponseEntity.ok(sesionIntervencionService.getBySesion(id));
     }
 }
