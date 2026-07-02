@@ -1,0 +1,15 @@
+package com.clinica.psicologia.system.dto.request.clinical;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class SesionIntervencionRequestDTO {
+    @NotNull(message = "La sesión es obligatoria")
+    private Integer sesionId;
+
+    @NotNull(message = "La intervencion es obigatoria")
+    private Integer intervencionId;
+}

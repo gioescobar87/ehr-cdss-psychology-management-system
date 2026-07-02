@@ -61,6 +61,8 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
         mapper.updateEntity(entity, request);
         entity.setEstado(estado);
 
+        validateAdditionalFields(entity, request);
+
         return mapper.toResponse(repository.save(entity));
     }
 
@@ -79,6 +81,8 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
 
         mapper.updateEntity(entity, request);
         entity.setEstado(estado);
+
+        validateAdditionalFields(entity, request);
 
         return mapper.toResponse(repository.save(entity));
     }

@@ -95,6 +95,12 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/usuarios/*/roles")
                                                 .access(hasPermission("USUARIO_READ"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/*/citas")
+                                                .access(hasPermission("USUARIO_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/*/sesiones")
+                                                .access(hasPermission("USUARIO_READ"))
+
                                                 // WRITE (CREATE + UPDATE + STATUS + ROLES ASSIGNMENT)
                                                 .requestMatchers(HttpMethod.POST, "/api/usuarios")
                                                 .access(hasPermission("USUARIO_WRITE"))
@@ -115,12 +121,6 @@ public class SecurityConfig {
                                                 // DELETE ROLE ASSIGNMENT
                                                 .requestMatchers(HttpMethod.DELETE, "/api/usuarios/*/roles/*")
                                                 .access(hasPermission("USUARIO_WRITE"))
-
-                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/*/cita")
-                                                .access(hasPermission("USUARIO_READ"))
-
-                                                .requestMatchers(HttpMethod.GET, "/api/usuarios/*/sesion")
-                                                .access(hasPermission("USUARIO_READ"))
 
                                                 // =========================
                                                 // ROLE MANAGEMENT
@@ -268,10 +268,10 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/paciente/*/alergia")
                                                 .access(hasPermission("PACIENTE_READ"))
 
-                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/cita")
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/citas")
                                                 .access(hasPermission("PACIENTE_READ"))
 
-                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/sesion")
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/sesiones")
                                                 .access(hasPermission("PACIENTE_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/paciente/*/medicamento")
@@ -349,7 +349,7 @@ public class SecurityConfig {
 
                                                 .requestMatchers(HttpMethod.GET, "/api/cita/*/cancelacion")
                                                 .access(hasPermission("CITA_READ"))
-                                                
+
                                                 .requestMatchers(HttpMethod.GET, "/api/cita/**")
                                                 .access(hasPermission("CITA_READ"))
 
@@ -407,8 +407,11 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/sesion/*/notas-sesion")
                                                 .access(hasPermission("SESION_READ"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/sesion/*/sesiones-intervencion")
+                                                .access(hasPermission("SESION_READ"))
+
                                                 // =========================
-                                                // CLINICAL SESSIONS
+                                                // CLINICAL SESSION NOTES
                                                 // =========================
                                                 .requestMatchers(HttpMethod.POST, "/api/nota-sesion")
                                                 .access(hasPermission("SESION_WRITE"))
@@ -426,6 +429,18 @@ public class SecurityConfig {
                                                 .access(hasPermission("SESION_WRITE"))
 
                                                 // =========================
+                                                // CLINICAL SESSION-INTERVENTION
+                                                // =========================
+                                                .requestMatchers(HttpMethod.POST, "/api/sesion-intervencion")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/sesion-intervencion")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/sesion-intervencion/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
@@ -433,7 +448,7 @@ public class SecurityConfig {
 
                                                 .requestMatchers(HttpMethod.POST, "/api/api/historial-medico/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
-                                                
+
                                                 // =========================
                                                 // CDSS DIAGNOSTIC ENGINE
                                                 // =========================
