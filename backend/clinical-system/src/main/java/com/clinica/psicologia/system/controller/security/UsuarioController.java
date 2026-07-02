@@ -97,13 +97,13 @@ public class UsuarioController {
         usuarioService.removeRole(id, rolId);
     }
 
-    @GetMapping("/{id}/cita")
-    public ResponseEntity<List<CitaResponseDTO>> obtenerCitas(@PathVariable Integer usuarioId) {
-        return ResponseEntity.ok(citaService.getByUser(usuarioId));
+    @GetMapping("/{id}/citas")
+    public ResponseEntity<List<CitaResponseDTO>> obtenerCitas(@PathVariable Integer id) {
+        return ResponseEntity.ok(citaService.getByUser(id));
     }
 
-    @GetMapping("/{id}/sesion")
-    public ResponseEntity<List<SesionResponseDTO>> obtenerSesiones(@PathVariable Integer usuarioId) {
-        return ResponseEntity.ok(sesionService.getByUser(usuarioId));
+    @GetMapping("/{id}/sesiones")
+    public ResponseEntity<List<SesionResponseDTO>> obtenerSesiones(@PathVariable Integer id) {
+        return ResponseEntity.ok(sesionService.getByUser(id));
     }
 }

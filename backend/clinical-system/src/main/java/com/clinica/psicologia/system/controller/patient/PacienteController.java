@@ -108,12 +108,12 @@ public class PacienteController {
         return ResponseEntity.ok(pacienteMedicamentoService.getByPatient(id));
     }
 
-    @GetMapping("/{id}/cita")
+    @GetMapping("/{id}/citas")
     public ResponseEntity<List<CitaResponseDTO>> obtenerCitas(@PathVariable Integer id) {
         return ResponseEntity.ok(citaService.getByPatient(id));
     }
 
-    @GetMapping("/{id}/sesion")
+    @GetMapping("/{id}/sesiones")
     public ResponseEntity<List<SesionResponseDTO>> obtenerSesiones(@PathVariable Integer id) {
         return ResponseEntity.ok(sesionService.getByPatient(id));
     }
