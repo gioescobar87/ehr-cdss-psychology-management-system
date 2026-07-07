@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.PacienteDiagnosticoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteAlergiaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteMedicamentoResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 import com.clinica.psicologia.system.service.clinical.CitaService;
+import com.clinica.psicologia.system.service.clinical.PacienteDiagnosticoService;
 import com.clinica.psicologia.system.service.clinical.SesionService;
 import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
 import com.clinica.psicologia.system.service.patient.PacienteAlergiaService;
@@ -45,6 +47,7 @@ public class PacienteController {
     private final PacienteMedicamentoService pacienteMedicamentoService;
     private final CitaService citaService;
     private final SesionService sesionService;
+    private final PacienteDiagnosticoService pacienteDiagnosticoService;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
@@ -116,5 +119,10 @@ public class PacienteController {
     @GetMapping("/{id}/sesiones")
     public ResponseEntity<List<SesionResponseDTO>> obtenerSesiones(@PathVariable Integer id) {
         return ResponseEntity.ok(sesionService.getByPatient(id));
+    }
+
+    @GetMapping("/{id}/diagnosticos")
+    public ResponseEntity<List<PacienteDiagnosticoResponseDTO>> obtenerDiagnosticos(@PathVariable Integer id) {
+        return ResponseEntity.ok(pacienteDiagnosticoService.getByPatient(id));
     }
 }

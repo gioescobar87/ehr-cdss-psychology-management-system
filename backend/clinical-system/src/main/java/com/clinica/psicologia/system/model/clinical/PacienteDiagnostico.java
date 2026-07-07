@@ -9,33 +9,34 @@ import com.clinica.psicologia.system.model.patient.Paciente;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "paciente_diagnostico")
 public class PacienteDiagnostico extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "paciente_id")
+
+    @ManyToOne
+    @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diagnostico_id")
+    @ManyToOne
+    @JoinColumn(name = "diagnostico_id", nullable = false)
     private Diagnostico diagnostico;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "sesion_id")
     private Sesion sesion;
 
-    @Column(name = "fecha_diagnostico")
+    @Column(name = "fecha_diagnostico", nullable = false)
     private LocalDate fechaDiagnostico;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estado_id")
+    @ManyToOne
+    @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
 }
