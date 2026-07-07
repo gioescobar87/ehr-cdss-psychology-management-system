@@ -1,15 +1,31 @@
 package com.clinica.psicologia.system.service.clinical;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-import com.clinica.psicologia.system.repository.clinical.PlanTratamientoRepository;
+import com.clinica.psicologia.system.dto.request.clinical.PlanTratamientoRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.PlanTratamientoResponseDTO;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+public interface PlanTratamientoService {
 
-@Service
-@RequiredArgsConstructor
-@Transactional
-public class PlanTratamientoService {
-    private final PlanTratamientoRepository repository;
+    List<PlanTratamientoResponseDTO> findAll();
+
+    PlanTratamientoResponseDTO findById(Integer id);
+
+    List<PlanTratamientoResponseDTO> getByPacienteDiagnostico(
+            Integer pacienteDiagnosticoId);
+
+    PlanTratamientoResponseDTO create(
+            PlanTratamientoRequestDTO dto);
+
+    PlanTratamientoResponseDTO update(
+            Integer id,
+            PlanTratamientoRequestDTO dto);
+
+    void changeStatus(
+            Integer id,
+            Integer estadoId);
+
+    void delete(
+            Integer id);
+
 }

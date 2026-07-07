@@ -3,6 +3,7 @@ package com.clinica.psicologia.system.controller.clinical;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,25 +18,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clinica.psicologia.system.dto.request.clinical.PacienteDiagnosticoRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.PacienteDiagnosticoResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.PlanTratamientoResponseDTO;
 import com.clinica.psicologia.system.service.clinical.PacienteDiagnosticoService;
+import com.clinica.psicologia.system.service.clinical.PlanTratamientoService;
 
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/paciente-diagnostico")
 public class PacienteDiagnosticoController {
 
     private final PacienteDiagnosticoService service;
+    private final PlanTratamientoService planTratamientoService;
 
-    public PacienteDiagnosticoController(
-            PacienteDiagnosticoService service) {
-
+    public PacienteDiagnosticoController(PacienteDiagnosticoService service, PlanTratamientoService planTratamientoService) {
         this.service = service;
+        this.planTratamientoService = planTratamientoService;
     }
 
     @GetMapping
     public List<PacienteDiagnosticoResponseDTO> findAll() {
-
         return service.findAll();
     }
 
@@ -51,29 +54,25 @@ public class PacienteDiagnosticoController {
     }
 
     @PutMapping("/{id}")
-    public PacienteDiagnosticoResponseDTO update(
-            @PathVariable Integer id,
+    public PacienteDiagnosticoResponseDTO update(@PathVariable Integer id,
             @Valid @RequestBody PacienteDiagnosticoRequestDTO request) {
-
         return service.update(id, request);
     }
 
     @PatchMapping("/{id}/estado")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changeStatus(
-            @PathVariable Integer id,
-            @RequestBody EstadoChangeRequestDTO request) {
-
-        service.changeStatus(
-                id,
-                request.getEstadoId());
+    public void changeStatus(@PathVariable Integer id, @RequestBody EstadoChangeRequestDTO request) {
+        service.changeStatus(id, request.getEstadoId());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(
-            @PathVariable Integer id) {
-
+    public void delete(@PathVariable Integer id) {
         service.delete(id);
+    }
+
+    @GetMapping("/{id}/planes")
+    public ResponseEntity<List<PlanTratamientoResponseDTO>> obtenerTratamientos(@PathVariable Integer id) {
+        return ResponseEntity.ok(planTratamientoService.getByPacienteDiagnostico(id));
     }
 }

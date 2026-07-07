@@ -465,6 +465,27 @@ public class SecurityConfig {
                                                 .access(hasPermission("SESION_WRITE"))
 
                                                 // =========================
+                                                // TREATMENT PLAN
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/plan-tratamiento")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/plan-tratamiento/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/plan-tratamiento")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/plan-tratamiento/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/plan-tratamiento/*/estado")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/plan-tratamiento/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
