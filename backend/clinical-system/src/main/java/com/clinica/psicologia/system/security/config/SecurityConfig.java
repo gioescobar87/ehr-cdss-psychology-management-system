@@ -277,6 +277,9 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/paciente/*/medicamento")
                                                 .access(hasPermission("PACIENTE_READ"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente/*/diagnosticos")
+                                                .access(hasPermission("PACIENTE_READ"))
+
                                                 .requestMatchers(HttpMethod.GET, "/api/paciente/**")
                                                 .access(hasPermission("PACIENTE_READ"))
 
@@ -339,6 +342,27 @@ public class SecurityConfig {
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
                                                 .requestMatchers(HttpMethod.DELETE, "/api/paciente-medicamentos/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                // =========================
+                                                // PACIENTE DIAGNOSTICO
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente-diagnostico")
+                                                .access(hasPermission("PACIENTE_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/paciente-diagnostico")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente-diagnostico/*")
+                                                .access(hasPermission("PACIENTE_READ"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/paciente-diagnostico/*")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/paciente-diagnostico/*/estado")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/paciente-diagnostico/*")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
                                                 // =========================
