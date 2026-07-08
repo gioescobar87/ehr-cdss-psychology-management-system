@@ -106,9 +106,6 @@ public class NotaSesionServiceImpl implements NotaSesionService {
 
         Usuario usuario = getAuthenticatedUser();
 
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Authenticated User: " + usuario.getId());
-        System.out.println("Author User: " + nota.getUsuario().getId());
-
         if (!nota.getUsuario().getId().equals(usuario.getId())) {
             throw new BusinessRuleException("Solo el autor puede modificar la nota.");
         }

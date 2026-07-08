@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import com.clinica.psicologia.system.dto.request.clinical.PlanTratamientoRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.ObjetivoTerapiaResponseDTO;
-import com.clinica.psicologia.system.dto.response.clinical.PacienteDiagnosticoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.PlanTratamientoResponseDTO;
 import com.clinica.psicologia.system.service.clinical.ObjetivoTerapiaService;
 import com.clinica.psicologia.system.service.clinical.PlanTratamientoService;
