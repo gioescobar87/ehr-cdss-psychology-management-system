@@ -61,7 +61,7 @@ public class PlanTratamientoController {
         service.delete(id);
     }
 
-    @GetMapping("/{id}/diagnosticos")
+    @GetMapping("/{id}/objetivos")
     public ResponseEntity<List<ObjetivoTerapiaResponseDTO>> obtenerObjetivos(@PathVariable Integer id) {
         return ResponseEntity.ok(objetivoTerapiaService.getByPlanTratamiento(id));
     }

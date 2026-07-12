@@ -35,27 +35,15 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
     public ObjetivoTerapiaResponseDTO create(
             ObjetivoTerapiaRequestDTO dto) {
 
-        PlanTratamiento planTratamiento =
-                planTratamientoRepository.findById(
-                        dto.getPlanTratamientoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Treatment plan not found"));
+        PlanTratamiento planTratamiento = planTratamientoRepository.findById(
+                dto.getPlanTratamientoId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Treatment plan not found"));
 
-        Estado estado =
-                estadoRepository.findById(
-                        dto.getEstadoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "State not found"));
-
-        if (repository.existsByPlanTratamientoIdAndDescripcionIgnoreCase(
-                dto.getPlanTratamientoId(),
-                dto.getDescripcion())) {
-
-            throw new DuplicateResourceException(
-                    "An objective with the same description already exists for this treatment plan.");
-        }
+        Estado estado = estadoRepository.findById(
+                dto.getEstadoId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "State not found"));
 
         if (dto.getFechaMeta() != null
                 && dto.getFechaMeta().isBefore(
@@ -90,8 +78,7 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
             }
         }
 
-        ObjetivoTerapia entity =
-                new ObjetivoTerapia();
+        ObjetivoTerapia entity = new ObjetivoTerapia();
 
         entity.setPlanTratamiento(
                 planTratamiento);
@@ -103,8 +90,7 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
                 entity,
                 dto);
 
-        entity = repository.save(
-                entity);
+        entity = repository.saveAndFlush(entity);
 
         return mapper.toResponseDTO(
                 entity);
@@ -123,11 +109,9 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
     public ObjetivoTerapiaResponseDTO findById(
             Integer id) {
 
-        ObjetivoTerapia entity =
-                repository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Therapy objective not found"));
+        ObjetivoTerapia entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Therapy objective not found"));
 
         return mapper.toResponseDTO(
                 entity);
@@ -143,39 +127,24 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
                         planTratamientoId));
     }
 
-        @Override
+    @Override
     public ObjetivoTerapiaResponseDTO update(
             Integer id,
             ObjetivoTerapiaRequestDTO dto) {
 
-        ObjetivoTerapia entity =
-                repository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Therapy objective not found"));
+        ObjetivoTerapia entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Therapy objective not found"));
 
-        PlanTratamiento planTratamiento =
-                planTratamientoRepository.findById(
-                        dto.getPlanTratamientoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Treatment plan not found"));
+        PlanTratamiento planTratamiento = planTratamientoRepository.findById(
+                dto.getPlanTratamientoId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Treatment plan not found"));
 
-        Estado estado =
-                estadoRepository.findById(
-                        dto.getEstadoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "State not found"));
-
-        if (repository.existsByPlanTratamientoIdAndDescripcionIgnoreCaseAndIdNot(
-                dto.getPlanTratamientoId(),
-                dto.getDescripcion(),
-                id)) {
-
-            throw new DuplicateResourceException(
-                    "An objective with the same description already exists for this treatment plan.");
-        }
+        Estado estado = estadoRepository.findById(
+                dto.getEstadoId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "State not found"));
 
         if (dto.getFechaMeta() != null
                 && dto.getFechaMeta().isBefore(
@@ -232,18 +201,14 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
             Integer id,
             Integer estadoId) {
 
-        ObjetivoTerapia entity =
-                repository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Therapy objective not found"));
+        ObjetivoTerapia entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Therapy objective not found"));
 
-        Estado estado =
-                estadoRepository.findById(
-                        estadoId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "State not found"));
+        Estado estado = estadoRepository.findById(
+                estadoId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "State not found"));
 
         entity.setEstado(
                 estado);
@@ -256,11 +221,9 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
     public void delete(
             Integer id) {
 
-        ObjetivoTerapia entity =
-                repository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Therapy objective not found"));
+        ObjetivoTerapia entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Therapy objective not found"));
 
         repository.delete(
                 entity);
