@@ -14,7 +14,6 @@ import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.clinical.ObjetivoTerapiaRepository;
 import com.clinica.psicologia.system.repository.clinical.PlanTratamientoRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
-import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.clinical.ObjetivoTerapiaService;
 
