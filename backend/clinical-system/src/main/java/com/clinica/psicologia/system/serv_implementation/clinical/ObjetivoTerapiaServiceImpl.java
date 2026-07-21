@@ -2,7 +2,6 @@ package com.clinica.psicologia.system.serv_implementation.clinical;
 
 import java.util.List;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.clinica.psicologia.system.dto.request.clinical.ObjetivoTerapiaRequestDTO;
@@ -20,8 +19,8 @@ import com.clinica.psicologia.system.repository.clinical.PlanTratamientoReposito
 import com.clinica.psicologia.system.repository.patient.PacienteAsignacionRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
-import com.clinica.psicologia.system.security.model.SecurityUser;
 import com.clinica.psicologia.system.service.clinical.ObjetivoTerapiaService;
+import com.clinica.psicologia.system.service.security.ClinicalAuthorizationService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +35,7 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
         private final EstadoRepository estadoRepository;
         private final ObjetivoTerapiaMapper mapper;
         private final PacienteAsignacionRepository pacienteAsignacionRepository;
+        private final ClinicalAuthorizationService authorizationService;
 
         @Override
         public ObjetivoTerapiaResponseDTO create(
@@ -243,16 +243,6 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
                                 entity);
         }
 
-        private Usuario getAuthenticatedUser() {
-
-                SecurityUser securityUser = (SecurityUser) SecurityContextHolder
-                                .getContext()
-                                .getAuthentication()
-                                .getPrincipal();
-
-                return securityUser.getUsuario();
-        }
-
         private void validateAssignedPsychologist(Paciente paciente) {
 
                 PacienteAsignacion asignacion = pacienteAsignacionRepository
@@ -261,7 +251,7 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
                                 .orElseThrow(() -> new BusinessRuleException(
                                                 "The patient has no active psychologist assignment."));
 
-                Usuario usuario = getAuthenticatedUser();
+                Usuario usuario = authorizationService.getAuthenticatedUser();
 
                 if (!asignacion.getPsicologo().getId().equals(usuario.getId())) {
 

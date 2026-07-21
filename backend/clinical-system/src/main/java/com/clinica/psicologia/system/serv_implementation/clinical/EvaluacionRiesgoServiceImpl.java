@@ -3,7 +3,6 @@ package com.clinica.psicologia.system.serv_implementation.clinical;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.clinica.psicologia.system.dto.request.clinical.EvaluacionRiesgoRequestDTO;
@@ -24,8 +23,8 @@ import com.clinica.psicologia.system.repository.patient.PacienteAsignacionReposi
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
-import com.clinica.psicologia.system.security.model.SecurityUser;
 import com.clinica.psicologia.system.service.clinical.EvaluacionRiesgoService;
+import com.clinica.psicologia.system.service.security.ClinicalAuthorizationService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +41,7 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
     private final NivelRiesgoRepository nivelRiesgoRepository;
     private final PacienteAsignacionRepository pacienteAsignacionRepository;
     private final EvaluacionRiesgoMapper mapper;
+    private final ClinicalAuthorizationService authorizationService;
 
     @Override
     public EvaluacionRiesgoResponseDTO create(EvaluacionRiesgoRequestDTO dto) {
@@ -184,23 +184,13 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
         }
     }
 
-    private Usuario getAuthenticatedUser() {
-
-        SecurityUser securityUser = (SecurityUser) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        return securityUser.getUsuario();
-    }
-
     private void validateAssignedPsychologist(Paciente paciente) {
 
         PacienteAsignacion asignacion = pacienteAsignacionRepository
                 .findFirstByPacienteIdAndFechaFinIsNull(paciente.getId())
                 .orElseThrow(() -> new BusinessRuleException("The patient has no active psychologist assignment."));
 
-        Usuario usuario = getAuthenticatedUser();
+        Usuario usuario = authorizationService.getAuthenticatedUser();
 
         if (!asignacion.getPsicologo().getId().equals(usuario.getId())) {
             throw new BusinessRuleException("Only the psychologist currently assigned to the patient may manage risk evaluations.");
@@ -209,7 +199,7 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
 
     private void validateSessionOwner(Sesion sesion) {
 
-        Usuario usuario = getAuthenticatedUser();
+        Usuario usuario = authorizationService.getAuthenticatedUser();
 
         if (!sesion.getUsuario().getId().equals(usuario.getId())) {
             throw new BusinessRuleException("Only the psychologist who conducted the session may manage its risk evaluations.");
