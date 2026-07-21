@@ -29,11 +29,6 @@ public class EvaluacionRiesgoController {
         return service.findById(id);
     }
 
-    @GetMapping("/sesion/{sesionId}")
-    public List<EvaluacionRiesgoResponseDTO> getBySesion(@PathVariable Integer sesionId) {
-        return service.getBySesion(sesionId);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EvaluacionRiesgoResponseDTO create(@Valid @RequestBody EvaluacionRiesgoRequestDTO request) {
