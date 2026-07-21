@@ -10,13 +10,9 @@ import com.clinica.psicologia.system.mapper.clinical.SeguimientoObjetivoMapper;
 import com.clinica.psicologia.system.model.clinical.ObjetivoTerapia;
 import com.clinica.psicologia.system.model.clinical.SeguimientoObjetivo;
 import com.clinica.psicologia.system.model.clinical.Sesion;
-import com.clinica.psicologia.system.model.patient.Paciente;
-import com.clinica.psicologia.system.model.patient.PacienteAsignacion;
-import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.clinical.ObjetivoTerapiaRepository;
 import com.clinica.psicologia.system.repository.clinical.SeguimientoObjetivoRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
-import com.clinica.psicologia.system.repository.patient.PacienteAsignacionRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.clinical.SeguimientoObjetivoService;
@@ -34,7 +30,6 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
     private final ObjetivoTerapiaRepository objetivoRepository;
     private final SesionRepository sesionRepository;
     private final SeguimientoObjetivoMapper mapper;
-    private final PacienteAsignacionRepository pacienteAsignacionRepository;
     private final ClinicalAuthorizationService authorizationService;
 
     @Override
@@ -48,7 +43,7 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
 
         validatePatientConsistency(objetivo, sesion);
 
-        validateAssignedPsychologist(
+        authorizationService.validateAssignedPsychologist(
                 objetivo.getPlanTratamiento()
                         .getPacienteDiagnostico()
                         .getPaciente());
@@ -106,7 +101,7 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
         Sesion sesion = sesionRepository.findById(dto.getSesionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
 
-        validateAssignedPsychologist(
+        authorizationService.validateAssignedPsychologist(
                 entity.getObjetivoTerapia()
                         .getPlanTratamiento()
                         .getPacienteDiagnostico()
@@ -138,7 +133,7 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
         SeguimientoObjetivo entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Progress record not found"));
 
-        validateAssignedPsychologist(
+        authorizationService.validateAssignedPsychologist(
                 entity.getObjetivoTerapia()
                         .getPlanTratamiento()
                         .getPacienteDiagnostico()
@@ -155,20 +150,6 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
 
         if (!pacienteObjetivo.equals(pacienteSesion)) {
             throw new BusinessRuleException("The session does not belong to the same patient as the treatment plan.");
-        }
-    }
-
-    private void validateAssignedPsychologist(Paciente paciente) {
-
-        PacienteAsignacion asignacion = pacienteAsignacionRepository
-                .findFirstByPacienteIdAndFechaFinIsNull(paciente.getId())
-                .orElseThrow(() -> new BusinessRuleException("The patient has no active psychologist assignment."));
-
-        Usuario usuario = authorizationService.getAuthenticatedUser();
-        
-        if (!asignacion.getPsicologo().getId().equals(usuario.getId())) {
-            throw new BusinessRuleException(
-                    "Only the psychologist currently assigned to the patient may manage treatment follow-ups.");
         }
     }
 

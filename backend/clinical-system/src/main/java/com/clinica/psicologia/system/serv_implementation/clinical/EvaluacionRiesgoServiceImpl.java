@@ -13,13 +13,11 @@ import com.clinica.psicologia.system.model.catalog.TipoRiesgo;
 import com.clinica.psicologia.system.model.clinical.EvaluacionRiesgo;
 import com.clinica.psicologia.system.model.clinical.Sesion;
 import com.clinica.psicologia.system.model.patient.Paciente;
-import com.clinica.psicologia.system.model.patient.PacienteAsignacion;
 import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.catalog.NivelRiesgoRepository;
 import com.clinica.psicologia.system.repository.catalog.TipoRiesgoRepository;
 import com.clinica.psicologia.system.repository.clinical.EvaluacionRiesgoRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
-import com.clinica.psicologia.system.repository.patient.PacienteAsignacionRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
@@ -39,7 +37,6 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
     private final SesionRepository sesionRepository;
     private final TipoRiesgoRepository tipoRiesgoRepository;
     private final NivelRiesgoRepository nivelRiesgoRepository;
-    private final PacienteAsignacionRepository pacienteAsignacionRepository;
     private final EvaluacionRiesgoMapper mapper;
     private final ClinicalAuthorizationService authorizationService;
 
@@ -58,7 +55,7 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
         NivelRiesgo nivelRiesgo = nivelRiesgoRepository.findById(dto.getNivelRiesgoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Risk level not found"));
 
-        validateAssignedPsychologist(paciente);
+        authorizationService.validateAssignedPsychologist(paciente);
 
         validatePatientConsistency(paciente, sesion);
 
@@ -130,7 +127,7 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
         NivelRiesgo nivelRiesgo = nivelRiesgoRepository.findById(dto.getNivelRiesgoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Risk level not found"));
 
-        validateAssignedPsychologist(paciente);
+        authorizationService.validateAssignedPsychologist(paciente);
 
         validatePatientConsistency(paciente, sesion);
 
@@ -163,7 +160,7 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
         EvaluacionRiesgo entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Risk evaluation not found"));
 
-        validateAssignedPsychologist(entity.getPaciente());
+        authorizationService.validateAssignedPsychologist(entity.getPaciente());
 
         validateSessionOwner(entity.getSesion());
 
@@ -181,19 +178,6 @@ public class EvaluacionRiesgoServiceImpl implements EvaluacionRiesgoService {
 
         if (fecha.isAfter(LocalDateTime.now())) {
             throw new BusinessRuleException("Risk evaluation date cannot be in the future.");
-        }
-    }
-
-    private void validateAssignedPsychologist(Paciente paciente) {
-
-        PacienteAsignacion asignacion = pacienteAsignacionRepository
-                .findFirstByPacienteIdAndFechaFinIsNull(paciente.getId())
-                .orElseThrow(() -> new BusinessRuleException("The patient has no active psychologist assignment."));
-
-        Usuario usuario = authorizationService.getAuthenticatedUser();
-
-        if (!asignacion.getPsicologo().getId().equals(usuario.getId())) {
-            throw new BusinessRuleException("Only the psychologist currently assigned to the patient may manage risk evaluations.");
         }
     }
 
