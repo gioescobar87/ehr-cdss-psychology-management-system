@@ -31,11 +31,6 @@ public class SeguimientoObjetivoController {
         return service.findById(id);
     }
 
-    @GetMapping("/objetivo-terapia/{objetivoTerapiaId}")
-    public List<SeguimientoObjetivoResponseDTO> getByObjetivoTerapia(@PathVariable Integer objetivoTerapiaId) {
-        return service.getByObjetivoTerapia(objetivoTerapiaId);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SeguimientoObjetivoResponseDTO create(@Valid @RequestBody SeguimientoObjetivoRequestDTO request) {

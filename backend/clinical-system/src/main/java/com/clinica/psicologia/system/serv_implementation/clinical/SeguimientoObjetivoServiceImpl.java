@@ -11,10 +11,13 @@ import com.clinica.psicologia.system.mapper.clinical.SeguimientoObjetivoMapper;
 import com.clinica.psicologia.system.model.clinical.ObjetivoTerapia;
 import com.clinica.psicologia.system.model.clinical.SeguimientoObjetivo;
 import com.clinica.psicologia.system.model.clinical.Sesion;
+import com.clinica.psicologia.system.model.patient.Paciente;
+import com.clinica.psicologia.system.model.patient.PacienteAsignacion;
 import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.clinical.ObjetivoTerapiaRepository;
 import com.clinica.psicologia.system.repository.clinical.SeguimientoObjetivoRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
+import com.clinica.psicologia.system.repository.patient.PacienteAsignacionRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.security.model.SecurityUser;
@@ -32,6 +35,7 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
     private final ObjetivoTerapiaRepository objetivoRepository;
     private final SesionRepository sesionRepository;
     private final SeguimientoObjetivoMapper mapper;
+    private final PacienteAsignacionRepository pacienteAsignacionRepository;
 
     @Override
     public SeguimientoObjetivoResponseDTO create(SeguimientoObjetivoRequestDTO dto) {
@@ -44,7 +48,10 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
 
         validatePatientConsistency(objetivo, sesion);
 
-        validateOwnership(sesion);
+        validateAssignedPsychologist(
+                objetivo.getPlanTratamiento()
+                        .getPacienteDiagnostico()
+                        .getPaciente());
 
         SeguimientoObjetivo entity = new SeguimientoObjetivo();
 
@@ -99,7 +106,12 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
         Sesion sesion = sesionRepository.findById(dto.getSesionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
 
-        validateOwnership(entity.getSesion());
+        validateAssignedPsychologist(
+                entity.getObjetivoTerapia()
+                        .getPlanTratamiento()
+                        .getPacienteDiagnostico()
+                        .getPaciente());
+
         validatePatientConsistency(objetivo, sesion);
 
         entity.setObjetivoTerapia(objetivo);
@@ -126,7 +138,11 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
         SeguimientoObjetivo entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Progress record not found"));
 
-        validateOwnership(entity.getSesion());
+        validateAssignedPsychologist(
+                entity.getObjetivoTerapia()
+                        .getPlanTratamiento()
+                        .getPacienteDiagnostico()
+                        .getPaciente());
 
         repository.delete(entity);
     }
@@ -151,13 +167,17 @@ public class SeguimientoObjetivoServiceImpl implements SeguimientoObjetivoServic
         return securityUser.getUsuario();
     }
 
-    private void validateOwnership(Sesion sesion) {
+    private void validateAssignedPsychologist(Paciente paciente) {
+
+        PacienteAsignacion asignacion = pacienteAsignacionRepository
+                .findFirstByPacienteIdAndFechaFinIsNull(paciente.getId())
+                .orElseThrow(() -> new BusinessRuleException("The patient has no active psychologist assignment."));
 
         Usuario usuario = getAuthenticatedUser();
-
-        if (!sesion.getUsuario().getId().equals(usuario.getId())) {
+        
+        if (!asignacion.getPsicologo().getId().equals(usuario.getId())) {
             throw new BusinessRuleException(
-                    "Solo el psicólogo que realizó la sesión puede modificar este seguimiento.");
+                    "Only the psychologist currently assigned to the patient may manage treatment follow-ups.");
         }
     }
 
