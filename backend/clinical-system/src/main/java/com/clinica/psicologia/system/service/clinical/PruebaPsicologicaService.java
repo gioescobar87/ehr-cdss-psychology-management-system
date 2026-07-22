@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.clinica.psicologia.system.dto.request.clinical.PruebaPsicologicaRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.PruebaPsicologicaResponseDTO;
-import com.clinica.psicologia.system.model.clinical.PruebaPsicologica;
 
 public interface PruebaPsicologicaService {
 
