@@ -510,6 +510,24 @@ public class SecurityConfig {
                                                 .access(hasPermission("SESION_READ"))
 
                                                 // =========================
+                                                // OBJECTIVE PROGRESS
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/seguimiento-objetivo")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/seguimiento-objetivo/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/seguimiento-objetivo")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/seguimiento-objetivo/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/seguimiento-objetivo/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
