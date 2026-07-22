@@ -20,9 +20,9 @@ import com.clinica.psicologia.system.repository.clinical.SesionRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
-import com.clinica.psicologia.system.serv_implementation.base.CommonServiceImpl;
 import com.clinica.psicologia.system.service.clinical.PruebaPsicologicaService;
 import com.clinica.psicologia.system.service.security.ClinicalAuthorizationService;
+import com.clinica.psicologia.system.service.base.CommonService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class PruebaPsicologicaServiceImpl implements PruebaPsicologicaService {
     private final TipoPruebaRepository tipoPruebaRepository;
     private final PruebaPsicologicaMapper mapper;
     private final ClinicalAuthorizationService authorizationService;
-    private final CommonServiceImpl baseService;
+    private final CommonService common;
 
     @Override
     public PruebaPsicologicaResponseDTO create(PruebaPsicologicaRequestDTO dto) {
@@ -78,7 +78,7 @@ public class PruebaPsicologicaServiceImpl implements PruebaPsicologicaService {
         entity.setPaciente(paciente);
         entity.setSesion(sesion);
         entity.setTipoPrueba(tipoPrueba);
-        entity.setEstado(baseService.getActiveState());
+        entity.setEstado(common.getActiveState());
 
         mapper.updateEntity(entity, dto);
 
