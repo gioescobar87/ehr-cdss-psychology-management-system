@@ -1,15 +1,22 @@
 package com.clinica.psicologia.system.service.clinical;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-import com.clinica.psicologia.system.repository.clinical.ResultadoPruebaRepository;
+import com.clinica.psicologia.system.dto.request.clinical.ResultadoPruebaRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.ResultadoPruebaResponseDTO;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+public interface ResultadoPruebaService {
 
-@Service
-@RequiredArgsConstructor
-@Transactional
-public class ResultadoPruebaService {
-    private final ResultadoPruebaRepository repository;
+    ResultadoPruebaResponseDTO create(ResultadoPruebaRequestDTO request);
+
+    List<ResultadoPruebaResponseDTO> findAll();
+
+    ResultadoPruebaResponseDTO findById(Integer id);
+
+    List<ResultadoPruebaResponseDTO> getByPruebaPsicologica(Integer pruebaPsicologicaId);
+
+    ResultadoPruebaResponseDTO update(Integer id, ResultadoPruebaRequestDTO request);
+
+    void delete(Integer id);
+
 }
