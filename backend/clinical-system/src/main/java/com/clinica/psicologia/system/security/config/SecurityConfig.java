@@ -365,6 +365,9 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/api/paciente-diagnostico/*")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente-diagnostico/*/planes")
+                                                .access(hasPermission("PACIENTE_READ"))
+
                                                 // =========================
                                                 // APPOINTMENTS
                                                 // =========================
@@ -434,6 +437,9 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/sesion/*/sesiones-intervencion")
                                                 .access(hasPermission("SESION_READ"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/sesion/*/evaluacion-riesgo")
+                                                .access(hasPermission("SESION_READ"))
+
                                                 // =========================
                                                 // CLINICAL SESSION NOTES
                                                 // =========================
@@ -484,6 +490,9 @@ public class SecurityConfig {
 
                                                 .requestMatchers(HttpMethod.DELETE, "/api/plan-tratamiento/*")
                                                 .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/plan-tratamiento/*/objetivos")
+                                                .access(hasPermission("SESION_READ"))
 
                                                 // =========================
                                                 // TREATMENT OBJECTIVE
