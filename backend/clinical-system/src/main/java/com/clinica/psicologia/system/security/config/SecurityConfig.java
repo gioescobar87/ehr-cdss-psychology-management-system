@@ -486,6 +486,30 @@ public class SecurityConfig {
                                                 .access(hasPermission("SESION_WRITE"))
 
                                                 // =========================
+                                                // TREATMENT OBJECTIVE
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/objetivo-terapia")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/objetivo-terapia/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/objetivo-terapia")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/objetivo-terapia/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PATCH, "/api/objetivo-terapia/*/estado")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/objetivo-terapia/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/objetivo-terapia/*/seguimientos")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
