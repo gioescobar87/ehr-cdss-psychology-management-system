@@ -37,16 +37,6 @@ public class PruebaPsicologicaController {
         return service.findById(id);
     }
 
-    @GetMapping("/paciente/{pacienteId}")
-    public List<PruebaPsicologicaResponseDTO> getByPaciente(@PathVariable Integer pacienteId) {
-        return service.getByPaciente(pacienteId);
-    }
-
-    @GetMapping("/sesion/{sesionId}")
-    public List<PruebaPsicologicaResponseDTO> getBySesion(@PathVariable Integer sesionId) {
-        return service.getBySesion(sesionId);
-    }
-
     @GetMapping("/tipo/{tipoPruebaId}")
     public List<PruebaPsicologicaResponseDTO> getByTipoPrueba(@PathVariable Integer tipoPruebaId) {
         return service.getByTipoPrueba(tipoPruebaId);
