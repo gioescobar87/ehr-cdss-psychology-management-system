@@ -368,6 +368,9 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/paciente-diagnostico/*/planes")
                                                 .access(hasPermission("PACIENTE_READ"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/paciente-diagnostico/*/pruebas")
+                                                .access(hasPermission("PACIENTE_READ"))
+
                                                 // =========================
                                                 // APPOINTMENTS
                                                 // =========================
@@ -438,6 +441,9 @@ public class SecurityConfig {
                                                 .access(hasPermission("SESION_READ"))
 
                                                 .requestMatchers(HttpMethod.GET, "/api/sesion/*/evaluacion-riesgo")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/sesion/*/pruebas")
                                                 .access(hasPermission("SESION_READ"))
 
                                                 // =========================
@@ -552,6 +558,27 @@ public class SecurityConfig {
                                                 .access(hasPermission("SESION_WRITE"))
 
                                                 .requestMatchers(HttpMethod.DELETE, "/api/evaluacion-riesgo/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                // =========================
+                                                // PSYCHOLOGICAL TESTS
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/prueba-psicologica")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/prueba-psicologica/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/prueba-psicologica/tipo/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/prueba-psicologica")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/prueba-psicologica/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/prueba-psicologica/*")
                                                 .access(hasPermission("SESION_WRITE"))
 
                                                 // =========================
