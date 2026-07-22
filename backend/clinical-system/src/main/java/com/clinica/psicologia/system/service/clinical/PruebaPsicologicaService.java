@@ -1,15 +1,26 @@
 package com.clinica.psicologia.system.service.clinical;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-import com.clinica.psicologia.system.repository.clinical.PruebaPsicologicaRepository;
+import com.clinica.psicologia.system.dto.request.clinical.PruebaPsicologicaRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.PruebaPsicologicaResponseDTO;
+import com.clinica.psicologia.system.model.clinical.PruebaPsicologica;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+public interface PruebaPsicologicaService {
 
-@Service
-@RequiredArgsConstructor
-@Transactional
-public class PruebaPsicologicaService {
-    private final PruebaPsicologicaRepository repository;
+    PruebaPsicologicaResponseDTO create(PruebaPsicologicaRequestDTO request);
+
+    List<PruebaPsicologicaResponseDTO> findAll();
+
+    PruebaPsicologicaResponseDTO findById(Integer id);
+
+    List<PruebaPsicologicaResponseDTO> getByPaciente(Integer pacienteId);
+
+    List<PruebaPsicologicaResponseDTO> getBySesion(Integer sesionId);
+
+    List<PruebaPsicologicaResponseDTO> getByTipoPrueba(Integer tipoPruebaId);
+
+    PruebaPsicologicaResponseDTO update(Integer id, PruebaPsicologicaRequestDTO request);
+
+    void delete(Integer id);
 }
