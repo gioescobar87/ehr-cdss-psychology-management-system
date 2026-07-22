@@ -22,7 +22,7 @@ import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.clinical.EvaluacionRiesgoService;
-import com.clinica.psicologia.system.service.security.ClinicalAuthorizationService;
+import com.clinica.psicologia.system.support_services.authorization.ClinicalAuthorizationService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

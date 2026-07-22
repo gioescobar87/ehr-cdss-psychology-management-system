@@ -15,9 +15,9 @@ import com.clinica.psicologia.system.repository.clinical.InterpretacionPruebaRep
 import com.clinica.psicologia.system.repository.clinical.PruebaPsicologicaRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
-import com.clinica.psicologia.system.service.base.CommonService;
 import com.clinica.psicologia.system.service.clinical.InterpretacionPruebaService;
-import com.clinica.psicologia.system.service.security.ClinicalAuthorizationService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
+import com.clinica.psicologia.system.support_services.authorization.ClinicalAuthorizationService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class InterpretacionPruebaServiceImpl implements InterpretacionPruebaServ
     private final PruebaPsicologicaRepository pruebaRepository;
     private final InterpretacionPruebaMapper mapper;
     private final ClinicalAuthorizationService authorizationService;
-    private final CommonService common;
+    private final ApplicationSupportService common;
 
     @Override
     public InterpretacionPruebaResponseDTO create(InterpretacionPruebaRequestDTO dto) {
