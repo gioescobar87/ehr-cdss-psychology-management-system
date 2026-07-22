@@ -528,6 +528,24 @@ public class SecurityConfig {
                                                 .access(hasPermission("SESION_WRITE"))
 
                                                 // =========================
+                                                // RISK ASSESSMENT
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/evaluacion-riesgo")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/evaluacion-riesgo/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/evaluacion-riesgo")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/evaluacion-riesgo/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/evaluacion-riesgo/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/api/historial-medico/**")
