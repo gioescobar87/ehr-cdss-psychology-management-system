@@ -37,26 +37,15 @@ public class InterpretacionPruebaController {
         return service.findById(id);
     }
 
-    @GetMapping("/prueba/{pruebaPsicologicaId}")
-    public List<InterpretacionPruebaResponseDTO> getByPruebaPsicologica(
-            @PathVariable Integer pruebaPsicologicaId) {
-
-        return service.getByPruebaPsicologica(pruebaPsicologicaId);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public InterpretacionPruebaResponseDTO create(
-            @Valid @RequestBody InterpretacionPruebaRequestDTO request) {
-
+    public InterpretacionPruebaResponseDTO create(@Valid @RequestBody InterpretacionPruebaRequestDTO request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public InterpretacionPruebaResponseDTO update(
-            @PathVariable Integer id,
+    public InterpretacionPruebaResponseDTO update(@PathVariable Integer id,
             @Valid @RequestBody InterpretacionPruebaRequestDTO request) {
-
         return service.update(id, request);
     }
 

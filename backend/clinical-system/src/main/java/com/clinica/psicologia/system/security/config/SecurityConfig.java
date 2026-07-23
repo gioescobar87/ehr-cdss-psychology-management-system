@@ -581,6 +581,48 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/api/prueba-psicologica/*")
                                                 .access(hasPermission("SESION_WRITE"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/prueba-psicologica/*/resultados")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/prueba-psicologica/*/interpretacion")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                // =========================
+                                                // TEST RESULTS
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/resultado-prueba")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/resultado-prueba/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/resultado-prueba")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/resultado-prueba/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/resultado-prueba/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                // =========================
+                                                // TEST INTERPRETATION
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/interpretacion-prueba")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.GET, "/api/interpretacion-prueba/*")
+                                                .access(hasPermission("SESION_READ"))
+
+                                                .requestMatchers(HttpMethod.POST, "/api/interpretacion-prueba")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.PUT, "/api/interpretacion-prueba/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
+                                                .requestMatchers(HttpMethod.DELETE, "/api/interpretacion-prueba/*")
+                                                .access(hasPermission("SESION_WRITE"))
+
                                                 // =========================
                                                 // MEDICAL HISTORY
                                                 // =========================

@@ -37,11 +37,6 @@ public class ResultadoPruebaController {
         return service.findById(id);
     }
 
-    @GetMapping("/prueba/{pruebaPsicologicaId}")
-    public List<ResultadoPruebaResponseDTO> getByPruebaPsicologica(@PathVariable Integer pruebaPsicologicaId) {
-        return service.getByPruebaPsicologica(pruebaPsicologicaId);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResultadoPruebaResponseDTO create(@Valid @RequestBody ResultadoPruebaRequestDTO request) {
