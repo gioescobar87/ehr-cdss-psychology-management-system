@@ -86,7 +86,7 @@ public class SesionController {
         return ResponseEntity.ok(evaluacionRiesgoService.getBySesion(id));
     }
 
-    @GetMapping("/{id}/pruebas-psicologicas")
+    @GetMapping("/{id}/pruebas")
     public ResponseEntity<List<PruebaPsicologicaResponseDTO>> obtenerPruebas(@PathVariable Integer id){
         return ResponseEntity.ok(pruebaPsicologicaService.getBySesion(id));
     }
