@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReglaNodoRequestDTO {
-
+//NEED REFACTORING
     @NotNull(message = "Source node is required.")
     private Integer nodoOrigenId;
 
