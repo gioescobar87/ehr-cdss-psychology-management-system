@@ -1,6 +1,7 @@
 package com.clinica.psicologia.system.model.expert_system;
 
 import com.clinica.psicologia.system.model.base.BaseEntity;
+import com.clinica.psicologia.system.model.catalog.Diagnostico;
 import com.clinica.psicologia.system.model.catalog.Estado;
 
 import jakarta.persistence.Column;
@@ -28,15 +29,20 @@ public class NodoArbol extends BaseEntity {
     @Column(name = "tipo_nodo", nullable = false, length = 50)
     private String tipoNodo;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(name = "es_terminal", nullable = false)
     private Boolean esTerminal;
 
+    @Column(name = "orden")
     private Integer orden;
 
     @ManyToOne
     @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
+
+    @ManyToOne
+    @JoinColumn(name = "diagnostico_id")
+    private Diagnostico diagnostico;
 }
