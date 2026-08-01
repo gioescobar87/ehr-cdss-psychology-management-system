@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.request.expert_system.ArbolDiagnosticoRequestDTO;
-import com.clinica.psicologia.system.dto.response.clinical.PruebaPsicologicaResponseDTO;
 import com.clinica.psicologia.system.dto.response.expert_system.ArbolDiagnosticoResponseDTO;
 import com.clinica.psicologia.system.dto.response.expert_system.NodoArbolResponseDTO;
 import com.clinica.psicologia.system.service.expert_system.ArbolDiagnosticoService;
