@@ -15,6 +15,7 @@ import com.clinica.psicologia.system.repository.catalog.CriterioClinicoRepositor
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.expert_system.NodoArbolRepository;
 import com.clinica.psicologia.system.repository.expert_system.ReglaNodoRepository;
+import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.expert_system.ReglaNodoService;
@@ -77,6 +78,8 @@ public class ReglaNodoServiceImpl implements ReglaNodoService {
         Estado estado = estadoRepository.findById(request.getEstadoId())
                 .orElseThrow(() -> new ResourceNotFoundException("State not found"));
 
+        validateRule(nodoOrigen, nodoDestino);
+
         ReglaNodo entity = new ReglaNodo();
 
         entity.setNodoOrigen(nodoOrigen);
@@ -116,6 +119,8 @@ public class ReglaNodoServiceImpl implements ReglaNodoService {
         Estado estado = estadoRepository.findById(request.getEstadoId())
                 .orElseThrow(() -> new ResourceNotFoundException("State not found"));
 
+        validateRule(nodoOrigen, nodoDestino);
+
         entity.setNodoOrigen(nodoOrigen);
         entity.setNodoDestino(nodoDestino);
         entity.setCriterioClinico(criterio);
@@ -147,5 +152,20 @@ public class ReglaNodoServiceImpl implements ReglaNodoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Node rule not found"));
 
         repository.delete(entity);
+    }
+
+    private void validateRule(NodoArbol nodoOrigen, NodoArbol nodoDestino) {
+
+        if (!nodoOrigen.getArbolDiagnostico().getId().equals(nodoDestino.getArbolDiagnostico().getId())) {
+            throw new BusinessRuleException("Source and destination nodes must belong to the same diagnostic tree");
+        }
+
+        if (nodoOrigen.getDiagnostico() != null) {
+            throw new BusinessRuleException("A terminal node cannot have outgoing rules");
+        }
+
+        if (nodoOrigen.getId().equals(nodoDestino.getId())) {
+            throw new BusinessRuleException("Source and destination nodes cannot be the same");
+        }
     }
 }
