@@ -8,17 +8,19 @@ import lombok.Setter;
 @Setter
 public class NodoArbolRequestDTO {
 
-    @NotNull(message = "El árbol diagnóstico es obligatorio")
+    @NotNull(message = "Diagnostic tree is required.")
     private Integer arbolDiagnosticoId;
 
-    private Integer nodoPadreId;
+    private Integer criterioClinicoId;
+
+    private Integer nodoPresenteId;
+
+    private Integer nodoAusenteId;
 
     private Integer diagnosticoId;
 
     private String descripcion;
 
-    private Integer orden;
-
-    @NotNull(message = "El estado es obligatorio")
+    @NotNull(message = "State is required.")
     private Integer estadoId;
 }

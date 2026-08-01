@@ -52,13 +52,18 @@ public class NodoArbolController {
 
     @PatchMapping("/{id}/estado")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changeStatus(@PathVariable Integer id,@RequestBody EstadoChangeRequestDTO request) {
-        service.changeStatus(id,request.getEstadoId());
+    public void changeStatus(@PathVariable Integer id, @RequestBody EstadoChangeRequestDTO request) {
+        service.changeStatus(id, request.getEstadoId());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         service.delete(id);
+    }
+
+    @GetMapping("/arbol/{arbolId}")
+    public List<NodoArbolResponseDTO> findByTree(@PathVariable Integer arbolId) {
+        return service.findByArbolDiagnostico(arbolId);
     }
 }

@@ -18,20 +18,29 @@ public class NodoArbolMapper {
         dto.setId(entity.getId());
 
         dto.setArbolDiagnosticoId(entity.getArbolDiagnostico().getId());
-
         dto.setArbolDiagnostico(entity.getArbolDiagnostico().getNombre());
 
-        if (entity.getNodoPadre() != null) {
-            dto.setNodoPadreId(entity.getNodoPadre().getId());
+        if (entity.getCriterioClinico() != null) {
+
+            dto.setCriterioClinicoId(entity.getCriterioClinico().getId());
+            dto.setCriterioClinico(entity.getCriterioClinico().getNombre());
+        }
+
+        if (entity.getNodoPresente() != null) {
+            dto.setNodoPresenteId(entity.getNodoPresente().getId());
+        }
+
+        if (entity.getNodoAusente() != null) {
+            dto.setNodoAusenteId(entity.getNodoAusente().getId());
         }
 
         if (entity.getDiagnostico() != null) {
+
             dto.setDiagnosticoId(entity.getDiagnostico().getId());
             dto.setDiagnostico(entity.getDiagnostico().getNombre());
         }
 
         dto.setDescripcion(entity.getDescripcion());
-        dto.setOrden(entity.getOrden());
 
         dto.setEstadoId(entity.getEstado().getId());
         dto.setEstado(entity.getEstado().getNombre());
@@ -40,13 +49,16 @@ public class NodoArbolMapper {
     }
 
     public List<NodoArbolResponseDTO> toResponseList(List<NodoArbol> entities) {
+
         return entities.stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public void updateEntity(NodoArbol entity, NodoArbolRequestDTO dto) {
+    public void updateEntity(
+            NodoArbol entity,
+            NodoArbolRequestDTO dto) {
+
         entity.setDescripcion(dto.getDescripcion());
-        entity.setOrden(dto.getOrden());
     }
 }

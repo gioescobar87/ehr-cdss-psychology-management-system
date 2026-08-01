@@ -22,4 +22,6 @@ public interface EvaluacionCriterioClinicoRepository extends JpaRepository<Evalu
                         Integer criterioClinicoId);
 
         long countByEvaluacionDiagnosticaId(Integer evaluacionDiagnosticaId);
+
+        List<EvaluacionCriterioClinico> findByEvaluacionDiagnosticaId(Integer evaluacionDiagnosticaId);
 }

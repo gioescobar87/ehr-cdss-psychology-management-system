@@ -1,6 +1,7 @@
 package com.clinica.psicologia.system.model.expert_system;
 
 import com.clinica.psicologia.system.model.base.BaseEntity;
+import com.clinica.psicologia.system.model.catalog.CriterioClinico;
 import com.clinica.psicologia.system.model.catalog.Diagnostico;
 import com.clinica.psicologia.system.model.catalog.Estado;
 
@@ -23,8 +24,16 @@ public class NodoArbol extends BaseEntity {
     private ArbolDiagnostico arbolDiagnostico;
 
     @ManyToOne
-    @JoinColumn(name = "nodo_arbol_id")
-    private NodoArbol nodoPadre;
+    @JoinColumn(name = "criterio_clinico_id")
+    private CriterioClinico criterioClinico;
+
+    @ManyToOne
+    @JoinColumn(name = "criterio_presente_nodo_id")
+    private NodoArbol nodoPresente;
+
+    @ManyToOne
+    @JoinColumn(name = "criterio_ausente_nodo_id")
+    private NodoArbol nodoAusente;
 
     @ManyToOne
     @JoinColumn(name = "diagnostico_id")
@@ -32,8 +41,6 @@ public class NodoArbol extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
-
-    private Integer orden;
 
     @ManyToOne
     @JoinColumn(name = "estado_id", nullable = false)

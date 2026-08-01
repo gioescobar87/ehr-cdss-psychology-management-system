@@ -10,20 +10,20 @@ public class NodoArbolResponseDTO {
     private Integer id;
 
     private Integer arbolDiagnosticoId;
-
     private String arbolDiagnostico;
 
-    private Integer nodoPadreId;
+    private Integer criterioClinicoId;
+    private String criterioClinico;
+
+    private Integer nodoPresenteId;
+
+    private Integer nodoAusenteId;
 
     private Integer diagnosticoId;
-
     private String diagnostico;
 
     private String descripcion;
 
-    private Integer orden;
-
     private Integer estadoId;
-
     private String estado;
 }
