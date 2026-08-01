@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/arboles/reglas")
+@RequestMapping("/api/regla-nodo")
 public class ReglaNodoController {
 
     private final ReglaNodoService service;
@@ -39,7 +39,7 @@ public class ReglaNodoController {
         return service.findById(id);
     }
 
-    @GetMapping("/nodo/{nodoOrigenId}")
+    @GetMapping("/{nodoOrigenId}/nodo")
     public List<ReglaNodoResponseDTO> findByNodoOrigen(@PathVariable Integer nodoOrigenId) {
         return service.findByNodoOrigen(nodoOrigenId);
     }
