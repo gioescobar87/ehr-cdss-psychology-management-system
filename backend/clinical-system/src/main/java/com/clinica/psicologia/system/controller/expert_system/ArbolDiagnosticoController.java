@@ -3,6 +3,7 @@ package com.clinica.psicologia.system.controller.expert_system;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,8 +16,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.request.expert_system.ArbolDiagnosticoRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.PruebaPsicologicaResponseDTO;
 import com.clinica.psicologia.system.dto.response.expert_system.ArbolDiagnosticoResponseDTO;
+import com.clinica.psicologia.system.dto.response.expert_system.NodoArbolResponseDTO;
 import com.clinica.psicologia.system.service.expert_system.ArbolDiagnosticoService;
+import com.clinica.psicologia.system.service.expert_system.NodoArbolService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class ArbolDiagnosticoController {
 
     private final ArbolDiagnosticoService service;
+    private final NodoArbolService nodoArbolService;
 
     @GetMapping
     public List<ArbolDiagnosticoResponseDTO> findAll() {
@@ -71,5 +76,10 @@ public class ArbolDiagnosticoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         service.delete(id);
+    }
+
+    @GetMapping("/{id}/nodos")
+    public ResponseEntity<List<NodoArbolResponseDTO>> obtenerNodos(@PathVariable Integer id) {
+        return ResponseEntity.ok(nodoArbolService.findByArbolDiagnostico(id));
     }
 }

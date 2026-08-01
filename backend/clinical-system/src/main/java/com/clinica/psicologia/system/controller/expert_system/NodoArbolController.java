@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/arboles/nodos")
+@RequestMapping("/api/nodo-arbol")
 public class NodoArbolController {
 
     private final NodoArbolService service;
@@ -37,11 +37,6 @@ public class NodoArbolController {
     @GetMapping("/{id}")
     public NodoArbolResponseDTO findById(@PathVariable Integer id) {
         return service.findById(id);
-    }
-
-    @GetMapping("/arbol/{arbolId}")
-    public List<NodoArbolResponseDTO> findByArbolDiagnostico(@PathVariable Integer arbolId) {
-        return service.findByArbolDiagnostico(arbolId);
     }
 
     @PostMapping

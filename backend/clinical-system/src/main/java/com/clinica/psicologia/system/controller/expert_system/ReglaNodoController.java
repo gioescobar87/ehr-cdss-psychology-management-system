@@ -39,7 +39,7 @@ public class ReglaNodoController {
         return service.findById(id);
     }
 
-    @GetMapping("/{nodoOrigenId}/nodo")
+    @GetMapping("/{nodoOrigenId}/nodo-origen")
     public List<ReglaNodoResponseDTO> findByNodoOrigen(@PathVariable Integer nodoOrigenId) {
         return service.findByNodoOrigen(nodoOrigenId);
     }
