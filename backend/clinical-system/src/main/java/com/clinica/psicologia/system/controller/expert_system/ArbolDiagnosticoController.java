@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/arboles-diagnosticos")
+@RequestMapping("/api/arbol-diagnostico")
 @RequiredArgsConstructor
 public class ArbolDiagnosticoController {
 
