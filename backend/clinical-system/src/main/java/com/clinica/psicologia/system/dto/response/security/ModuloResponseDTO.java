@@ -13,4 +13,7 @@ public class ModuloResponseDTO {
     private String estado;
     private Integer moduloId;
     private String modulo;
+
+    private String icono;
+    private Integer orden;
 }
