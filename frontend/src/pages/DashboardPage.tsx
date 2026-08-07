@@ -1,27 +1,68 @@
-import {
-    Paper,
-    Typography
-} from "@mui/material";
+import { Button } from "@mui/material";
+
+import { useNotification } from "../hooks/useNotification";
+
 
 export default function DashboardPage() {
 
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo
+    } = useNotification();
+
+
     return (
 
-        <Paper sx={{ p: 4 }}>
+        <div>
 
-            <Typography variant="h4">
+            <h1>Dashboard</h1>
 
-                Dashboard
+            <Button
+                onClick={() =>
+                    showSuccess(
+                        "Operation completed successfully."
+                    )
+                }
+            >
+                Success
+            </Button>
 
-            </Typography>
 
-            <Typography mt={2}>
+            <Button
+                onClick={() =>
+                    showError(
+                        "An error occurred."
+                    )
+                }
+            >
+                Error
+            </Button>
 
-                Welcome to the Psychological EHR.
 
-            </Typography>
+            <Button
+                onClick={() =>
+                    showWarning(
+                        "This action requires attention."
+                    )
+                }
+            >
+                Warning
+            </Button>
 
-        </Paper>
+
+            <Button
+                onClick={() =>
+                    showInfo(
+                        "This is an informational message."
+                    )
+                }
+            >
+                Info
+            </Button>
+
+        </div>
 
     );
 
