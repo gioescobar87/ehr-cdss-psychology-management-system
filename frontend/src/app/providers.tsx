@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./queryClient";
 import AuthProvider from "../auth/AuthProvider";
+import ErrorProvider from "../components/feedback/ErrorProvider";
 
 interface Props {
     children: ReactNode;
@@ -10,9 +11,11 @@ interface Props {
 export default function Provider({children}: Props) {
     return (
         <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-                {children}
-            </AuthProvider>
+            <ErrorProvider>
+                <AuthProvider>
+                    {children}
+                </AuthProvider>
+            </ErrorProvider>
         </QueryClientProvider>
     )
 }
