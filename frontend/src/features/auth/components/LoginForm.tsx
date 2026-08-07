@@ -39,9 +39,14 @@ export default function LoginForm() {
     });
 
     const onSubmit = async (data: LoginFormData) => {
-        await loginMutation.mutateAsync(data);    
-        navigate("/dashboard");
-    }
+        try{
+            await loginMutation.mutateAsync(data);    
+            navigate("/dashboard");
+        } catch {
+            // The mutation error is already exposed
+            // through loginMutation.isError.
+        }
+    };
 
     return (
 
