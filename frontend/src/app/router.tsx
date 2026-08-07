@@ -4,10 +4,12 @@ import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import EmptyLayout from "../layouts/EmptyLayout";
 
+import ProtectedRoute from "../auth/ProtectedRoute";
 import LoginPage from "../pages/LoginPage";
 import DashboardPage from "../pages/DashboardPage";
 import UnauthorizedPage from "../pages/UnauthorizedPage";
 import NotFoundPage from "../pages/NotFoundPage";
+import PublicOnlyRoute from "../auth/PublicOnlyRoute";
 
 export const router = createBrowserRouter([
     {
@@ -16,21 +18,31 @@ export const router = createBrowserRouter([
     },
 
     {
-        element: <AuthLayout />,
+        element: <PublicOnlyRoute />,
         children: [
             {
-                path: "/login",
-                element: <LoginPage />
+                element: <AuthLayout />,
+                children: [
+                    {
+                        path: "/login",
+                        element: <LoginPage />
+                    }
+                ]
             }
         ]
     },
 
     {
-        element: <AuthenticatedLayout />,
+        element: <ProtectedRoute />,
         children: [
             {
-                path: "/dashboard",
-                element: <DashboardPage />
+                element: <AuthenticatedLayout />,
+                children: [
+                    {
+                        path: "/dashboard",
+                        element: <DashboardPage />
+                    }
+                ]
             }
         ]
     },
