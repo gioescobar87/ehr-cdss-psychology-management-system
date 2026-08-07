@@ -1,19 +1,19 @@
 import ReactDOM from "react-dom/client";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 
-import App from "./App";
-import { ThemeProvider, CssBaseline } from "@mui/material";
 import { createAppTheme } from "./theme/createAppTheme";
 import { defaultThemeSettings } from "./theme/defaultThemeSettings";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./app/queryClient";
+
+import Provider from "./app/providers";
+import App from "./App";
 
 const theme = createAppTheme(defaultThemeSettings);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
+  <Provider>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <App />
     </ThemeProvider>
-  </QueryClientProvider>
+  </Provider>
 );
