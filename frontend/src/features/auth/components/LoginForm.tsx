@@ -3,16 +3,17 @@ import {
     Button,
     Paper,
     Stack,
-    TextField,
     Typography
 } from "@mui/material";
 
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../hooks/useLogin";
 
 import { loginSchema, type LoginFormData } from "../schemas/loginSchema";
+
+import FormTextField from "../../../components/forms/FormTextField";
 
 export default function LoginForm() {
 
@@ -75,54 +76,19 @@ export default function LoginForm() {
 
                 <Stack spacing={3}>
 
-                    <Controller
+                    <FormTextField<LoginFormData>
                         control={control}
                         name="username"
-                        render={({
-
-                            field,
-
-                            fieldState
-
-                        }) => (
-
-                            <TextField
-                                {...field}
-                                label="Username"
-                                fullWidth
-                                error={!!fieldState.error}
-                                helperText={
-                                    fieldState.error?.message
-                                }
-                            />
-
-                        )}
+                        label="Username"
                     />
 
-                    <Controller
+                    <FormTextField<LoginFormData>
                         control={control}
                         name="password"
-                        render={({
-
-                            field,
-
-                            fieldState
-
-                        }) => (
-
-                            <TextField
-                                {...field}
-                                label="Password"
-                                type="password"
-                                fullWidth
-                                error={!!fieldState.error}
-                                helperText={
-                                    fieldState.error?.message
-                                }
-                            />
-
-                        )}
+                        label="Password"
+                        type="password"
                     />
+
                     <Button
                         type="submit"
                         variant="contained"
