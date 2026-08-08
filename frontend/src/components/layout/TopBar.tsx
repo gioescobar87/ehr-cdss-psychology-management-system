@@ -2,17 +2,28 @@ import {
     AppBar,
     Toolbar,
     Typography,
-    Box,
-    Avatar
+    Button
 } from "@mui/material";
 
+import { useAuth } from "../../auth/useAuth";
+
+
 export default function TopBar() {
+
+    const {
+        user,
+        logout
+    } = useAuth();
+
 
     return (
 
         <AppBar
             position="fixed"
-            elevation={1}
+            sx={{
+                zIndex: theme =>
+                    theme.zIndex.drawer + 1
+            }}
         >
 
             <Toolbar>
@@ -24,21 +35,22 @@ export default function TopBar() {
                     Psychological EHR
                 </Typography>
 
-                <Box
-                    display="flex"
-                    alignItems="center"
-                    gap={2}
-                >
+                {user && (
 
-                    <Typography>
-
-                        Administrator
-
+                    <Typography
+                        sx={{ mr: 2 }}
+                    >
+                        {user.nombre} {user.apellido}
                     </Typography>
 
-                    <Avatar />
+                )}
 
-                </Box>
+                <Button
+                    color="inherit"
+                    onClick={() => void logout()}
+                >
+                    Logout
+                </Button>
 
             </Toolbar>
 

@@ -18,3 +18,12 @@ export async function getCurrentUser(): Promise<UserProfile> {
 
     return response.data;
 }
+
+export async function logout(refreshToken: string): Promise<void> {
+    await apiClient.post(
+        "/auth/logout",
+        {
+            refreshToken
+        }
+    );
+}

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { clearTokens, getAccessToken } from "./jwt";
-import { getCurrentUser } from "../api/authApi";
+import { clearTokens, getAccessToken, getRefreshToken } from "./jwt";
+import { getCurrentUser, logout as logoutAPI } from "../api/authApi";
 import { AuthContext } from "./AuthContext";
 import type { UserProfile } from "../features/auth/types/auth.types";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {children: ReactNode};
 
 export default function AuthProvider({children}: Props) {
+    const queryClient = useQueryClient();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const refreshSession = useCallback(
@@ -39,11 +41,22 @@ export default function AuthProvider({children}: Props) {
         void initialize();
     }, [refreshSession]);
 
-    const logout = useCallback(() => {
-        clearTokens();
-        setUser(null);
-        window.location.href = "/login";
-    }, []);
+    const logout = useCallback(
+        async () => {
+            const refreshToken = getRefreshToken();
+            try {
+                if (refreshToken) {
+                    await logoutAPI(refreshToken);
+                }
+            } finally {
+                clearTokens();
+                setUser(null);
+                queryClient.clear();
+                window.location.href = "/login";
+            }
+        },
+        [queryClient]
+    );
 
     const value = {
         user,
@@ -54,7 +67,9 @@ export default function AuthProvider({children}: Props) {
     };
 
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider
+        value={value}
+        >
             {children}
         </AuthContext.Provider>
     );
