@@ -6,7 +6,8 @@ import type {
     UserProfile,
     ChangePasswordRequest,
     ForgotPasswordRequest,
-    ForgotPasswordResponse
+    ForgotPasswordResponse,
+    ResetPasswordRequest
 } from "../features/auth/types/auth.types";
 
 export async function login(request: LoginRequest): Promise<LoginResponse> {
@@ -48,4 +49,11 @@ export async function forgotPassword(request: ForgotPasswordRequest): Promise<Fo
         request
     );
     return response.data;
+}
+
+export async function resetPassword(request: ResetPasswordRequest): Promise<void> {
+    await apiClient.post(
+        "/auth/reset-password",
+        request
+    )
 }
