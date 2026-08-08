@@ -24,6 +24,7 @@ import type {
 
 import { useNotification } from "../hooks/useNotification";
 
+import FormArchitectureTest from "../features/dashboard/components/FormArchitectureTest";
 
 interface TestUser {
 
@@ -181,7 +182,8 @@ export default function DashboardPage() {
 
             <Stack spacing={4}>
 
-                
+                {/* Form Architecture Test */}
+                <FormArchitectureTest />
 
             {/* 
              * This variable is intentionally rendered
