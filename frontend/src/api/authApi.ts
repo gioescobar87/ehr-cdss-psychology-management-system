@@ -1,6 +1,13 @@
 import apiClient from "./apiClient";
 
-import type { ChangePasswordRequest, LoginRequest, LoginResponse, UserProfile } from "../features/auth/types/auth.types";
+import type {
+    LoginRequest,
+    LoginResponse,
+    UserProfile,
+    ChangePasswordRequest,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse
+} from "../features/auth/types/auth.types";
 
 export async function login(request: LoginRequest): Promise<LoginResponse> {
     const response = await apiClient.post<LoginResponse>(
@@ -33,4 +40,12 @@ export async function changePassword(request: ChangePasswordRequest): Promise<vo
         "/auth/change-password",
         request
     );
+}
+
+export async function forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    const response = await apiClient.post<ForgotPasswordResponse>(
+        "/auth/forgot-password",
+        request
+    );
+    return response.data;
 }

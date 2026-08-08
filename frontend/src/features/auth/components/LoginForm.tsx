@@ -8,7 +8,7 @@ import {
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useLogin } from "../hooks/useLogin";
 
 import { loginSchema, type LoginFormData } from "../schemas/loginSchema";
@@ -88,6 +88,16 @@ export default function LoginForm() {
                         label="Password"
                         type="password"
                     />
+
+                    <Link
+                        to="/forgot-password"
+                        style={{
+                            textAlign: "right",
+                            textDecoration: "none"
+                        }}
+                    >
+                        Forgot Password
+                    </Link>
 
                     <Button
                         type="submit"

@@ -31,33 +31,47 @@ export default function TopBar() {
 
     const navigate = useNavigate();
 
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] =
+        useState<null | HTMLElement>(null);
 
     const menuOpen = Boolean(anchorEl);
 
     const handleMenuOpen = (
         event: MouseEvent<HTMLElement>
     ) => {
+
         setAnchorEl(event.currentTarget);
+
     };
 
     const handleMenuClose = () => {
+
         setAnchorEl(null);
+
     };
 
     const handleProfile = () => {
+
         handleMenuClose();
+
         navigate("/profile");
+
     };
 
     const handleChangePassword = () => {
+
         handleMenuClose();
+
         navigate("/change-password");
+
     };
 
     const handleLogout = () => {
+
         handleMenuClose();
+
         logout();
+
     };
 
     return (
@@ -82,7 +96,24 @@ export default function TopBar() {
                 </Typography>
 
                 {user && (
-                    <Box>
+
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1
+                        }}
+                    >
+
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                fontWeight: 500
+                            }}
+                        >
+                            {user.nombre} {user.apellido}
+                        </Typography>
+
                         <IconButton
                             onClick={handleMenuOpen}
                             color="inherit"
@@ -99,6 +130,7 @@ export default function TopBar() {
                                     : undefined
                             }
                         >
+
                             <Avatar
                                 sx={{
                                     width: 36,
@@ -109,7 +141,9 @@ export default function TopBar() {
                                     ?.charAt(0)
                                     .toUpperCase()}
                             </Avatar>
+
                         </IconButton>
+
                         <Menu
                             id="user-menu"
                             anchorEl={anchorEl}
@@ -124,38 +158,53 @@ export default function TopBar() {
                                 horizontal: "right"
                             }}
                         >
+
                             <MenuItem
                                 onClick={handleProfile}
                             >
+
                                 <AccountCircle
                                     sx={{
                                         mr: 1
                                     }}
                                 />
+
                                 My Profile
+
                             </MenuItem>
+
                             <MenuItem
                                 onClick={handleChangePassword}
                             >
+
                                 <Lock
                                     sx={{
                                         mr: 1
                                     }}
                                 />
+
                                 Change Password
+
                             </MenuItem>
+
                             <MenuItem
                                 onClick={handleLogout}
                             >
+
                                 <Logout
                                     sx={{
                                         mr: 1
                                     }}
                                 />
+
                                 Logout
+
                             </MenuItem>
+
                         </Menu>
+
                     </Box>
+
                 )}
 
             </Toolbar>

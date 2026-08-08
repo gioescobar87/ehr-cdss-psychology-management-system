@@ -12,6 +12,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import PublicOnlyRoute from "../auth/PublicOnlyRoute";
 import ProfilePage from "../pages/ProfilePage";
 import ChangePasswordPage from "../pages/ChangePasswordPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 
 export const router = createBrowserRouter([
     {
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
                     {
                         path: "/login",
                         element: <LoginPage />
+                    },
+                    {
+                        path: "/forgot-password",
+                        element: <ForgotPasswordPage />
                     }
                 ]
             }
