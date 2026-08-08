@@ -1,4 +1,9 @@
-import { Box, Button, Stack } from "@mui/material";
+import {
+    Box,
+    Button,
+    Chip,
+    Stack
+} from "@mui/material";
 
 import { useState } from "react";
 
@@ -12,7 +17,104 @@ import LoadingSpinner from "../components/feedback/LoadingSpinner";
 
 import ConfirmationDialog from "../components/dialogs/ConfirmationDialog";
 
+import DataTable from "../components/tables/DataTable";
+import type {
+    DataTableColumn
+} from "../components/tables/DataTable.types";
+
 import { useNotification } from "../hooks/useNotification";
+
+
+interface TestUser {
+
+    id: number;
+
+    username: string;
+
+    name: string;
+
+    email: string;
+
+    active: boolean;
+
+}
+
+
+const users: TestUser[] = [
+
+    {
+        id: 1,
+        username: "admin",
+        name: "System Administrator",
+        email: "admin@example.com",
+        active: true
+    },
+
+    {
+        id: 2,
+        username: "psychologist",
+        name: "Clinical Psychologist",
+        email: "psychologist@example.com",
+        active: true
+    },
+
+    {
+        id: 3,
+        username: "reception",
+        name: "Reception User",
+        email: "reception@example.com",
+        active: false
+    }
+
+];
+
+
+const columns: DataTableColumn<TestUser>[] = [
+
+    {
+        id: "username",
+        label: "Username",
+        value: row => row.username
+    },
+
+    {
+        id: "name",
+        label: "Name",
+        value: row => row.name
+    },
+
+    {
+        id: "email",
+        label: "Email",
+        value: row => row.email
+    },
+
+    {
+        id: "status",
+        label: "Status",
+        align: "center",
+
+        render: row => (
+
+            <Chip
+                label={
+                    row.active
+                        ? "Active"
+                        : "Inactive"
+                }
+                color={
+                    row.active
+                        ? "success"
+                        : "default"
+                }
+                size="small"
+            />
+
+        )
+
+    }
+
+];
 
 
 export default function DashboardPage() {
@@ -24,8 +126,36 @@ export default function DashboardPage() {
         showInfo
     } = useNotification();
 
-    const [confirmationOpen, setConfirmationOpen] =
-        useState(false);
+    const [
+        confirmationOpen,
+        setConfirmationOpen
+    ] = useState(false);
+
+    const [
+        tableLoading,
+        setTableLoading
+    ] = useState(false);
+
+    const handleRowClick = (
+        user: TestUser
+    ) => {
+
+        showInfo(
+            `Selected user: ${user.username}`
+        );
+
+    };
+
+
+    const handleTableLoading = () => {
+
+        setTableLoading(true);
+
+        window.setTimeout(() => {
+            setTableLoading(false);
+        }, 1500);
+
+    };
 
 
     return (
@@ -36,6 +166,7 @@ export default function DashboardPage() {
                 title="Dashboard"
                 description="System overview and reusable component testing."
                 actions={
+
                     <AppButton
                         onClick={() =>
                             setConfirmationOpen(true)
@@ -43,11 +174,84 @@ export default function DashboardPage() {
                     >
                         Test Confirmation
                     </AppButton>
+
                 }
             />
 
 
             <Stack spacing={4}>
+
+                
+
+            {/* 
+             * This variable is intentionally rendered
+             * separately so we can test the loading state.
+             */}
+
+            {tableLoading && (
+
+                <Box sx={{ mt: 4 }}>
+
+                    <h2>DataTable Loading State</h2>
+
+                    <DataTable
+                        columns={columns}
+                        rows={users}
+                        getRowId={row => row.id}
+                        loading
+                        ariaLabel="System users"
+                    />
+
+                </Box>
+
+            )}
+
+
+                {/* DataTable */}
+
+                <Box>
+
+                    <h2>Data Table</h2>
+
+                    <Stack spacing={2}>
+
+                        <DataTable
+                            columns={columns}
+                            rows={users}
+                            getRowId={row => row.id}
+                            onRowClick={handleRowClick}
+                            ariaLabel="System users"
+                        />
+
+                        <Stack
+                            direction="row"
+                            spacing={2}
+                        >
+
+                            <Button
+                                variant="outlined"
+                                onClick={handleTableLoading}
+                            >
+                                Test Loading
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                onClick={() =>
+                                    showInfo(
+                                        "DataTable row interaction is working."
+                                    )
+                                }
+                            >
+                                Test Table
+                            </Button>
+
+                        </Stack>
+
+                    </Stack>
+
+                </Box>
+
 
                 {/* Notifications */}
 
@@ -72,7 +276,6 @@ export default function DashboardPage() {
                             Success
                         </Button>
 
-
                         <Button
                             variant="contained"
                             color="error"
@@ -85,7 +288,6 @@ export default function DashboardPage() {
                             Error
                         </Button>
 
-
                         <Button
                             variant="contained"
                             color="warning"
@@ -97,7 +299,6 @@ export default function DashboardPage() {
                         >
                             Warning
                         </Button>
-
 
                         <Button
                             variant="contained"
@@ -177,6 +378,7 @@ export default function DashboardPage() {
 
                 </Box>
 
+
             </Stack>
 
 
@@ -186,6 +388,7 @@ export default function DashboardPage() {
                 message="Are you sure you want to execute this test action?"
                 confirmText="Confirm"
                 cancelText="Cancel"
+
                 onConfirm={() => {
 
                     setConfirmationOpen(false);
@@ -195,6 +398,7 @@ export default function DashboardPage() {
                     );
 
                 }}
+
                 onCancel={() =>
                     setConfirmationOpen(false)
                 }
