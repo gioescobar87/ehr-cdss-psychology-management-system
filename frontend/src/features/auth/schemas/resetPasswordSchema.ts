@@ -6,7 +6,7 @@ export const resetPasswordSchema = z
     .object({
         newPassword: z
             .string()
-            .min(8, "La contraseña de be contener por lo menos 8 caracteres")
+            .min(8, "La contraseña debe contener por lo menos 8 caracteres")
             .regex(
                 strongPasswordRegex,
                 "La contraseña debe contener por lo menos una mayúcula, una minúscula, un número y un caracter especial."

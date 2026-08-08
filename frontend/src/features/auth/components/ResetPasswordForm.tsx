@@ -101,8 +101,7 @@ export default function ResetPasswordForm() {
                     color="text.secondary"
                     mb={3}
                 >
-                    The password reset link is missing
-                    or invalid.
+                    El enlace de reinicio de contraseña es inválido.
                 </Typography>
                 <Button
                     variant="contained"

@@ -14,6 +14,7 @@ import ProfilePage from "../pages/ProfilePage";
 import ChangePasswordPage from "../pages/ChangePasswordPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
+import ForbiddenPage from "../pages/ForbiddenPage";
 
 export const router = createBrowserRouter([
     {
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
             {
                 path: "/unauthorized",
                 element: <UnauthorizedPage />
+            },
+            {
+                path: "/forbidden",
+                element: <ForbiddenPage />
             },
             {
                 path: "*",

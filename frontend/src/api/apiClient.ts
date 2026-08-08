@@ -9,6 +9,7 @@ import {
     saveTokens,
     clearTokens
 } from "../auth/jwt";
+import { notifySessionExpired } from "../auth/sessionEvents";
 
 
 const API_BASE_URL = "http://localhost:8080/api";
@@ -105,6 +106,10 @@ async function refreshAccessToken(): Promise<string> {
 
 }
 
+function handleSessionExpiration() {
+  clearTokens();
+  notifySessionExpired();
+}
 
 apiClient.interceptors.request.use(
     config => {
@@ -175,6 +180,14 @@ apiClient.interceptors.response.use(
          */
         if (error.response?.status !== 401) {
 
+          if (error.response?.status === 403) {
+
+              window.location.href = "/forbidden";
+
+              return Promise.reject(error);
+
+          }
+
             return Promise.reject(error);
 
         }
@@ -185,9 +198,7 @@ apiClient.interceptors.response.use(
          */
         if (originalRequest._retry) {
 
-            clearTokens();
-
-            window.location.href = "/login";
+            handleSessionExpiration();
 
             return Promise.reject(error);
 
@@ -203,9 +214,7 @@ apiClient.interceptors.response.use(
          */
         if (!getRefreshToken()) {
 
-            clearTokens();
-
-            window.location.href = "/login";
+            handleSessionExpiration();
 
             return Promise.reject(error);
 
@@ -245,11 +254,7 @@ apiClient.interceptors.response.use(
 
         } catch (refreshError) {
 
-            clearTokens();
-
-            window.location.href =
-                "/login";
-
+            handleSessionExpiration();
 
             return Promise.reject(
                 refreshError

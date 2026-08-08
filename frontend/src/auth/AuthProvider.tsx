@@ -4,10 +4,13 @@ import { getCurrentUser, logout as logoutAPI } from "../api/authApi";
 import { AuthContext } from "./AuthContext";
 import type { UserProfile } from "../features/auth/types/auth.types";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNotification } from "../hooks/useNotification";
+import { SESSION_EXPIRED_EVENT } from "./sessionEvents";
 
 interface Props {children: ReactNode};
 
 export default function AuthProvider({children}: Props) {
+    const { showError } = useNotification();
     const queryClient = useQueryClient();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +32,38 @@ export default function AuthProvider({children}: Props) {
         },
         []
     );
+
+    useEffect(() => {
+
+        const handleSessionExpired = () => {
+
+            clearTokens();
+
+            setUser(null);
+
+            showError(
+                "Your session has expired. Please sign in again."
+            );
+
+            window.location.href = "/login";
+
+        };
+
+        window.addEventListener(
+            SESSION_EXPIRED_EVENT,
+            handleSessionExpired
+        );
+
+        return () => {
+
+            window.removeEventListener(
+                SESSION_EXPIRED_EVENT,
+                handleSessionExpired
+            );
+
+        };
+
+    }, [showError]);
 
     useEffect(() => {
         const initialize = async () => {
