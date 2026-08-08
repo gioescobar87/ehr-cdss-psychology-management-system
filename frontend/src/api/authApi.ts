@@ -1,6 +1,6 @@
 import apiClient from "./apiClient";
 
-import type { LoginRequest, LoginResponse, UserProfile } from "../features/auth/types/auth.types";
+import type { ChangePasswordRequest, LoginRequest, LoginResponse, UserProfile } from "../features/auth/types/auth.types";
 
 export async function login(request: LoginRequest): Promise<LoginResponse> {
     const response = await apiClient.post<LoginResponse>(
@@ -25,5 +25,12 @@ export async function logout(refreshToken: string): Promise<void> {
         {
             refreshToken
         }
+    );
+}
+
+export async function changePassword(request: ChangePasswordRequest): Promise<void> {
+    await apiClient.post(
+        "/auth/change-password",
+        request
     );
 }

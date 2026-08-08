@@ -30,3 +30,8 @@ export interface UserProfile {
     
     roles: string[];
 }
+
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}
