@@ -1,4 +1,4 @@
-import type { IconName } from "../utils/iconMapper";
+import type { IconName } from "../shared/utils/iconMapper";
 
 export interface NavigationOption {
 

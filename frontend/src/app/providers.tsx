@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./queryClient";
-import AuthProvider from "../auth/AuthProvider";
-import ErrorProvider from "../components/feedback/ErrorProvider";
-import NotificationProvider from "../components/feedback/NotificationProvider";
+import AuthProvider from "../auth/providers/AuthProvider";
+import ErrorProvider from "../shared/components/feedback/ErrorProvider";
+import NotificationProvider from "../shared/components/feedback/NotificationProvider";
 
 interface Props {
     children: ReactNode;

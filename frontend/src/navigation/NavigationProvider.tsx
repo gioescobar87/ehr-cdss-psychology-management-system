@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { NavigationContext } from "./NavigationContext";
 
-import { getNavigation } from "../api/navigationApi";
+import { getNavigation } from "./navigationApi";
 
 interface Props {
 

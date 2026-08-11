@@ -1,20 +1,23 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
-import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
-import AuthLayout from "../layouts/AuthLayout";
-import EmptyLayout from "../layouts/EmptyLayout";
+import AuthenticatedLayout from "../layout/AuthenticatedLayout";
+import AuthLayout from "../layout/AuthLayout";
+import EmptyLayout from "../layout/EmptyLayout";
 
-import ProtectedRoute from "../auth/ProtectedRoute";
-import LoginPage from "../pages/LoginPage";
-import DashboardPage from "../pages/DashboardPage";
-import UnauthorizedPage from "../pages/UnauthorizedPage";
-import NotFoundPage from "../pages/NotFoundPage";
-import PublicOnlyRoute from "../auth/PublicOnlyRoute";
-import ProfilePage from "../pages/ProfilePage";
-import ChangePasswordPage from "../pages/ChangePasswordPage";
-import ForgotPasswordPage from "../pages/ForgotPasswordPage";
-import ResetPasswordPage from "../pages/ResetPasswordPage";
-import ForbiddenPage from "../pages/ForbiddenPage";
+import ProtectedRoute from "../auth/routes/ProtectedRoute";
+import LoginPage from "../auth/pages/LoginPage";
+import DashboardPage from "../dashboard/DashboardPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import PublicOnlyRoute from "../auth/routes/PublicOnlyRoute";
+import ProfilePage from "../auth/pages/ProfilePage";
+import ChangePasswordPage from "../auth/pages/ChangePasswordPage";
+import ForgotPasswordPage from "../auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "../auth/pages/ResetPasswordPage";
+import ForbiddenPage from "./pages/ForbiddenPage";
+import PermissionListPage from "../catalog/pages/PermisoListPage";
+import PermissionCreatePage from "../catalog/pages/PermisoCreatePage";
+import PermissionEditPage from "../catalog/pages/PermisoEditPage";
 
 export const router = createBrowserRouter([
     {
@@ -62,6 +65,18 @@ export const router = createBrowserRouter([
                     {
                         path: "/change-password",
                         element: <ChangePasswordPage />
+                    },
+                    {
+                        path: "/administration/permissions",
+                        element: <PermissionListPage />
+                    },
+                    {
+                        path: "/administration/permissions/new",
+                        element: <PermissionCreatePage />
+                    },
+                    {
+                        path: "/administration/permissions/:id/edit",
+                        element: <PermissionEditPage />
                     }
                 ]
             }

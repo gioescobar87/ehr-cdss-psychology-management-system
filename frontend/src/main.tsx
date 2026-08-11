@@ -6,7 +6,7 @@ import { defaultThemeSettings } from "./theme/defaultThemeSettings";
 
 import Provider from "./app/providers";
 import App from "./App";
-import AuthProvider from "./auth/AuthProvider";
+import AuthProvider from "./auth/providers/AuthProvider";
 
 const theme = createAppTheme(defaultThemeSettings);
 
