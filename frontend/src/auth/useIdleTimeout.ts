@@ -170,6 +170,7 @@ export function useIdleTimeout({
 
     }, [
         enabled,
+        clearTimers,
         scheduleIdleTimer
     ]);
 
