@@ -1,38 +1,118 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { clearTokens, getAccessToken, getRefreshToken } from "./jwt";
-import { getCurrentUser, logout as logoutAPI } from "../api/authApi";
-import { AuthContext } from "./AuthContext";
-import type { UserProfile } from "../features/auth/types/auth.types";
+import {
+    useCallback,
+    useEffect,
+    useState,
+    type ReactNode
+} from "react";
+
 import { useQueryClient } from "@tanstack/react-query";
-import { useNotification } from "../hooks/useNotification";
-import { SESSION_EXPIRED_EVENT } from "./sessionEvents";
 
-interface Props {children: ReactNode};
+import {
+    clearTokens,
+    getAccessToken,
+    getRefreshToken
+} from "./jwt";
 
-export default function AuthProvider({children}: Props) {
-    const { showError } = useNotification();
-    const queryClient = useQueryClient();
-    const [user, setUser] = useState<UserProfile | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const refreshSession = useCallback(
-        async () => {
-            const accessToken = getAccessToken();
+import {
+    getCurrentUser,
+    logout as logoutAPI
+} from "../api/authApi";
 
-            if (!accessToken) {
-                setUser(null);
-                return;
-            }
-            try {
-                const currentUser = await getCurrentUser();
-                setUser(currentUser);
-            } catch {
-                clearTokens();
-                setUser(null);
-            }
-        },
-        []
-    );
+import { AuthContext } from "./AuthContext";
 
+import type { UserProfile }
+    from "../features/auth/types/auth.types";
+
+import { useNotification }
+    from "../hooks/useNotification";
+
+import {
+    SESSION_EXPIRED_EVENT
+} from "./sessionEvents";
+
+import {
+    useIdleTimeout
+} from "./useIdleTimeout";
+
+import SessionTimeoutDialog
+    from "../components/dialogs/SessionTimeoutDialog";
+
+
+interface Props {
+
+    children: ReactNode;
+
+}
+
+
+export default function AuthProvider({
+    children
+}: Props) {
+
+    const {
+        showError
+    } = useNotification();
+
+
+    const queryClient =
+        useQueryClient();
+
+
+    const [user, setUser] =
+        useState<UserProfile | null>(null);
+
+
+    const [isLoading, setIsLoading] =
+        useState(true);
+
+
+    /*
+     * Restore the current authenticated user.
+     */
+    const refreshSession =
+        useCallback(
+            async () => {
+
+                const accessToken =
+                    getAccessToken();
+
+
+                if (!accessToken) {
+
+                    setUser(null);
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const currentUser =
+                        await getCurrentUser();
+
+
+                    setUser(
+                        currentUser
+                    );
+
+                } catch {
+
+                    clearTokens();
+
+                    setUser(null);
+
+                }
+
+            },
+            []
+        );
+
+
+    /*
+     * Handle an expired session caused by
+     * an invalid/expired refresh token.
+     */
     useEffect(() => {
 
         const handleSessionExpired = () => {
@@ -41,18 +121,25 @@ export default function AuthProvider({children}: Props) {
 
             setUser(null);
 
+            queryClient.clear();
+
+
             showError(
                 "Your session has expired. Please sign in again."
             );
 
-            window.location.href = "/login";
+
+            window.location.href =
+                "/login";
 
         };
+
 
         window.addEventListener(
             SESSION_EXPIRED_EVENT,
             handleSessionExpired
         );
+
 
         return () => {
 
@@ -63,49 +150,157 @@ export default function AuthProvider({children}: Props) {
 
         };
 
-    }, [showError]);
+    }, [
+        showError,
+        queryClient
+    ]);
 
+
+    /*
+     * Restore session when the application starts.
+     */
     useEffect(() => {
-        const initialize = async () => {
-            try {
-                await refreshSession();
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        void initialize();
-    }, [refreshSession]);
 
-    const logout = useCallback(
-        async () => {
-            const refreshToken = getRefreshToken();
-            try {
-                if (refreshToken) {
-                    await logoutAPI(refreshToken);
+        const initialize =
+            async () => {
+
+                try {
+
+                    await refreshSession();
+
+                } finally {
+
+                    setIsLoading(false);
+
                 }
-            } finally {
-                clearTokens();
-                setUser(null);
-                queryClient.clear();
-                window.location.href = "/login";
-            }
-        },
-        [queryClient]
-    );
+
+            };
+
+
+        void initialize();
+
+    }, [
+        refreshSession
+    ]);
+
+
+    /*
+     * Central logout function.
+     *
+     * Used by:
+     * - User logout
+     * - Idle timeout
+     */
+    const logout =
+        useCallback(
+            async () => {
+
+                const refreshToken =
+                    getRefreshToken();
+
+
+                try {
+
+                    if (refreshToken) {
+
+                        await logoutAPI(
+                            refreshToken
+                        );
+
+                    }
+
+                } finally {
+
+                    clearTokens();
+
+                    setUser(null);
+
+                    queryClient.clear();
+
+                    window.location.href =
+                        "/login";
+
+                }
+
+            },
+            [queryClient]
+        );
+
+
+    /*
+     * Idle timeout.
+     *
+     * Only enabled while the user is
+     * authenticated and the initial session
+     * restoration has completed.
+     */
+    const {
+        showWarning: showSessionTimeout,
+        remainingSeconds,
+        resetTimers
+    } = useIdleTimeout({
+
+        enabled:
+            user !== null &&
+            !isLoading,
+
+        onLogout:
+            logout
+
+    });
+
 
     const value = {
+
         user,
-        isAuthenticated: user !== null,
+
+        isAuthenticated:
+            user !== null,
+
         isLoading,
+
         logout,
+
         refreshSession
+
     };
 
+
     return (
+
         <AuthContext.Provider
-        value={value}
+            value={value}
         >
+
             {children}
+
+
+            <SessionTimeoutDialog
+
+                open={
+                    showSessionTimeout
+                }
+
+                remainingSeconds={
+                    remainingSeconds
+                }
+
+                onContinue={() => {
+
+                    resetTimers();
+
+                }}
+
+                onLogout={() => {
+
+                    void logout();
+
+                }}
+
+            />
+
         </AuthContext.Provider>
+
     );
+
 }
