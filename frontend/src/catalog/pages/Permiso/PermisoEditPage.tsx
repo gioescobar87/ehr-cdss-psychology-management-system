@@ -3,21 +3,21 @@ import {
     useParams
 } from "react-router-dom";
 
-import PageHeader from "../../shared/components/common/PageHeader";
-import PermisoForm from "../components/PermisoForm";
+import PageHeader from "../../../shared/components/common/PageHeader";
+import PermisoForm from "../../components/PermisoForm";
 
 import {
     useGetById,
     useUpdate
-} from "../hooks/usePermisos";
+} from "../../hooks/usePermiso";
 
 import {
     useGetAllEstados
-} from "../hooks/useEstados";
+} from "../../hooks/useEstados";
 
 import type {
     Request
-} from "../types/permiso.types";
+} from "../../types/permiso.types";
 
 export default function PermissionEditPage() {
     const navigate = useNavigate();

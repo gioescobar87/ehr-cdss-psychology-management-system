@@ -2,22 +2,22 @@ import {
     useNavigate
 } from "react-router-dom";
 
-import PageHeader from "../../shared/components/common/PageHeader";
-import PermissionForm from "../components/PermisoForm";
+import PageHeader from "../../../shared/components/common/PageHeader";
+import PermissionForm from "../../components/CategoriaDiagnosticaForm";
 
 import {
     useCreate
-} from "../hooks/usePermisos";
+} from "../../hooks/useCategoriaDiagnostica";
 
 import {
-    useGetAllEstados
-} from "../hooks/useEstados";
+    useGetAllCategorias
+} from "../../hooks/useCategoriaDiagnostica";
 
 import type {
     Request
-} from "../types/permiso.types";
+} from "../../types/categoriaDiagnostica.types";
 
-export default function PermissionCreatePage() {
+export default function CategoriaDiagnosticaCreatePage() {
     const navigate = useNavigate();
 
     const createPermission =
@@ -26,7 +26,7 @@ export default function PermissionCreatePage() {
     const {
         data: states = [],
         isLoading: statesLoading
-    } = useGetAllEstados();
+    } = useGetAllCategorias();
 
     const handleSubmit = (
         request: Request
@@ -36,7 +36,7 @@ export default function PermissionCreatePage() {
             {
                 onSuccess: () => {
                     navigate(
-                        "/administration/permissions"
+                        "/administration/categoria-diagnostica"
                     );
                 }
             }

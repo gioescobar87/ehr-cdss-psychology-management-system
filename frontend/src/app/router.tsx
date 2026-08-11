@@ -15,9 +15,12 @@ import ChangePasswordPage from "../auth/pages/ChangePasswordPage";
 import ForgotPasswordPage from "../auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "../auth/pages/ResetPasswordPage";
 import ForbiddenPage from "./pages/ForbiddenPage";
-import PermissionListPage from "../catalog/pages/PermisoListPage";
-import PermissionCreatePage from "../catalog/pages/PermisoCreatePage";
-import PermissionEditPage from "../catalog/pages/PermisoEditPage";
+import PermissionListPage from "../catalog/pages/Permiso/PermisoListPage";
+import PermissionCreatePage from "../catalog/pages/Permiso/PermisoCreatePage";
+import PermissionEditPage from "../catalog/pages/Permiso/PermisoEditPage";
+import CategoriaDiagnosticaCreatePage from "../catalog/pages/CategoriaDiagnostica/CategoriaDiagnosticaCreatePage";
+import CategoriaDiagnosticaEditPage from "../catalog/pages/CategoriaDiagnostica/CategoriaDiagnosticaEditPage";
+import CategoriaDiagnosticaListPage from "../catalog/pages/CategoriaDiagnostica/CategoriaDiagnosticaListPage";
 
 export const router = createBrowserRouter([
     {
@@ -77,6 +80,18 @@ export const router = createBrowserRouter([
                     {
                         path: "/administration/permissions/:id/edit",
                         element: <PermissionEditPage />
+                    },
+                    {
+                        path: "/administration/categoria-diagnostica",
+                        element: <CategoriaDiagnosticaListPage />
+                    },
+                    {
+                        path: "/administration/categoria-diagnostica/new",
+                        element: <CategoriaDiagnosticaCreatePage />
+                    },
+                    {
+                        path: "/administration/categoria-diagnostica/:id/edit",
+                        element: <CategoriaDiagnosticaEditPage />
                     }
                 ]
             }

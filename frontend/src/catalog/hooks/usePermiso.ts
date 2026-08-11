@@ -4,7 +4,7 @@ import {
     useQueryClient
 } from "@tanstack/react-query";
 
-import { create, getAll, getById, update, remove } from "../api/permissionApi";
+import { create, getAll, getById, update, remove } from "../api/permisoApi";
 
 import type { Request } from "../types/permiso.types";
 
