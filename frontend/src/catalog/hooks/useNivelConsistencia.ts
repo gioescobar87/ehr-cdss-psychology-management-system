@@ -9,10 +9,10 @@ import { create, getAll, getById, update, remove } from "../api/nivelConsistenci
 import type { Request } from "../types/catalogDTOs.types";
 
 export const keys = {
-    all: ["records"] as const,
+    all: ["nivel-consistencia"] as const,
 
     detail: (id: number) =>
-        ["record", id] as const
+        ["nivel-consistencia", id] as const
 };
 
 export function useGetAll() {

@@ -9,10 +9,10 @@ import { create, getAll, getById, update, remove } from "../api/categoriaDiagnos
 import type { Request } from "../types/catalogDTOs.types";
 
 export const keys = {
-    all: ["records"] as const,
+    all: ["categoria-diagnostica"] as const,
 
     detail: (id: number) =>
-        ["record", id] as const
+        ["categoria-diagnostica", id] as const
 };
 
 export function useGetAllCategorias() {

@@ -9,10 +9,10 @@ import { create, getAll, getById, update, remove } from "../api/permisoApi";
 import type { Request } from "../types/permiso.types";
 
 export const keys = {
-    all: ["permissions"] as const,
+    all: ["permiso"] as const,
 
     detail: (id: number) =>
-        ["permissions", id] as const
+        ["permiso", id] as const
 };
 
 export function useGetAllPermisos() {
