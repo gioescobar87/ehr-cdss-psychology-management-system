@@ -39,6 +39,15 @@ import NivelRiesgoEditPage from "../catalog/pages/NivelRiesgo/NivelRiesgoEditPag
 import NivelSeveridadAlergiaListPage from "../catalog/pages/NivelSeveridadAlergia/NivelSeveridadAlergiaListPage";
 import NivelSeveridadAlergiaCreatePage from "../catalog/pages/NivelSeveridadAlergia/NivelSeveridadAlergiaCreatePage";
 import NivelSeveridadAlergiaEditPage from "../catalog/pages/NivelSeveridadAlergia/NivelSeveridadAlergiaEditPage";
+import TipoIntervencionListPage from "../catalog/pages/TipoIntervencion/TipoIntervencionListPage";
+import TipoIntervencionoCreatePage from "../catalog/pages/TipoIntervencion/TipoIntervencionCreatePage";
+import TipoIntervencionEditPage from "../catalog/pages/TipoIntervencion/TipoIntervencionEditPage";
+import TipoPruebaListPage from "../catalog/pages/TipoPrueba/TipoPruebaListPage";
+import TipoPruebaCreatePage from "../catalog/pages/TipoPrueba/TipoPruebaCreatePage";
+import TipoPruebaEditPage from "../catalog/pages/TipoPrueba/TipoPruebaEditPage";
+import TipoRiesgoListPage from "../catalog/pages/TipoRiesgo/TipoRiesgoListPage";
+import TipoRiesgoCreatePage from "../catalog/pages/TipoRiesgo/TipoRiesgoCreatePage";
+import TipoRiesgoEditPage from "../catalog/pages/TipoRiesgo/TipoRiesgoEditPage";
 
 export const router = createBrowserRouter([
     {
@@ -182,6 +191,42 @@ export const router = createBrowserRouter([
                     {
                         path: "/administration/nivel-severidad-alergia/:id/edit",
                         element: <NivelSeveridadAlergiaEditPage />
+                    },
+                    {
+                        path: "/administration/tipo-intervencion",
+                        element: <TipoIntervencionListPage />
+                    },
+                    {
+                        path: "/administration/tipo-intervencion/new",
+                        element: <TipoIntervencionoCreatePage />
+                    },
+                    {
+                        path: "/administration/tipo-intervencion/:id/edit",
+                        element: <TipoIntervencionEditPage />
+                    },
+                    {
+                        path: "/administration/tipo-prueba",
+                        element: <TipoPruebaListPage />
+                    },
+                    {
+                        path: "/administration/tipo-prueba/new",
+                        element: <TipoPruebaCreatePage />
+                    },
+                    {
+                        path: "/administration/tipo-prueba/:id/edit",
+                        element: <TipoPruebaEditPage />
+                    },
+                    {
+                        path: "/administration/tipo-riesgo",
+                        element: <TipoRiesgoListPage />
+                    },
+                    {
+                        path: "/administration/tipo-riesgo/new",
+                        element: <TipoRiesgoCreatePage />
+                    },
+                    {
+                        path: "/administration/tipo-riesgo/:id/edit",
+                        element: <TipoRiesgoEditPage />
                     }
                 ]
             }

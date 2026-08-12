@@ -4,7 +4,7 @@ import {
     useQueryClient
 } from "@tanstack/react-query";
 
-import { create, getAll, getById, update, remove } from "../api/NIvelSeveridadAlergiaApi";
+import { create, getAll, getById, update, remove } from "../api/nivelSeveridadAlergiaApi";
 
 import type { Request } from "../types/catalogDTOs.types";
 
