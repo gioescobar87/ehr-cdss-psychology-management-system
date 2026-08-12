@@ -24,6 +24,12 @@ import CategoriaDiagnosticaListPage from "../catalog/pages/CategoriaDiagnostica/
 import CondicionMedicaListPage from "../catalog/pages/CondicionMedica/CondicionMedicaListPage";
 import CondicionMedicaCreatePage from "../catalog/pages/CondicionMedica/CondicionMedicaCreatePage";
 import CondicionMedicaEditPage from "../catalog/pages/CondicionMedica/CondicionMedicaEditPage";
+import EstadoCivilListPage from "../catalog/pages/EstadoCivil/EstadoCivilListPage";
+import EstadoCivilCreatePage from "../catalog/pages/EstadoCivil/EstadoCivilCreatePage";
+import EstadoCivilEditPage from "../catalog/pages/EstadoCivil/EstadoCivilEditPage";
+import NivelConsistenciaListPage from "../catalog/pages/NivelConsistencia/NivelConsistenciaListPage";
+import NivelConsistenciaCreatePage from "../catalog/pages/NivelConsistencia/NivelConsistenciaCreatePage";
+import NivelConsistenciaEditPage from "../catalog/pages/NivelConsistencia/NivelConsistenciaEditPage";
 
 export const router = createBrowserRouter([
     {
@@ -107,6 +113,30 @@ export const router = createBrowserRouter([
                     {
                         path: "/administration/condicion-medica/:id/edit",
                         element: <CondicionMedicaEditPage />
+                    },
+                    {
+                        path: "/administration/estado-civil",
+                        element: <EstadoCivilListPage />
+                    },
+                    {
+                        path: "/administration/estado-civil/new",
+                        element: <EstadoCivilCreatePage />
+                    },
+                    {
+                        path: "/administration/estado-civil/:id/edit",
+                        element: <EstadoCivilEditPage />
+                    },
+                    {
+                        path: "/administration/nivel-consistencia",
+                        element: <NivelConsistenciaListPage />
+                    },
+                    {
+                        path: "/administration/nivel-consistencia/new",
+                        element: <NivelConsistenciaCreatePage />
+                    },
+                    {
+                        path: "/administration/nivel-consistencia/:id/edit",
+                        element: <NivelConsistenciaEditPage />
                     }
                 ]
             }

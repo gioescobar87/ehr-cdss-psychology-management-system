@@ -10,8 +10,8 @@ import {
 } from "../../hooks/useCategoriaDiagnostica";
 
 import {
-    useGetAllCategorias
-} from "../../hooks/useCategoriaDiagnostica";
+    useGetAllEstados
+} from "../../hooks/useEstados";
 
 import type {
     Request
@@ -30,7 +30,7 @@ export default function CategoriaDiagnosticaCreatePage() {
     const {
         data: states = [],
         isLoading: statesLoading
-    } = useGetAllCategorias();
+    } = useGetAllEstados();
 
     const handleSubmit = (
         request: Request
