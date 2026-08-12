@@ -30,6 +30,15 @@ import EstadoCivilEditPage from "../catalog/pages/EstadoCivil/EstadoCivilEditPag
 import NivelConsistenciaListPage from "../catalog/pages/NivelConsistencia/NivelConsistenciaListPage";
 import NivelConsistenciaCreatePage from "../catalog/pages/NivelConsistencia/NivelConsistenciaCreatePage";
 import NivelConsistenciaEditPage from "../catalog/pages/NivelConsistencia/NivelConsistenciaEditPage";
+import NivelEscolaridadCreatePage from "../catalog/pages/NivelEscolaridad/NivelEscolaridadCreatePage";
+import NivelEscolaridadListPage from "../catalog/pages/NivelEscolaridad/NivelEscolaridadListPage";
+import NivelEscolaridadEditPage from "../catalog/pages/NivelEscolaridad/NivelEscolaridadEditPage";
+import NivelRiesgoListPage from "../catalog/pages/NivelRiesgo/NivelRiesgoListPage";
+import NivelRiesgoCreatePage from "../catalog/pages/NivelRiesgo/NivelRiesgoCreatePage";
+import NivelRiesgoEditPage from "../catalog/pages/NivelRiesgo/NivelRiesgoEditPage";
+import NivelSeveridadAlergiaListPage from "../catalog/pages/NivelSeveridadAlergia/NivelSeveridadAlergiaListPage";
+import NivelSeveridadAlergiaCreatePage from "../catalog/pages/NivelSeveridadAlergia/NivelSeveridadAlergiaCreatePage";
+import NivelSeveridadAlergiaEditPage from "../catalog/pages/NivelSeveridadAlergia/NivelSeveridadAlergiaEditPage";
 
 export const router = createBrowserRouter([
     {
@@ -137,6 +146,42 @@ export const router = createBrowserRouter([
                     {
                         path: "/administration/nivel-consistencia/:id/edit",
                         element: <NivelConsistenciaEditPage />
+                    },
+                    {
+                        path: "/administration/nivel-escolaridad",
+                        element: <NivelEscolaridadListPage />
+                    },
+                    {
+                        path: "/administration/nivel-escolaridad/new",
+                        element: <NivelEscolaridadCreatePage />
+                    },
+                    {
+                        path: "/administration/nivel-escolaridad/:id/edit",
+                        element: <NivelEscolaridadEditPage />
+                    },
+                    {
+                        path: "/administration/nivel-riesgo",
+                        element: <NivelRiesgoListPage />
+                    },
+                    {
+                        path: "/administration/nivel-riesgo/new",
+                        element: <NivelRiesgoCreatePage />
+                    },
+                    {
+                        path: "/administration/nivel-riesgo/:id/edit",
+                        element: <NivelRiesgoEditPage />
+                    },
+                    {
+                        path: "/administration/nivel-severidad-alergia",
+                        element: <NivelSeveridadAlergiaListPage />
+                    },
+                    {
+                        path: "/administration/nivel-severidad-alergia/new",
+                        element: <NivelSeveridadAlergiaCreatePage />
+                    },
+                    {
+                        path: "/administration/nivel-severidad-alergia/:id/edit",
+                        element: <NivelSeveridadAlergiaEditPage />
                     }
                 ]
             }
