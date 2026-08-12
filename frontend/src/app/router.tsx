@@ -48,6 +48,15 @@ import TipoPruebaEditPage from "../catalog/pages/TipoPrueba/TipoPruebaEditPage";
 import TipoRiesgoListPage from "../catalog/pages/TipoRiesgo/TipoRiesgoListPage";
 import TipoRiesgoCreatePage from "../catalog/pages/TipoRiesgo/TipoRiesgoCreatePage";
 import TipoRiesgoEditPage from "../catalog/pages/TipoRiesgo/TipoRiesgoEditPage";
+import TipoSesionListPage from "../catalog/pages/TipoSesion/TipoSesionListPage";
+import TipoSesionCreatePage from "../catalog/pages/TipoSesion/TipoSesionCreatePage";
+import TipoSesionEditPage from "../catalog/pages/TipoSesion/TipoSesionEditPage";
+import TipoSustanciaAlergenaListPage from "../catalog/pages/TipoSustanciaAlergena/TipoSustanciaAlergenaListPage";
+import TipoSustanciaAlergenaCreatePage from "../catalog/pages/TipoSustanciaAlergena/TipoSustanciaAlergenaCreatePage";
+import TipoSustanciaAlergenaEditPage from "../catalog/pages/TipoSustanciaAlergena/TipoSustanciaAlergenaEditPage";
+import CategoriaCriterioClinicoListPage from "../catalog/pages/CategoríaCriterioClinico/CategoriaCriterioClinicoListPage";
+import CategoriaCriterioClinicoCreatePage from "../catalog/pages/CategoríaCriterioClinico/CategoriaCriterioClinicoCreatePage";
+import CategoriaCriterioClinicoEditPage from "../catalog/pages/CategoríaCriterioClinico/CategoriaCriterioClinicoEditPage";
 
 export const router = createBrowserRouter([
     {
@@ -227,6 +236,42 @@ export const router = createBrowserRouter([
                     {
                         path: "/administration/tipo-riesgo/:id/edit",
                         element: <TipoRiesgoEditPage />
+                    },
+                    {
+                        path: "/administration/tipo-sesion",
+                        element: <TipoSesionListPage />
+                    },
+                    {
+                        path: "/administration/tipo-sesion/new",
+                        element: <TipoSesionCreatePage />
+                    },
+                    {
+                        path: "/administration/tipo-sesion/:id/edit",
+                        element: <TipoSesionEditPage />
+                    },
+                    {
+                        path: "/administration/tipo-sustancia-alergena",
+                        element: <TipoSustanciaAlergenaListPage />
+                    },
+                    {
+                        path: "/administration/tipo-sustancia-alergena/new",
+                        element: <TipoSustanciaAlergenaCreatePage />
+                    },
+                    {
+                        path: "/administration/tipo-sustancia-alergena/:id/edit",
+                        element: <TipoSustanciaAlergenaEditPage />
+                    },
+                    {
+                        path: "/administration/categoria-criterio-clinico",
+                        element: <CategoriaCriterioClinicoListPage />
+                    },
+                    {
+                        path: "/administration/categoria-criterio-clinico/new",
+                        element: <CategoriaCriterioClinicoCreatePage />
+                    },
+                    {
+                        path: "/administration/categoria-criterio-clinico/:id/edit",
+                        element: <CategoriaCriterioClinicoEditPage />
                     }
                 ]
             }
