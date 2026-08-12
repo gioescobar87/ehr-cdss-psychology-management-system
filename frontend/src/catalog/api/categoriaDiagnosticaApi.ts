@@ -1,5 +1,5 @@
 import apiClient from "../../shared/api/apiClient";
-import type { Response, Request } from "../types/categoriaDiagnostica.types";
+import type { Response, Request } from "../types/catalogDTOs.types";
 
 const BASE_PATH = "/catalogos/categoria-diagnostica";
 

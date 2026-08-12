@@ -21,6 +21,9 @@ import PermissionEditPage from "../catalog/pages/Permiso/PermisoEditPage";
 import CategoriaDiagnosticaCreatePage from "../catalog/pages/CategoriaDiagnostica/CategoriaDiagnosticaCreatePage";
 import CategoriaDiagnosticaEditPage from "../catalog/pages/CategoriaDiagnostica/CategoriaDiagnosticaEditPage";
 import CategoriaDiagnosticaListPage from "../catalog/pages/CategoriaDiagnostica/CategoriaDiagnosticaListPage";
+import CondicionMedicaListPage from "../catalog/pages/CondicionMedica/CondicionMedicaListPage";
+import CondicionMedicaCreatePage from "../catalog/pages/CondicionMedica/CondicionMedicaCreatePage";
+import CondicionMedicaEditPage from "../catalog/pages/CondicionMedica/CondicionMedicaEditPage";
 
 export const router = createBrowserRouter([
     {
@@ -92,6 +95,18 @@ export const router = createBrowserRouter([
                     {
                         path: "/administration/categoria-diagnostica/:id/edit",
                         element: <CategoriaDiagnosticaEditPage />
+                    },
+                    {
+                        path: "/administration/condicion-medica",
+                        element: <CondicionMedicaListPage />
+                    },
+                    {
+                        path: "/administration/condicion-medica/new",
+                        element: <CondicionMedicaCreatePage />
+                    },
+                    {
+                        path: "/administration/condicion-medica/:id/edit",
+                        element: <CondicionMedicaEditPage />
                     }
                 ]
             }

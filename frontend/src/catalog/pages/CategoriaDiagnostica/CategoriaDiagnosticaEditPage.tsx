@@ -4,7 +4,7 @@ import {
 } from "react-router-dom";
 
 import PageHeader from "../../../shared/components/common/PageHeader";
-import CategoriaForm from "../../components/CategoriaDiagnosticaForm";
+import CatalogForm from "../../components/CatalogoForm";
 
 import {
     useGetById,
@@ -17,7 +17,7 @@ import {
 
 import type {
     Request
-} from "../../types/categoriaDiagnostica.types";
+} from "../../types/catalogDTOs.types";
 
 export default function CategoriaDiagnosticaEditPage() {
     const navigate = useNavigate();
@@ -69,7 +69,7 @@ export default function CategoriaDiagnosticaEditPage() {
                 description="Modificar la información del registro."
             />
 
-            <CategoriaForm
+            <CatalogForm
                 initialData={record}
                 states={states}
                 loading={

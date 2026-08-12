@@ -20,14 +20,14 @@ import FormActions from "../../shared/components/forms/FormActions";
 import {
     schema,
     type FormValues
-} from "../schemas/categoriaDiagnostica.schema";
+} from "../schemas/catalogo.schema";
 
 import type {
     Response,
     Request
-} from "../types/categoriaDiagnostica.types";
+} from "../types/catalogDTOs.types";
 
-interface CategoriaFormProps {
+interface FormProps {
     initialData?: Response;
     states: {
         id: number;
@@ -38,13 +38,13 @@ interface CategoriaFormProps {
     onCancel: () => void;
 }
 
-export default function CategoriaForm({
+export default function CatalogForm({
     initialData,
     states,
     loading = false,
     onSubmit,
     onCancel
-}: CategoriaFormProps) {
+}: FormProps) {
 
     const {
         control,

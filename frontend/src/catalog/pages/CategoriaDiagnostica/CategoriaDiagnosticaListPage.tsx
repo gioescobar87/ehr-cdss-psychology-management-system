@@ -8,7 +8,7 @@ import AppButton from "../../../shared/components/common/AppButton";
 import DataTable from "../../../shared/components/tables/DataTable";
 
 import { useGetAllCategorias } from "../../hooks/useCategoriaDiagnostica";
-import type { Response } from "../../types/categoriaDiagnostica.types";
+import type { Response } from "../../types/catalogDTOs.types";
 import type { DataTableColumn } from "../../../shared/components/tables/DataTable.types";
 
 export default function CategoriaDiagnosticaListPage() {
@@ -109,7 +109,7 @@ export default function CategoriaDiagnosticaListPage() {
                             navigate("/administration/" + specificPath + "/new")
                         }
                     >
-                        Nuevo permiso
+                        Nuevo registro
                     </AppButton>
                 }
             />

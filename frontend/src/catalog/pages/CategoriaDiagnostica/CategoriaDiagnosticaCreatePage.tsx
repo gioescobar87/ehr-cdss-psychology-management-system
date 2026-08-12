@@ -3,7 +3,7 @@ import {
 } from "react-router-dom";
 
 import PageHeader from "../../../shared/components/common/PageHeader";
-import PermissionForm from "../../components/CategoriaDiagnosticaForm";
+import PermissionForm from "../../components/CatalogoForm";
 
 import {
     useCreate
@@ -15,10 +15,14 @@ import {
 
 import type {
     Request
-} from "../../types/categoriaDiagnostica.types";
+} from "../../types/catalogDTOs.types";
 
 export default function CategoriaDiagnosticaCreatePage() {
     const navigate = useNavigate();
+
+    const path = "/administration/categoria-diagnostica"
+    const titleCreate = "Categoría Diagnostica";
+    const descriptionCreate = "Crear una nueva " + titleCreate + "."
 
     const createPermission =
         useCreate();
@@ -35,9 +39,7 @@ export default function CategoriaDiagnosticaCreatePage() {
             request,
             {
                 onSuccess: () => {
-                    navigate(
-                        "/administration/categoria-diagnostica"
-                    );
+                    navigate(path);
                 }
             }
         );
@@ -46,8 +48,8 @@ export default function CategoriaDiagnosticaCreatePage() {
     return (
         <>
             <PageHeader
-                title="Nuevo permiso"
-                description="Crear un nuevo permiso del sistema."
+                title={titleCreate}
+                description={descriptionCreate}
             />
 
             <PermissionForm
@@ -58,9 +60,7 @@ export default function CategoriaDiagnosticaCreatePage() {
                 }
                 onSubmit={handleSubmit}
                 onCancel={() =>
-                    navigate(
-                        "/administration/permissions"
-                    )
+                    navigate(path)
                 }
             />
         </>

@@ -6,13 +6,13 @@ import {
 
 import { create, getAll, getById, update, remove } from "../api/categoriaDiagnosticaApi";
 
-import type { Request } from "../types/categoriaDiagnostica.types";
+import type { Request } from "../types/catalogDTOs.types";
 
 export const keys = {
-    all: ["categorias"] as const,
+    all: ["records"] as const,
 
     detail: (id: number) =>
-        ["categoria", id] as const
+        ["record", id] as const
 };
 
 export function useGetAllCategorias() {
