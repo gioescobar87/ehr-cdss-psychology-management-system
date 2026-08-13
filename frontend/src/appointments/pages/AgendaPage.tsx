@@ -4,17 +4,12 @@ import { useNavigate } from "react-router-dom";
 import {
     Alert,
     Box,
-    CircularProgress,
-    Paper,
-    Stack,
-    Typography
+    CircularProgress
 } from "@mui/material";
 
-import AgendaToolbar
-    from "../components/AgendaToolbar";
-
-import AppointmentCard
-    from "../components/AppointmentCard";
+import AgendaToolbar from "../components/AgendaToolbar";
+import AgendaSummary from "../components/AgendaSummary";
+import DayAgenda from "../components/DayAgenda";
 
 import { useAgenda } from "../hooks/useAgenda";
 
@@ -23,6 +18,7 @@ import {
 } from "../../shared/utils/dateUtils";
 
 import type { Appointment } from "../types/appointment.types";
+import { APPOINTMENT_STATUS } from "../constants/appointmentStatus";
 
 
 export default function AgendaPage() {
@@ -42,11 +38,36 @@ export default function AgendaPage() {
         isError
     } = useAgenda(selectedDate);
 
-
     const sortedAppointments =
-        useMemo(
-            () =>
+        useMemo(() =>
                 [...appointments].sort(
+                    (a, b) =>
+                        new Date(a.fechaHoraInicio).getTime()
+                        -
+                        new Date(b.fechaHoraInicio).getTime()
+                ), [appointments]
+        );
+
+    const handleAppointmentClick = (appointment: Appointment) => {
+            navigate(
+                `/citas/${appointment.id}`
+            );
+        };
+
+
+    const handleCreateAppointment = () => {
+        navigate("/citas/new");
+    };
+
+    const agendaAppointments = useMemo(
+        () =>
+            appointments
+                .filter(
+                    appointment =>
+                        appointment.estadoId !==
+                        APPOINTMENT_STATUS.CANCELLED
+                )
+                .sort(
                     (a, b) =>
                         new Date(
                             a.fechaHoraInicio
@@ -56,28 +77,17 @@ export default function AgendaPage() {
                             b.fechaHoraInicio
                         ).getTime()
                 ),
-            [appointments]
-        );
-
-
-    const handleAppointmentClick =
-        (appointment: Appointment) => {
-
-            navigate(
-                `/citas/${appointment.id}`
-            );
-
-        };
+        [appointments]
+    );
 
 
     return (
         <Box>
-
             <AgendaToolbar
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
-                onCreateAppointment={() =>
-                    navigate("/citas/new")
+                onCreateAppointment={
+                    handleCreateAppointment
                 }
             />
 
@@ -91,7 +101,6 @@ export default function AgendaPage() {
             )}
 
             {isLoading ? (
-
                 <Box
                     sx={{
                         display: "flex",
@@ -101,86 +110,22 @@ export default function AgendaPage() {
                 >
                     <CircularProgress />
                 </Box>
-
             ) : (
-
-                <AgendaContent
-                    appointments={sortedAppointments}
-                    onAppointmentClick={
-                        handleAppointmentClick
-                    }
-                />
-
-            )}
-
-        </Box>
-    );
-}
-
-
-interface AgendaContentProps {
-    appointments: Appointment[];
-    onAppointmentClick: (
-        appointment: Appointment
-    ) => void;
-}
-
-
-function AgendaContent({
-    appointments,
-    onAppointmentClick
-}: AgendaContentProps) {
-
-    if (appointments.length === 0) {
-
-        return (
-            <Paper
-                variant="outlined"
-                sx={{
-                    py: 8,
-                    px: 3,
-                    textAlign: "center"
-                }}
-            >
-
-                <Typography
-                    variant="h6"
-                    gutterBottom
-                >
-                    No hay citas programadas
-                </Typography>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    No existen citas para la fecha
-                    seleccionada.
-                </Typography>
-
-            </Paper>
-        );
-
-    }
-
-
-    return (
-        <Stack spacing={2}>
-
-            {appointments.map(
-                appointment => (
-
-                    <AppointmentCard
-                        key={appointment.id}
-                        appointment={appointment}
-                        onClick={
-                            onAppointmentClick
+                <>
+                    <AgendaSummary
+                        appointments={
+                            sortedAppointments
+                        }
+                        selectedDate={
+                            selectedDate
                         }
                     />
-
-                )
+                    <DayAgenda
+                        appointments={agendaAppointments}
+                        onAppointmentClick={handleAppointmentClick}
+                    />
+                </>
             )}
-
-        </Stack>
+        </Box>
     );
 }

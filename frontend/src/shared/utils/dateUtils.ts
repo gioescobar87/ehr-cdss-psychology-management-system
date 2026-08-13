@@ -1,6 +1,5 @@
 const GUATEMALA_LOCALE = "es-GT";
 
-
 export function formatAppointmentTime(
     value: string
 ): string {
@@ -15,7 +14,6 @@ export function formatAppointmentTime(
     ).format(new Date(value));
 
 }
-
 
 export function formatAppointmentDate(
     value: string
@@ -33,7 +31,6 @@ export function formatAppointmentDate(
 
 }
 
-
 export function formatShortDate(
     value: string
 ): string {
@@ -47,7 +44,6 @@ export function formatShortDate(
     ).format(new Date(value));
 
 }
-
 
 export function toDateInputValue(
     date: Date
@@ -66,7 +62,6 @@ export function toDateInputValue(
     return `${year}-${month}-${day}`;
 }
 
-
 export function isToday(
     date: string
 ): boolean {
@@ -74,7 +69,6 @@ export function isToday(
     return date === toDateInputValue(new Date());
 
 }
-
 
 export function addDays(
     date: string,
@@ -89,7 +83,6 @@ export function addDays(
 
     return toDateInputValue(result);
 }
-
 
 export function combineDateAndTime(
     date: string,
