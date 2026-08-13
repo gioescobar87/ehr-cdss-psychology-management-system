@@ -115,7 +115,7 @@ export default function AppointmentCreatePage() {
                 );
 
             navigate(
-                `/appointments/${appointment.id}`
+                `/citas/${appointment.id}`
             );
 
         } catch (error) {
@@ -159,7 +159,7 @@ export default function AppointmentCreatePage() {
                     handleSubmit
                 }
                 onCancel={() =>
-                    navigate("/appointments")
+                    navigate("/citas")
                 }
             />
 

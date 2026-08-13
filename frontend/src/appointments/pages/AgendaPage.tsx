@@ -64,7 +64,7 @@ export default function AgendaPage() {
         (appointment: Appointment) => {
 
             navigate(
-                `/appointments/${appointment.id}`
+                `/citas/${appointment.id}`
             );
 
         };
@@ -77,7 +77,7 @@ export default function AgendaPage() {
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onCreateAppointment={() =>
-                    navigate("/appointments/new")
+                    navigate("/citas/new")
                 }
             />
 

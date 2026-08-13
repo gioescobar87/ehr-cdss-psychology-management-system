@@ -154,7 +154,7 @@ export default function AppointmentDetailsPage() {
                 <Button
                     startIcon={<ArrowBackIcon />}
                     onClick={() =>
-                        navigate("/appointments")
+                        navigate("/citas")
                     }
                 >
                     Volver a la agenda
@@ -174,7 +174,7 @@ export default function AppointmentDetailsPage() {
                             startIcon={<EditIcon />}
                             onClick={() =>
                                 navigate(
-                                    `/appointments/${appointment.id}/edit`
+                                    `/citas/${appointment.id}/edit`
                                 )
                             }
                         >

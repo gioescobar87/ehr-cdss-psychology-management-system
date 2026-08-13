@@ -278,19 +278,19 @@ export const router = createBrowserRouter([
                         element: <CategoriaCriterioClinicoEditPage />
                     },
                     {
-                        path: "/appointments/new",
+                        path: "/citas/new",
                         element: <AppointmentCreatePage />
                     },
                     {
-                        path: "/appointments/:id/edit",
+                        path: "/citas/:id/edit",
                         element: <AppointmentEditPage />
                     },
                     {
-                        path: "/appointments",
+                        path: "/citas",
                         element: <AgendaPage />
                     },
                     {
-                        path: "/appointments/:id",
+                        path: "/citas/:id",
                         element: <AppointmentDetailsPage />
                     }
                 ]

@@ -112,7 +112,7 @@ export default function AppointmentEditPage() {
     ) {
 
         navigate(
-            `/appointments/${appointment.id}`,
+            `/citas/${appointment.id}`,
             {
                 replace: true
             }
@@ -195,7 +195,7 @@ export default function AppointmentEditPage() {
         });
 
         navigate(
-            `/appointments/${appointment.id}`
+            `/citas/${appointment.id}`
         );
     };
 
@@ -224,7 +224,7 @@ export default function AppointmentEditPage() {
                 }
                 onCancel={() =>
                     navigate(
-                        `/appointments/${appointment.id}`
+                        `/citas/${appointment.id}`
                     )
                 }
             />
