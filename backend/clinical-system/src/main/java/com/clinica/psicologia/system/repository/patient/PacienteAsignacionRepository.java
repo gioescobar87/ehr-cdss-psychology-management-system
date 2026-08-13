@@ -16,6 +16,7 @@ public interface PacienteAsignacionRepository extends JpaRepository<PacienteAsig
 
         Optional<PacienteAsignacion> findFirstByPacienteIdAndFechaFinIsNull(Integer pacienteId);
 
-        @Transactional
-        void deleteByPaciente(Paciente paciente);
+        @Transactional void deleteByPaciente(Paciente paciente);
+
+        List<PacienteAsignacion> findByPsicologoIdAndFechaFinIsNullOrderByFechaAsignacionDesc(Integer psicologoId);
 }

@@ -28,134 +28,144 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class PacienteAsignacionServiceImpl
-        implements PacienteAsignacionService {
+                implements PacienteAsignacionService {
 
-    private static final String ROL_PSICOLOGO = "PSICOLOGO";
+        private static final String ROL_PSICOLOGO = "PSICOLOGO";
 
-    private final PacienteAsignacionRepository repository;
-    private final PacienteRepository pacienteRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final UsuarioRolRepository usuarioRolRepository;
-    private final PacienteAsignacionMapper mapper;
+        private final PacienteAsignacionRepository repository;
+        private final PacienteRepository pacienteRepository;
+        private final UsuarioRepository usuarioRepository;
+        private final UsuarioRolRepository usuarioRolRepository;
+        private final PacienteAsignacionMapper mapper;
 
-    // =====================================================
-    // ASIGNAR PACIENTE
-    // =====================================================
-    @Override
-    public PacienteAsignacionResponseDTO asignarPaciente(
-            Integer pacienteId,
-            AsignarPacienteRequestDTO request) {
+        // =====================================================
+        // ASIGNAR PACIENTE
+        // =====================================================
+        @Override
+        public PacienteAsignacionResponseDTO asignarPaciente(
+                        Integer pacienteId,
+                        AsignarPacienteRequestDTO request) {
 
-        Paciente paciente = pacienteRepository.findById(pacienteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
+                Paciente paciente = pacienteRepository.findById(pacienteId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
 
-        Usuario psicologo = usuarioRepository.findById(request.getPsicologoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Psicólogo no encontrado"));
+                Usuario psicologo = usuarioRepository.findById(request.getPsicologoId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Psicólogo no encontrado"));
 
-        validarPsicologo(psicologo);
+                validarPsicologo(psicologo);
 
-        repository.findFirstByPacienteIdAndFechaFinIsNull(pacienteId)
-                .ifPresent(a -> {
-                    throw new BusinessRuleException("El paciente ya posee una asignación activa");
-                });
+                repository.findFirstByPacienteIdAndFechaFinIsNull(pacienteId)
+                                .ifPresent(a -> {
+                                        throw new BusinessRuleException("El paciente ya posee una asignación activa");
+                                });
 
-        PacienteAsignacion asignacion = new PacienteAsignacion();
+                PacienteAsignacion asignacion = new PacienteAsignacion();
 
-        asignacion.setPaciente(paciente);
-        asignacion.setPsicologo(psicologo);
-        asignacion.setFechaAsignacion(LocalDateTime.now());
-        asignacion.setMotivoAsignacion(request.getMotivoAsignacion());
+                asignacion.setPaciente(paciente);
+                asignacion.setPsicologo(psicologo);
+                asignacion.setFechaAsignacion(LocalDateTime.now());
+                asignacion.setMotivoAsignacion(request.getMotivoAsignacion());
 
-        asignacion = repository.save(asignacion);
+                asignacion = repository.save(asignacion);
 
-        return mapper.toResponse(asignacion);
-    }
-
-    // =====================================================
-    // REASIGNAR PACIENTE
-    // =====================================================
-    @Override
-    public PacienteAsignacionResponseDTO reasignarPaciente(Integer pacienteId, ReasignarPacienteRequestDTO request) {
-
-        PacienteAsignacion actual = repository.findFirstByPacienteIdAndFechaFinIsNull(pacienteId)
-                .orElseThrow(() -> new BusinessRuleException("El paciente no posee asignación activa"));
-
-        Usuario nuevoPsicologo = usuarioRepository.findById(request.getNuevoPsicologoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Psicólogo no encontrado"));
-
-        validarPsicologo(nuevoPsicologo);
-
-        if (actual.getPsicologo().getId().equals(request.getNuevoPsicologoId())) {
-            throw new BusinessRuleException("El paciente ya está asignado a este psicólogo");
+                return mapper.toResponse(asignacion);
         }
 
-        Usuario usuarioCambio = usuarioRepository.findById(
-                request.getUsuarioCambioId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Usuario que realiza el cambio no encontrado"));
+        // =====================================================
+        // REASIGNAR PACIENTE
+        // =====================================================
+        @Override
+        public PacienteAsignacionResponseDTO reasignarPaciente(Integer pacienteId,
+                        ReasignarPacienteRequestDTO request) {
 
-        // ============================================
-        // CERRAR ASIGNACIÓN ACTUAL
-        // ============================================
+                PacienteAsignacion actual = repository.findFirstByPacienteIdAndFechaFinIsNull(pacienteId)
+                                .orElseThrow(() -> new BusinessRuleException("El paciente no posee asignación activa"));
 
-        actual.setFechaFin(LocalDateTime.now());
-        actual.setJustificacionReasignacion(request.getJustificacionReasignacion());
-        actual.setUsuarioCambio(usuarioCambio);
+                Usuario nuevoPsicologo = usuarioRepository.findById(request.getNuevoPsicologoId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Psicólogo no encontrado"));
 
-        repository.save(actual);
+                validarPsicologo(nuevoPsicologo);
 
-        // ============================================
-        // NUEVA ASIGNACIÓN
-        // ============================================
+                if (actual.getPsicologo().getId().equals(request.getNuevoPsicologoId())) {
+                        throw new BusinessRuleException("El paciente ya está asignado a este psicólogo");
+                }
 
-        PacienteAsignacion nueva = new PacienteAsignacion();
+                Usuario usuarioCambio = usuarioRepository.findById(
+                                request.getUsuarioCambioId())
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Usuario que realiza el cambio no encontrado"));
 
-        nueva.setPaciente(actual.getPaciente());
-        nueva.setPsicologo(nuevoPsicologo);
+                // ============================================
+                // CERRAR ASIGNACIÓN ACTUAL
+                // ============================================
 
-        nueva.setUsuarioCambio(usuarioCambio);
+                actual.setFechaFin(LocalDateTime.now());
+                actual.setJustificacionReasignacion(request.getJustificacionReasignacion());
+                actual.setUsuarioCambio(usuarioCambio);
 
-        nueva.setFechaAsignacion(LocalDateTime.now());
+                repository.save(actual);
 
-        nueva.setMotivoAsignacion("Reasignación de paciente");
+                // ============================================
+                // NUEVA ASIGNACIÓN
+                // ============================================
 
-        nueva = repository.save(nueva);
+                PacienteAsignacion nueva = new PacienteAsignacion();
 
-        return mapper.toResponse(nueva);
-    }
+                nueva.setPaciente(actual.getPaciente());
+                nueva.setPsicologo(nuevoPsicologo);
 
-    // =====================================================
-    // HISTORIAL
-    // =====================================================
-    @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
-    public List<PacienteAsignacionResponseDTO> historialAsignaciones(Integer pacienteId) {
+                nueva.setUsuarioCambio(usuarioCambio);
 
-        pacienteRepository.findById(pacienteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
+                nueva.setFechaAsignacion(LocalDateTime.now());
 
-        return mapper.toResponseList(
-                repository.findByPacienteIdOrderByFechaAsignacionDesc(pacienteId));
-    }
+                nueva.setMotivoAsignacion("Reasignación de paciente");
 
-    // =====================================================
-    // VALIDAR PSICÓLOGO
-    // =====================================================
-    private void validarPsicologo(Usuario usuario) {
+                nueva = repository.save(nueva);
 
-        boolean esPsicologo = usuarioRolRepository.existsByUsuarioAndRolNombre(usuario, ROL_PSICOLOGO);
-
-        if (!esPsicologo) {
-            throw new DuplicateResourceException("El usuario seleccionado no posee el rol PSICOLOGO");
+                return mapper.toResponse(nueva);
         }
-    }
 
-    @Transactional
-    public void deleteByPaciente(Integer pacienteId) {
+        // =====================================================
+        // HISTORIAL
+        // =====================================================
+        @Override
+        @Transactional(Transactional.TxType.SUPPORTS)
+        public List<PacienteAsignacionResponseDTO> historialAsignaciones(Integer pacienteId) {
 
-        Paciente paciente = pacienteRepository.findById(pacienteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
+                pacienteRepository.findById(pacienteId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
 
-        repository.deleteByPaciente(paciente);
-    }
+                return mapper.toResponseList(
+                                repository.findByPacienteIdOrderByFechaAsignacionDesc(pacienteId));
+        }
+
+        // =====================================================
+        // VALIDAR PSICÓLOGO
+        // =====================================================
+        private void validarPsicologo(Usuario usuario) {
+
+                boolean esPsicologo = usuarioRolRepository.existsByUsuarioAndRolNombre(usuario, ROL_PSICOLOGO);
+
+                if (!esPsicologo) {
+                        throw new DuplicateResourceException("El usuario seleccionado no posee el rol PSICOLOGO");
+                }
+        }
+
+        @Transactional
+        public void deleteByPaciente(Integer pacienteId) {
+
+                Paciente paciente = pacienteRepository.findById(pacienteId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
+
+                repository.deleteByPaciente(paciente);
+        }
+
+        @Override
+        @Transactional(Transactional.TxType.SUPPORTS)
+        public List<PacienteAsignacionResponseDTO> getPacientesActualesByUsuario(Integer usuarioId) {
+                usuarioRepository.findById(usuarioId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                return mapper.toResponseList(
+                                repository.findByPsicologoIdAndFechaFinIsNullOrderByFechaAsignacionDesc(usuarioId));
+        }
 }

@@ -15,4 +15,6 @@ public interface PacienteAsignacionService {
     List<PacienteAsignacionResponseDTO> historialAsignaciones(Integer pacienteId);
 
     void deleteByPaciente(Integer pacienteId);
+
+    List<PacienteAsignacionResponseDTO> getPacientesActualesByUsuario(Integer usuarioId);
 }

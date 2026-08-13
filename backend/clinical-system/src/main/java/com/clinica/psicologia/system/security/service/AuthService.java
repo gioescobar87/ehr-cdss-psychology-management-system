@@ -35,7 +35,10 @@ import com.clinica.psicologia.system.security.exception.custom.InvalidCredential
 import com.clinica.psicologia.system.security.exception.custom.InvalidTokenException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
         private final AuthenticationManager authenticationManager;
@@ -48,29 +51,6 @@ public class AuthService {
         private final PasswordEncoder passwordEncoder;
         private final RefreshTokenRepository refreshTokenRepository;
         private final PasswordResetTokenRepository passwordResetTokenRepository;
-        // private final JavaMailSender mailSender;
-
-        public AuthService(AuthenticationManager authenticationManager, SecurityUserService userService,
-                        JwtService jwtService, RefreshTokenService refreshTokenService,
-                        UsuarioRepository usuarioRepository,
-                        RolRepository rolRepository, UsuarioRolRepository usuarioRolRepository,
-                        PasswordEncoder passwordEncoder,
-                        RefreshTokenRepository refreshTokenRepository,
-                        PasswordResetTokenRepository passwordResetTokenRepository
-        // JavaMailSender mailSender
-        ) {
-                this.authenticationManager = authenticationManager;
-                this.userService = userService;
-                this.jwtService = jwtService;
-                this.refreshTokenService = refreshTokenService;
-                this.usuarioRepository = usuarioRepository;
-                this.rolRepository = rolRepository;
-                this.usuarioRolRepository = usuarioRolRepository;
-                this.passwordEncoder = passwordEncoder;
-                this.refreshTokenRepository = refreshTokenRepository;
-                this.passwordResetTokenRepository = passwordResetTokenRepository;
-                // this.mailSender = mailSender;
-        }
 
         public Map<String, String> login(LoginRequest request) {
                 authenticationManager.authenticate(
@@ -175,60 +155,6 @@ public class AuthService {
                 usuarioRepository.save(usuario);
                 refreshTokenRepository.deleteByUsuario(usuario);
         }
-
-        /*
-         * @Transactional
-         * public void forgotPassword(ForgotPasswordRequest request) {
-         * 
-         * Usuario usuario = usuarioRepository
-         * .findByCorreo(request.getEmail())
-         * .orElseThrow(() ->
-         * new RuntimeException("User not found"));
-         * 
-         * passwordResetTokenRepository.deleteByUsuario(usuario);
-         * 
-         * PasswordResetToken token = new PasswordResetToken();
-         * 
-         * token.setUsuario(usuario);
-         * token.setToken(UUID.randomUUID().toString());
-         * 
-         * token.setFechaExpiracion(
-         * LocalDateTime.now().plusHours(1));
-         * 
-         * token.setUsado(false);
-         * 
-         * passwordResetTokenRepository.save(token);
-         * 
-         * // sendResetEmail(usuario, token.getToken());
-         * 
-         * System.out.println("PASSWORD RESET TOKEN: " + token.getToken());
-         * }
-         */
-
-        /*
-         * private void sendResetEmail(
-         * Usuario usuario,
-         * String token) {
-         * 
-         * String resetUrl =
-         * "https://frontend-url/reset-password?token="
-         * + token;
-         * 
-         * SimpleMailMessage message =
-         * new SimpleMailMessage();
-         * 
-         * message.setTo(usuario.getCorreo());
-         * 
-         * message.setSubject(
-         * "Restablecimiento de contraseña");
-         * 
-         * message.setText(
-         * "Para restablecer su contraseña visite:\n\n"
-         * + resetUrl);
-         * 
-         * mailSender.send(message);
-         * }
-         */
 
         @Transactional
         public void resetPassword(

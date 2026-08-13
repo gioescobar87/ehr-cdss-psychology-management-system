@@ -4,34 +4,42 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.UsuarioRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.UsuarioRolRequestDTO;
-import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
+import com.clinica.psicologia.system.dto.response.patient.PacienteAsignacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.security.UsuarioResponseDTO;
 import com.clinica.psicologia.system.dto.response.security.UsuarioRolResponseDTO;
 import com.clinica.psicologia.system.service.clinical.CitaService;
 import com.clinica.psicologia.system.service.clinical.SesionService;
+import com.clinica.psicologia.system.service.patient.PacienteAsignacionService;
 import com.clinica.psicologia.system.service.security.UsuarioService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final CitaService citaService;
     private final SesionService sesionService;
-
-    public UsuarioController(UsuarioService usuarioService, CitaService citaService, SesionService sesionService) {
-        this.usuarioService = usuarioService;
-        this.citaService = citaService;
-        this.sesionService = sesionService;
-    }
+    private final PacienteAsignacionService pacienteAsignacionService;
 
     @GetMapping
     public List<UsuarioResponseDTO> findAll() {
@@ -105,5 +113,10 @@ public class UsuarioController {
     @GetMapping("/{id}/sesiones")
     public ResponseEntity<List<SesionResponseDTO>> obtenerSesiones(@PathVariable Integer id) {
         return ResponseEntity.ok(sesionService.getByUser(id));
+    }
+
+    @GetMapping("/{id}/pacientes")
+    public ResponseEntity<List<PacienteAsignacionResponseDTO>> obtenerPacientes(@PathVariable Integer id) {
+        return ResponseEntity.ok(pacienteAsignacionService.getPacientesActualesByUsuario(id));
     }
 }

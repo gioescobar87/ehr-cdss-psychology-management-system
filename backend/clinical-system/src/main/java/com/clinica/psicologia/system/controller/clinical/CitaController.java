@@ -59,11 +59,6 @@ public class CitaController {
         return service.getAgenda(fecha);
     }
 
-    @GetMapping("/paciente/{pacienteId}")
-    public List<CitaResponseDTO> getByPatient(@PathVariable Integer pacienteId) {
-        return service.getByPatient(pacienteId);
-    }
-
     @GetMapping("/usuario/{usuarioId}")
     public List<CitaResponseDTO> getByUser(@PathVariable Integer usuarioId) {
         return service.getByUser(usuarioId);
