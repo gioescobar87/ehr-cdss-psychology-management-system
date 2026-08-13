@@ -57,6 +57,10 @@ import TipoSustanciaAlergenaEditPage from "../catalog/pages/TipoSustanciaAlergen
 import CategoriaCriterioClinicoListPage from "../catalog/pages/CategoríaCriterioClinico/CategoriaCriterioClinicoListPage";
 import CategoriaCriterioClinicoCreatePage from "../catalog/pages/CategoríaCriterioClinico/CategoriaCriterioClinicoCreatePage";
 import CategoriaCriterioClinicoEditPage from "../catalog/pages/CategoríaCriterioClinico/CategoriaCriterioClinicoEditPage";
+import AppointmentCreatePage from "../appointments/pages/AppointmentCreatePage";
+import AppointmentEditPage from "../appointments/pages/AppointmentEditPage";
+import AgendaPage from "../appointments/pages/AgendaPage";
+import AppointmentDetailsPage from "../appointments/pages/AppointmentDetailsPage";
 
 export const router = createBrowserRouter([
     {
@@ -272,6 +276,22 @@ export const router = createBrowserRouter([
                     {
                         path: "/administration/categoria-criterio-clinico/:id/edit",
                         element: <CategoriaCriterioClinicoEditPage />
+                    },
+                    {
+                        path: "/appointments/new",
+                        element: <AppointmentCreatePage />
+                    },
+                    {
+                        path: "/appointments/:id/edit",
+                        element: <AppointmentEditPage />
+                    },
+                    {
+                        path: "/appointments",
+                        element: <AgendaPage />
+                    },
+                    {
+                        path: "/appointments/:id",
+                        element: <AppointmentDetailsPage />
                     }
                 ]
             }
