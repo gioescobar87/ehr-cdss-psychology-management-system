@@ -10,7 +10,7 @@ import {
 import AgendaToolbar from "../components/AgendaToolbar";
 import AgendaSummary from "../components/AgendaSummary";
 import DayAgenda from "../components/DayAgenda";
-
+import AppointmentDialog from "../components/AppointmentDialog";
 import { useAgenda } from "../hooks/useAgenda";
 
 import {
@@ -32,6 +32,18 @@ export default function AgendaPage() {
         toDateInputValue(new Date())
     );
 
+    const [
+        appointmentDialogOpen,
+        setAppointmentDialogOpen
+    ] = useState(false);
+
+    const [
+        appointmentInitialStartTime,
+        setAppointmentInitialStartTime
+    ] = useState<
+        string | undefined
+    >();
+
     const {
         data: appointments = [],
         isLoading,
@@ -45,19 +57,8 @@ export default function AgendaPage() {
                         new Date(a.fechaHoraInicio).getTime()
                         -
                         new Date(b.fechaHoraInicio).getTime()
-                ), [appointments]
+                ),[appointments]
         );
-
-    const handleAppointmentClick = (appointment: Appointment) => {
-            navigate(
-                `/citas/${appointment.id}`
-            );
-        };
-
-
-    const handleCreateAppointment = () => {
-        navigate("/citas/new");
-    };
 
     const agendaAppointments = useMemo(
         () =>
@@ -80,15 +81,33 @@ export default function AgendaPage() {
         [appointments]
     );
 
+    const handleAppointmentClick =
+        (
+            appointment: Appointment
+        ) => {
+            navigate(`/citas/${appointment.id}`);
+        };
+
+    const handleCreateAppointment =
+        () => {
+            setAppointmentInitialStartTime(undefined);
+            setAppointmentDialogOpen(true);
+        };
+
+    const handleEmptySlotClick =
+        (
+            time: string
+        ) => {
+            setAppointmentInitialStartTime(time);
+            setAppointmentDialogOpen(true);
+        };
 
     return (
         <Box>
             <AgendaToolbar
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
-                onCreateAppointment={
-                    handleCreateAppointment
-                }
+                onCreateAppointment={handleCreateAppointment}
             />
 
             {isError && (
@@ -113,27 +132,26 @@ export default function AgendaPage() {
             ) : (
                 <>
                     <AgendaSummary
-                        appointments={
-                            sortedAppointments
-                        }
-                        selectedDate={
-                            selectedDate
-                        }
+                        appointments={sortedAppointments}
+                        selectedDate={selectedDate}
                     />
                     <DayAgenda
                         appointments={agendaAppointments}
                         selectedDate={selectedDate}
-                        onAppointmentClick={
-                            handleAppointmentClick
-                        }
-                        onEmptySlotClick={(time) => {
-                            // Phase 2.6:
-                            // open appointment form with
-                            // selectedDate + time prefilled
-                        }}
+                        onAppointmentClick={handleAppointmentClick}
+                        onEmptySlotClick={handleEmptySlotClick}
                     />
                 </>
             )}
+
+            <AppointmentDialog
+                open={appointmentDialogOpen}
+                initialDate={selectedDate}
+                initialStartTime={appointmentInitialStartTime}
+                onClose={() =>
+                    setAppointmentDialogOpen(false)
+                }
+            />
         </Box>
     );
 }

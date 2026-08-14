@@ -28,10 +28,6 @@ export function useCreateAppointment() {
                 queryKey: ["appointments"]
             });
 
-            queryClient.invalidateQueries({
-                queryKey: ["agenda"]
-            });
-
         }
     });
 

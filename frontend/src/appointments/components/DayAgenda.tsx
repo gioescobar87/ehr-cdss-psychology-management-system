@@ -5,13 +5,25 @@ import {
 } from "@mui/material";
 
 import type { Appointment } from "../types/appointment.types";
-import { useCurrentTime } from "../../shared/hooks/useCurrentTime";
-import { isToday } from "../../shared/utils/dateUtils";
-import { APPOINTMENT_STATUS_APPEARANCE, DEFAULT_APPOINTMENT_STATUS_APPEARANCE } from "../constants/appointmentStatusAppearance";
+
+import {
+    useCurrentTime
+} from "../../shared/hooks/useCurrentTime";
+
+import {
+    isToday
+} from "../../shared/utils/dateUtils";
+
+import {
+    APPOINTMENT_STATUS_APPEARANCE,
+    DEFAULT_APPOINTMENT_STATUS_APPEARANCE
+} from "../constants/appointmentStatusAppearance";
+
 
 const DAY_START_HOUR = 7;
 const DAY_END_HOUR = 20;
 const HOUR_HEIGHT = 80;
+
 
 interface DayAgendaProps {
     appointments: Appointment[];
@@ -44,30 +56,112 @@ export default function DayAgenda({
     );
 
 
-    /*
-     * Current-time indicator
-     */
+    const currentTime =
+        useCurrentTime();
 
-    const currentTime = useCurrentTime();
-    const showCurrentTime = isToday(selectedDate);
+
+    const showCurrentTime =
+        isToday(selectedDate);
+
 
     const currentMinutes =
         currentTime.getHours() * 60 +
         currentTime.getMinutes();
 
+
     const currentTimeTop =
-        ((currentMinutes -
-            DAY_START_HOUR * 60) /
-            60) *
+        (
+            (
+                currentMinutes -
+                DAY_START_HOUR * 60
+            ) /
+            60
+        ) *
         HOUR_HEIGHT;
+
 
     const currentTimeVisible =
         showCurrentTime &&
         currentTimeTop >= 0 &&
         currentTimeTop <=
-            (DAY_END_HOUR -
-                DAY_START_HOUR) *
+            (DAY_END_HOUR - DAY_START_HOUR) *
             HOUR_HEIGHT;
+
+
+    const handleEmptySlotClick = (
+        event: React.MouseEvent<HTMLDivElement>
+    ) => {
+
+        if (!onEmptySlotClick) {
+            return;
+        }
+
+
+        const rect =
+            event.currentTarget.getBoundingClientRect();
+
+
+        const offsetY =
+            event.clientY -
+            rect.top;
+
+
+        const minutesFromStart =
+            (
+                offsetY /
+                HOUR_HEIGHT
+            ) *
+            60;
+
+
+        /*
+         * Round to the nearest 15-minute interval.
+         */
+        const roundedMinutes =
+            Math.round(
+                minutesFromStart / 15
+            ) * 15;
+
+
+        let totalMinutes =
+            DAY_START_HOUR * 60 +
+            roundedMinutes;
+
+
+        /*
+         * Prevent selecting a time outside
+         * the visible agenda range.
+         */
+        totalMinutes =
+            Math.max(
+                DAY_START_HOUR * 60,
+                Math.min(
+                    totalMinutes,
+                    DAY_END_HOUR * 60
+                )
+            );
+
+
+        const hour =
+            Math.floor(
+                totalMinutes / 60
+            );
+
+        const minute =
+            totalMinutes % 60;
+
+
+        const formattedTime =
+            `${String(hour).padStart(2, "0")}:${String(
+                minute
+            ).padStart(2, "0")}`;
+
+
+        onEmptySlotClick(
+            formattedTime
+        );
+    };
+
 
     return (
         <Paper
@@ -136,14 +230,19 @@ export default function DayAgenda({
                                     variant="caption"
                                     color="text.secondary"
                                 >
-                                    {String(hour).padStart(2, "0")}
-                                    :00
+                                    {String(hour)
+                                        .padStart(2, "0")}:00
                                 </Typography>
+
                             </Box>
+
                         ))}
+
                     </Box>
 
+
                     {/* Appointment timeline */}
+
                     <Box
                         sx={{
                             position:
@@ -152,7 +251,8 @@ export default function DayAgenda({
                         }}
                     >
 
-                        {/* Timeline header */}
+                        {/* Header */}
+
                         <Box
                             sx={{
                                 height: 48,
@@ -179,6 +279,7 @@ export default function DayAgenda({
                                     gap: 1
                                 }}
                             >
+
                                 <Box
                                     sx={{
                                         width: 4,
@@ -188,6 +289,7 @@ export default function DayAgenda({
                                             "background.default"
                                     }}
                                 />
+
                                 <Typography
                                     variant="subtitle1"
                                     fontWeight={700}
@@ -200,11 +302,14 @@ export default function DayAgenda({
                                 >
                                     Agenda del Día
                                 </Typography>
+
                             </Box>
+
                         </Box>
 
 
                         {/* Timeline */}
+
                         <Box
                             sx={{
                                 position:
@@ -216,7 +321,9 @@ export default function DayAgenda({
                         >
 
                             {/* Hour grid */}
+
                             {hours.map(hour => (
+
                                 <Box
                                     key={hour}
                                     sx={{
@@ -225,42 +332,54 @@ export default function DayAgenda({
                                         borderBottom:
                                             "1px solid",
                                         borderColor:
-                                            "divider",
-                                        cursor:
-                                            onEmptySlotClick
-                                                ? "pointer"
-                                                : "default",
-
-                                        "&:hover":
-                                            onEmptySlotClick
-                                                ? {
-                                                    backgroundColor:
-                                                        "action.hover"
-                                                }
-                                                : undefined
-                                    }}
-
-                                    onClick={() => {
-                                        if (!onEmptySlotClick) {
-                                            return;
-                                        }
-                                        const time = `${String(hour).padStart(2, "0")}:00`;
-                                        onEmptySlotClick(time);
+                                            "divider"
                                     }}
                                 />
+
                             ))}
 
 
+                            {/* Empty-slot interaction layer */}
+
+                            {onEmptySlotClick && (
+                                <Box
+                                    onClick={
+                                        handleEmptySlotClick
+                                    }
+                                    sx={{
+                                        position:
+                                            "absolute",
+                                        inset: 0,
+                                        cursor:
+                                            "pointer",
+                                        zIndex: 1,
+
+                                        "&:hover": {
+                                            backgroundColor:
+                                                "action.hover"
+                                        }
+                                    }}
+                                    aria-label="Crear cita en este horario"
+                                />
+                            )}
+
+
                             {/* Current time */}
+
                             {currentTimeVisible && (
                                 <CurrentTimeIndicator
-                                    top={currentTimeTop}
-                                    time={currentTime}
+                                    top={
+                                        currentTimeTop
+                                    }
+                                    time={
+                                        currentTime
+                                    }
                                 />
                             )}
 
 
                             {/* Appointments */}
+
                             {appointments.map(
                                 appointment => (
                                     <AppointmentBlock
@@ -276,7 +395,6 @@ export default function DayAgenda({
                                             )
                                         }
                                     />
-
                                 )
                             )}
 
@@ -293,9 +411,203 @@ export default function DayAgenda({
 }
 
 
-/*
- * Current-time indicator
- */
+interface AppointmentBlockProps {
+    appointment: Appointment;
+    onClick: () => void;
+}
+
+
+function AppointmentBlock({
+    appointment,
+    onClick
+}: AppointmentBlockProps) {
+
+    const start =
+        new Date(
+            appointment.fechaHoraInicio
+        );
+
+
+    const end =
+        new Date(
+            appointment.fechaHoraFin
+        );
+
+
+    const startMinutes =
+        start.getHours() * 60 +
+        start.getMinutes();
+
+
+    const endMinutes =
+        end.getHours() * 60 +
+        end.getMinutes();
+
+
+    const dayStartMinutes =
+        DAY_START_HOUR * 60;
+
+
+    const top =
+        (
+            (
+                startMinutes -
+                dayStartMinutes
+            ) /
+            60
+        ) *
+        HOUR_HEIGHT;
+
+
+    const height =
+        Math.max(
+            (
+                (
+                    endMinutes -
+                    startMinutes
+                ) /
+                60
+            ) *
+            HOUR_HEIGHT,
+            72
+        );
+
+
+    const appearance =
+        APPOINTMENT_STATUS_APPEARANCE[
+            appointment.estadoId
+        ] ??
+        DEFAULT_APPOINTMENT_STATUS_APPEARANCE;
+
+
+    return (
+        <Box
+            onClick={event => {
+                event.stopPropagation();
+                onClick();
+            }}
+            sx={{
+                position:
+                    "absolute",
+                top,
+                left: 8,
+                right: 8,
+                height,
+
+                p: 1.5,
+                borderRadius: 1.5,
+
+                border:
+                    "1px solid",
+
+                borderColor:
+                    appearance.borderColor,
+
+                borderLeft:
+                    "4px solid",
+
+                borderLeftColor:
+                    appearance.accentColor,
+
+                backgroundColor:
+                    appearance.backgroundColor,
+
+                cursor:
+                    "pointer",
+
+                overflow:
+                    "hidden",
+
+                zIndex: 2,
+
+                transition:
+                    "box-shadow 0.15s ease, background-color 0.15s ease",
+
+                "&:hover": {
+                    boxShadow: 2,
+                    backgroundColor:
+                        appearance.hoverBackgroundColor
+                }
+            }}
+        >
+
+            {/* Patient and status */}
+
+            <Box
+                sx={{
+                    display:
+                        "flex",
+                    alignItems:
+                        "center",
+                    justifyContent:
+                        "space-between",
+                    gap: 1,
+                    minWidth: 0
+                }}
+            >
+
+                <Typography
+                    variant="subtitle2"
+                    fontWeight={600}
+                    noWrap
+                    sx={{
+                        minWidth: 0,
+                        overflow:
+                            "hidden",
+                        textOverflow:
+                            "ellipsis"
+                    }}
+                >
+                    {
+                        appointment.pacienteNombre
+                    }
+                </Typography>
+
+
+                <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                        flexShrink: 0,
+                        fontWeight: 600,
+                        color:
+                            appearance.accentColor
+                    }}
+                >
+                    {
+                        appointment.estado
+                    }
+                </Typography>
+
+            </Box>
+
+
+            {/* Reason */}
+
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                noWrap
+                sx={{
+                    display:
+                        "block",
+                    mt: 0.5,
+                    overflow:
+                        "hidden",
+                    textOverflow:
+                        "ellipsis"
+                }}
+            >
+                {
+                    appointment.motivo ||
+                    "Cita"
+                }
+            </Typography>
+
+        </Box>
+    );
+}
+
 
 interface CurrentTimeIndicatorProps {
     top: number;
@@ -322,18 +634,20 @@ function CurrentTimeIndicator({
     return (
         <Box
             sx={{
-                position: "absolute",
+                position:
+                    "absolute",
                 top,
                 left: 0,
                 right: 0,
                 zIndex: 10,
-                pointerEvents: "none",
-                display: "flex",
-                alignItems: "center"
+                pointerEvents:
+                    "none",
+                display:
+                    "flex",
+                alignItems:
+                    "center"
             }}
         >
-
-            {/* Current time label */}
 
             <Box
                 sx={{
@@ -344,17 +658,19 @@ function CurrentTimeIndicator({
                         "error.main",
                     color:
                         "error.contrastText",
-                    fontSize: "0.7rem",
+                    fontSize:
+                        "0.7rem",
                     fontWeight: 700,
                     lineHeight: 1.4,
                     flexShrink: 0
                 }}
             >
-                {formattedTime}
+                {
+                    formattedTime
+                }
             </Box>
 
 
-            {/* Current time line */}
             <Box
                 sx={{
                     flex: 1,
@@ -363,149 +679,6 @@ function CurrentTimeIndicator({
                         "error.main"
                 }}
             />
-
-        </Box>
-    );
-}
-
-interface AppointmentBlockProps {
-    appointment: Appointment;
-    onClick: () => void;
-}
-
-function AppointmentBlock({
-    appointment,
-    onClick
-}: AppointmentBlockProps) {
-
-    const start =new Date(appointment.fechaHoraInicio);
-    const end = new Date(appointment.fechaHoraFin);
-
-    const startMinutes =
-        start.getHours() * 60 +
-        start.getMinutes();
-
-    const endMinutes =
-        end.getHours() * 60 +
-        end.getMinutes();
-
-    const dayStartMinutes =
-        DAY_START_HOUR * 60;
-
-    const top =
-        ((startMinutes -
-            dayStartMinutes) /
-            60) *
-        HOUR_HEIGHT;
-
-    const height =
-        Math.max(
-            ((endMinutes -
-                startMinutes) /
-                60) *
-            HOUR_HEIGHT,
-            72
-        );
-
-    const appearance =
-        APPOINTMENT_STATUS_APPEARANCE[
-            appointment.estadoId
-        ] ??
-        DEFAULT_APPOINTMENT_STATUS_APPEARANCE;
-
-    return (
-        <Box
-            onClick={onClick}
-            sx={{
-                position: "absolute",
-                top,
-                left: 8,
-                right: 8,
-                height,
-
-                p: 1.5,
-                borderRadius: 1.5,
-
-                border: "1px solid",
-                borderColor:
-                    appearance.borderColor,
-
-                borderLeft: "4px solid",
-                borderLeftColor:
-                    appearance.accentColor,
-
-                backgroundColor:
-                    appearance.backgroundColor,
-
-                cursor: "pointer",
-                overflow: "hidden",
-
-                transition:
-                    "box-shadow 0.15s ease, background-color 0.15s ease",
-
-                "&:hover": {
-                    boxShadow: 2,
-                    backgroundColor:
-                        appearance.hoverBackgroundColor
-                }
-            }}
-        >
-
-            {/* Patient and status */}
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent:
-                        "space-between",
-                    gap: 1,
-                    minWidth: 0
-                }}
-            >
-                <Typography
-                    variant="subtitle2"
-                    fontWeight={600}
-                    noWrap
-                    sx={{
-                        minWidth: 0,
-                        overflow: "hidden",
-                        textOverflow:
-                            "ellipsis"
-                    }}
-                >
-                    {appointment.pacienteNombre}
-                </Typography>
-
-                <Typography
-                    variant="caption"
-                    noWrap
-                    sx={{
-                        flexShrink: 0,
-                        fontWeight: 600,
-                        color:
-                            appearance.accentColor
-                    }}
-                >
-                    {appointment.estado}
-                </Typography>
-            </Box>
-
-            {/* Reason */}
-
-            <Typography
-                variant="caption"
-                color="text.secondary"
-                noWrap
-                sx={{
-                    display: "block",
-                    mt: 0.5,
-                    overflow: "hidden",
-                    textOverflow:
-                        "ellipsis"
-                }}
-            >
-                {appointment.motivo || "Cita"}
-            </Typography>
 
         </Box>
     );
