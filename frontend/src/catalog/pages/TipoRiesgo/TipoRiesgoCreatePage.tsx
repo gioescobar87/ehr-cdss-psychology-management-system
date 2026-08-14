@@ -1,68 +1,43 @@
-import {
-    useNavigate
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import PageHeader from "../../../shared/components/common/PageHeader";
 import CatalogForm from "../../components/CatalogoForm";
 
-import {
-    useCreate
-} from "../../hooks/useTipoRiesgo";
+import { useCreate } from "../../hooks/useTipoRiesgo";
 
-import {
-    useGetAllEstados
-} from "../../hooks/useEstados";
+import { useGetAllEstados } from "../../hooks/useEstados";
 
-import type {
-    Request
-} from "../../types/catalogDTOs.types";
+import type { Request } from "../../types/catalogDTOs.types";
 
 export default function TipoRiesgoCreatePage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const path = "/administration/tipo-riesgo";
-    const titleCreate = "Nuevo Tipo Riesgo"
-    const descriptionCreate = "Crear un nuevo registro."
+  const path = "/administration/tipo-riesgo";
+  const titleCreate = "Nuevo Tipo Riesgo";
+  const descriptionCreate = "Crear un nuevo registro.";
 
-    const createRecord =
-        useCreate();
+  const createRecord = useCreate();
 
-    const {
-        data: states = [],
-        isLoading: statesLoading
-    } = useGetAllEstados();
+  const { data: states = [], isLoading: statesLoading } = useGetAllEstados();
 
-    const handleSubmit = (
-        request: Request
-    ) => {
-        createRecord.mutate(
-            request,
-            {
-                onSuccess: () => {
-                    navigate(path);
-                }
-            }
-        );
-    };
+  const handleSubmit = (request: Request) => {
+    createRecord.mutate(request, {
+      onSuccess: () => {
+        navigate(path);
+      },
+    });
+  };
 
-    return (
-        <>
-            <PageHeader
-                title={titleCreate}
-                description={descriptionCreate}
-            />
+  return (
+    <>
+      <PageHeader title={titleCreate} description={descriptionCreate} />
 
-            <CatalogForm
-                states={states}
-                loading={
-                    statesLoading ||
-                    createRecord.isPending
-                }
-                onSubmit={handleSubmit}
-                onCancel={() =>
-                    navigate(path)
-                }
-            />
-        </>
-    );
+      <CatalogForm
+        states={states}
+        loading={statesLoading || createRecord.isPending}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate(path)}
+      />
+    </>
+  );
 }

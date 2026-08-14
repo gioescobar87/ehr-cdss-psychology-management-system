@@ -1,264 +1,150 @@
-import {
-    useCallback,
-    useEffect,
-    useRef,
-    useState
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { IDLE_TIMEOUT_CONFIG } from "../idleTimeoutConfig";
 
 interface UseIdleTimeoutOptions {
+  enabled: boolean;
 
-    enabled: boolean;
-
-    onLogout: () => void;
+  onLogout: () => void;
 }
 
-export function useIdleTimeout({
-    enabled,
-    onLogout
-}: UseIdleTimeoutOptions) {
+export function useIdleTimeout({ enabled, onLogout }: UseIdleTimeoutOptions) {
+  const [showWarning, setShowWarning] = useState(false);
 
-    const [showWarning, setShowWarning] =
-        useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
 
-    const [remainingSeconds, setRemainingSeconds] =
-        useState(0);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const idleTimerRef =
-        useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
-    const warningTimerRef =
-        useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showWarningRef = useRef(false);
 
-    const countdownIntervalRef =
-        useRef<ReturnType<typeof setInterval> | null>(null);
+  const clearTimers = useCallback(() => {
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
 
-    const showWarningRef =
-        useRef(false);
+      idleTimerRef.current = null;
+    }
 
-    const clearTimers = useCallback(() => {
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current);
 
-        if (idleTimerRef.current) {
+      warningTimerRef.current = null;
+    }
 
-            clearTimeout(
-                idleTimerRef.current
-            );
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
 
-            idleTimerRef.current = null;
+      countdownIntervalRef.current = null;
+    }
+  }, []);
 
-        }
+  const scheduleIdleTimer = useCallback(() => {
+    clearTimers();
 
+    idleTimerRef.current = setTimeout(() => {
+      const warningSeconds = Math.ceil(
+        IDLE_TIMEOUT_CONFIG.warningDurationMs / 1000,
+      );
 
-        if (warningTimerRef.current) {
+      showWarningRef.current = true;
 
-            clearTimeout(
-                warningTimerRef.current
-            );
+      setShowWarning(true);
 
-            warningTimerRef.current = null;
+      setRemainingSeconds(warningSeconds);
 
-        }
+      countdownIntervalRef.current = setInterval(() => {
+        setRemainingSeconds((previous) => {
+          if (previous <= 1) {
+            if (countdownIntervalRef.current) {
+              clearInterval(countdownIntervalRef.current);
 
-
-        if (countdownIntervalRef.current) {
-
-            clearInterval(
-                countdownIntervalRef.current
-            );
-
-            countdownIntervalRef.current = null;
-
-        }
-
-    }, []);
-
-
-    const scheduleIdleTimer = useCallback(() => {
-
-        clearTimers();
-
-
-        idleTimerRef.current =
-            setTimeout(() => {
-
-                const warningSeconds =
-                    Math.ceil(
-                        IDLE_TIMEOUT_CONFIG.warningDurationMs / 1000
-                    );
-
-
-                showWarningRef.current = true;
-
-                setShowWarning(true);
-
-                setRemainingSeconds(
-                    warningSeconds
-                );
-
-
-                countdownIntervalRef.current =
-                    setInterval(() => {
-
-                        setRemainingSeconds(
-                            previous => {
-
-                                if (previous <= 1) {
-
-                                    if (
-                                        countdownIntervalRef.current
-                                    ) {
-
-                                        clearInterval(
-                                            countdownIntervalRef.current
-                                        );
-
-                                        countdownIntervalRef.current =
-                                            null;
-
-                                    }
-
-                                    return 0;
-
-                                }
-
-                                return previous - 1;
-
-                            }
-                        );
-
-                    }, 1000);
-
-
-                warningTimerRef.current =
-                    setTimeout(() => {
-
-                        onLogout();
-
-                    }, IDLE_TIMEOUT_CONFIG.warningDurationMs);
-
-
-            }, IDLE_TIMEOUT_CONFIG.idleTimeoutMs);
-
-
-    }, [
-        clearTimers,
-        onLogout
-    ]);
-
-
-    const resetTimers = useCallback(() => {
-
-        if (!enabled) {
-
-            clearTimers();
-
-            showWarningRef.current = false;
-
-            return;
-        }
-
-        showWarningRef.current = false;
-
-        setShowWarning(false);
-
-        setRemainingSeconds(0);
-
-
-        scheduleIdleTimer();
-
-    }, [
-        enabled,
-        clearTimers,
-        scheduleIdleTimer
-    ]);
-
-
-    useEffect(() => {
-
-        if (!enabled) {
-
-            clearTimers();
-
-            return;
-
-        }
-
-
-        const activityEvents = [
-            "mousemove",
-            "keydown",
-            "click",
-            "touchstart",
-            "scroll"
-        ];
-
-
-        const handleActivity = () => {
-
-            if (showWarningRef.current) {
-                return;
+              countdownIntervalRef.current = null;
             }
 
-            resetTimers();
+            return 0;
+          }
 
-        };
-
-
-        activityEvents.forEach(event => {
-
-            window.addEventListener(
-                event,
-                handleActivity
-            );
-
+          return previous - 1;
         });
+      }, 1000);
 
+      warningTimerRef.current = setTimeout(() => {
+        onLogout();
+      }, IDLE_TIMEOUT_CONFIG.warningDurationMs);
+    }, IDLE_TIMEOUT_CONFIG.idleTimeoutMs);
+  }, [clearTimers, onLogout]);
 
-        /*
-         * Start the initial idle timer.
-         */
-        scheduleIdleTimer();
+  const resetTimers = useCallback(() => {
+    if (!enabled) {
+      clearTimers();
 
+      showWarningRef.current = false;
 
-        return () => {
+      return;
+    }
 
-            activityEvents.forEach(event => {
+    showWarningRef.current = false;
 
-                window.removeEventListener(
-                    event,
-                    handleActivity
-                );
+    setShowWarning(false);
 
-            });
+    setRemainingSeconds(0);
 
+    scheduleIdleTimer();
+  }, [enabled, clearTimers, scheduleIdleTimer]);
 
-            clearTimers();
+  useEffect(() => {
+    if (!enabled) {
+      clearTimers();
 
-            showWarningRef.current = false;
-        };
+      return;
+    }
 
-    }, [
-        enabled,
-        resetTimers,
-        scheduleIdleTimer,
-        clearTimers
-    ]);
+    const activityEvents = [
+      "mousemove",
+      "keydown",
+      "click",
+      "touchstart",
+      "scroll",
+    ];
 
+    const handleActivity = () => {
+      if (showWarningRef.current) {
+        return;
+      }
 
-    return {
-
-        showWarning:
-            enabled && showWarning,
-
-        remainingSeconds:
-            enabled
-                ? remainingSeconds
-                : 0,
-
-        resetTimers
-
+      resetTimers();
     };
 
+    activityEvents.forEach((event) => {
+      window.addEventListener(event, handleActivity);
+    });
+
+    /*
+     * Start the initial idle timer.
+     */
+    scheduleIdleTimer();
+
+    return () => {
+      activityEvents.forEach((event) => {
+        window.removeEventListener(event, handleActivity);
+      });
+
+      clearTimers();
+
+      showWarningRef.current = false;
+    };
+  }, [enabled, resetTimers, scheduleIdleTimer, clearTimers]);
+
+  return {
+    showWarning: enabled && showWarning,
+
+    remainingSeconds: enabled ? remainingSeconds : 0,
+
+    resetTimers,
+  };
 }

@@ -1,8 +1,4 @@
-import {
-    Box,
-    CssBaseline,
-    Toolbar
-} from "@mui/material";
+import { Box, CssBaseline, Toolbar } from "@mui/material";
 
 import { Outlet } from "react-router-dom";
 
@@ -14,38 +10,30 @@ import AppBreadcrumbs from "./AppBreadcrumbs";
 const drawerWidth = 260;
 
 export default function MainLayout() {
+  return (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
 
-    return (
+      <TopBar />
 
-        <Box sx={{ display: "flex" }}>
+      <Sidebar />
 
-            <CssBaseline />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 4,
+          ml: `${drawerWidth}px`,
+        }}
+      >
+        <Toolbar />
 
-            <TopBar />
+        <AppBreadcrumbs />
 
-            <Sidebar />
+        <Outlet />
 
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    p: 4,
-                    ml: `${drawerWidth}px`
-                }}
-            >
-
-                <Toolbar />
-
-                <AppBreadcrumbs />
-
-                <Outlet />
-
-                <Footer />
-
-            </Box>
-
-        </Box>
-
-    );
-
+        <Footer />
+      </Box>
+    </Box>
+  );
 }

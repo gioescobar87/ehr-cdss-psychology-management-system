@@ -1,33 +1,22 @@
 import Chip from "@mui/material/Chip";
 
-
 interface AppointmentStatusChipProps {
-    statusId: number;
-    label: string;
+  statusId: number;
+  label: string;
 }
 
-
 export default function AppointmentStatusChip({
-    statusId,
-    label
+  statusId,
+  label,
 }: AppointmentStatusChipProps) {
+  const color = statusId === 7 ? "default" : "primary";
 
-    const color =
-        statusId === 7
-            ? "default"
-            : "primary";
-
-    return (
-        <Chip
-            label={label}
-            color={color}
-            size="small"
-            variant={
-                statusId === 7
-                    ? "outlined"
-                    : "filled"
-            }
-        />
-    );
-
+  return (
+    <Chip
+      label={label}
+      color={color}
+      size="small"
+      variant={statusId === 7 ? "outlined" : "filled"}
+    />
+  );
 }

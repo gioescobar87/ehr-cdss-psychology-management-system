@@ -5,13 +5,13 @@ import { saveTokens } from "../jwt";
 import { useAuth } from "./useAuth";
 
 export function useLogin() {
-    const {refreshSession} = useAuth();
+  const { refreshSession } = useAuth();
 
-    return useMutation({
-        mutationFn: login,
-        onSuccess: async (data) => {
-            saveTokens(data.accessToken, data.refreshToken);
-            await refreshSession();
-        }
-    });
+  return useMutation({
+    mutationFn: login,
+    onSuccess: async (data) => {
+      saveTokens(data.accessToken, data.refreshToken);
+      await refreshSession();
+    },
+  });
 }

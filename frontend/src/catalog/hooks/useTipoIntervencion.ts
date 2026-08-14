@@ -1,87 +1,79 @@
-import {
-    useMutation,
-    useQuery,
-    useQueryClient
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { create, getAll, getById, update, remove } from "../api/tipoIntervencionApi";
+import {
+  create,
+  getAll,
+  getById,
+  update,
+  remove,
+} from "../api/tipoIntervencionApi";
 
 import type { Request } from "../types/catalogDTOs.types";
 
 export const keys = {
-    all: ["tipo-intervencion"] as const,
+  all: ["tipo-intervencion"] as const,
 
-    detail: (id: number) =>
-        ["tipo-intervencion", id] as const
+  detail: (id: number) => ["tipo-intervencion", id] as const,
 };
 
 export function useGetAll() {
-    return useQuery({
-        queryKey: keys.all,
-        queryFn: getAll
-    });
+  return useQuery({
+    queryKey: keys.all,
+    queryFn: getAll,
+  });
 }
 
 export function useGetById(id: number) {
-    return useQuery({
-        queryKey: keys.detail(id),
-        queryFn: () => getById(id),
-        enabled: id > 0
-    });
+  return useQuery({
+    queryKey: keys.detail(id),
+    queryFn: () => getById(id),
+    enabled: id > 0,
+  });
 }
 
 export function useCreate() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (
-            request: Request
-        ) => create(request),
+  return useMutation({
+    mutationFn: (request: Request) => create(request),
 
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: keys.all
-            });
-        }
-    });
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: keys.all,
+      });
+    },
+  });
 }
 
 export function useUpdate() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: ({
-            id,
-            request
-        }: {
-            id: number;
-            request: Request;
-        }) => update(id, request),
+  return useMutation({
+    mutationFn: ({ id, request }: { id: number; request: Request }) =>
+      update(id, request),
 
-        onSuccess: (_, variables) => {
-            void queryClient.invalidateQueries({
-                queryKey: keys.all
-            });
+    onSuccess: (_, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: keys.all,
+      });
 
-            void queryClient.invalidateQueries({
-                queryKey: keys.detail(
-                    variables.id
-                )
-            });
-        }
-    });
+      void queryClient.invalidateQueries({
+        queryKey: keys.detail(variables.id),
+      });
+    },
+  });
 }
 
 export function useRemove() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: remove,
+  return useMutation({
+    mutationFn: remove,
 
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: keys.all
-            });
-        }
-    });
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: keys.all,
+      });
+    },
+  });
 }

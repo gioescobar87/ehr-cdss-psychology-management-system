@@ -1,50 +1,45 @@
 export interface LoginRequest {
+  username: string;
 
-    username: string;
-
-    password: string;
-
+  password: string;
 }
 
 export interface LoginResponse {
+  accessToken: string;
 
-    accessToken: string;
+  refreshToken: string;
 
-    refreshToken: string;
-
-    tokenType: string;
-
+  tokenType: string;
 }
 
 export interface UserProfile {
+  id: number;
 
-    id: number;
+  username: string;
 
-    username: string;
+  nombre: string;
 
-    nombre: string;
+  apellido: string;
 
-    apellido: string;
+  correo: string;
 
-    correo: string;
-    
-    roles: string[];
+  roles: string[];
 }
 
 export interface ChangePasswordRequest {
-    currentPassword: string;
-    newPassword: string;
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface ForgotPasswordRequest {
-    email: string;
+  email: string;
 }
 
 export interface ForgotPasswordResponse {
-    token: string;
+  token: string;
 }
 
 export interface ResetPasswordRequest {
-    token: string;
-    newPassword: string;
+  token: string;
+  newPassword: string;
 }

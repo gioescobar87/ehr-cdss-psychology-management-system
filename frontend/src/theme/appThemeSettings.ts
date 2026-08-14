@@ -1,23 +1,23 @@
 export interface AppThemeSettings {
-    mode: "light" | "dark";
+  mode: "light" | "dark";
 
-    primaryColor: string;
-    secondaryColor: string;
+  primaryColor: string;
+  secondaryColor: string;
 
-    successColor: string;
-    warningColor: string;
-    errorColor: string;
-    infoColor: string;
+  successColor: string;
+  warningColor: string;
+  errorColor: string;
+  infoColor: string;
 
-    backgroundColor: string;
-    paperColor: string;
+  backgroundColor: string;
+  paperColor: string;
 
-    textPrimaryColor: string;
-    textSecondaryColor: string;
+  textPrimaryColor: string;
+  textSecondaryColor: string;
 
-    dividerColor: string;
+  dividerColor: string;
 
-    borderRadius: number;
+  borderRadius: number;
 
-    fontFamily: string;
+  fontFamily: string;
 }

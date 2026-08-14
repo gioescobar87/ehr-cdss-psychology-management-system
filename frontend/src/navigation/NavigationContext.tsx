@@ -2,14 +2,13 @@ import { createContext } from "react";
 import type { NavigationModule } from "./navigation.types";
 
 export interface NavigationContextType {
+  navigation: NavigationModule[];
 
-    navigation: NavigationModule[];
+  loading: boolean;
 
-    loading: boolean;
-
-    reload: () => void;
-
+  reload: () => void;
 }
 
-export const NavigationContext =
-    createContext<NavigationContextType | undefined>(undefined);
+export const NavigationContext = createContext<
+  NavigationContextType | undefined
+>(undefined);

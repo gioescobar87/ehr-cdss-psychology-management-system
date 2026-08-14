@@ -1,7 +1,9 @@
 import { createContext } from "react";
 
 export interface ErrorContextType {
-    handleError:(error: unknown) => void;
+  handleError: (error: unknown) => void;
 }
 
-export const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
+export const ErrorContext = createContext<ErrorContextType | undefined>(
+  undefined,
+);

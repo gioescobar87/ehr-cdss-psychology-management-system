@@ -6,19 +6,17 @@ import ErrorProvider from "../shared/components/feedback/ErrorProvider";
 import NotificationProvider from "../shared/components/feedback/NotificationProvider";
 
 interface Props {
-    children: ReactNode;
+  children: ReactNode;
 }
 
-export default function Provider({children}: Props) {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <NotificationProvider>
-                <ErrorProvider>
-                    <AuthProvider>
-                        {children}
-                    </AuthProvider>
-                </ErrorProvider>
-            </NotificationProvider>
-        </QueryClientProvider>
-    )
+export default function Provider({ children }: Props) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <NotificationProvider>
+        <ErrorProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ErrorProvider>
+      </NotificationProvider>
+    </QueryClientProvider>
+  );
 }

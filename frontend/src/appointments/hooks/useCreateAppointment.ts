@@ -1,34 +1,19 @@
-import {
-    useMutation,
-    useQueryClient
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import {
-    createAppointment
-} from "../api/appointmentApi";
+import { createAppointment } from "../api/appointmentApi";
 
-import type {
-    AppointmentRequest
-} from "../types/appointment.types";
-
+import type { AppointmentRequest } from "../types/appointment.types";
 
 export function useCreateAppointment() {
+  const queryClient = useQueryClient();
 
-    const queryClient =
-        useQueryClient();
+  return useMutation({
+    mutationFn: (request: AppointmentRequest) => createAppointment(request),
 
-    return useMutation({
-        mutationFn: (
-            request: AppointmentRequest
-        ) => createAppointment(request),
-
-        onSuccess: () => {
-
-            queryClient.invalidateQueries({
-                queryKey: ["appointments"]
-            });
-
-        }
-    });
-
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["appointments"],
+      });
+    },
+  });
 }

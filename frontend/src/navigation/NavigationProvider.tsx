@@ -7,65 +7,43 @@ import { NavigationContext } from "./NavigationContext";
 import { getNavigation } from "./navigationApi";
 
 interface Props {
-
-    children: ReactNode;
-
+  children: ReactNode;
 }
 
-export default function NavigationProvider({
+export default function NavigationProvider({ children }: Props) {
+  const {
+    data = [],
 
-    children
+    isLoading,
 
-}: Props) {
+    refetch,
+  } = useQuery({
+    queryKey: ["navigation"],
 
-    const {
+    queryFn: getNavigation,
 
-        data = [],
+    staleTime: Infinity,
 
-        isLoading,
+    gcTime: Infinity,
 
-        refetch
+    refetchOnWindowFocus: false,
 
-    } = useQuery({
+    retry: false,
+  });
 
-        queryKey: ["navigation"],
+  return (
+    <NavigationContext.Provider
+      value={{
+        navigation: data,
 
-        queryFn: getNavigation,
+        loading: isLoading,
 
-        staleTime: Infinity,
-
-        gcTime: Infinity,
-
-        refetchOnWindowFocus: false,
-
-        retry: false
-
-    });
-
-    return (
-
-        <NavigationContext.Provider
-
-            value={{
-
-                navigation: data,
-
-                loading: isLoading,
-
-                reload: () => {
-
-                    void refetch();
-
-                }
-
-            }}
-
-        >
-
-            {children}
-
-        </NavigationContext.Provider>
-
-    );
-
+        reload: () => {
+          void refetch();
+        },
+      }}
+    >
+      {children}
+    </NavigationContext.Provider>
+  );
 }

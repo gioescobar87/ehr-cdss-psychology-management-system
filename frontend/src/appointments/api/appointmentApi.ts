@@ -1,178 +1,117 @@
 import apiClient from "../../shared/api/apiClient";
 
 import type {
-    Appointment,
-    AppointmentRequest,
-    Cancellation,
-    CancellationRequest,
-    PatientAssignment
+  Appointment,
+  AppointmentRequest,
+  Cancellation,
+  CancellationRequest,
+  PatientAssignment,
 } from "../types/appointment.types";
 
 export async function getAppointments(): Promise<Appointment[]> {
+  const response = await apiClient.get<Appointment[]>("/cita");
 
-    const response =
-        await apiClient.get<Appointment[]>("/cita");
-
-    return response.data;
+  return response.data;
 }
 
+export async function getAppointmentById(id: number): Promise<Appointment> {
+  const response = await apiClient.get<Appointment>(`/cita/${id}`);
 
-export async function getAppointmentById(
-    id: number
-): Promise<Appointment> {
-
-    const response =
-        await apiClient.get<Appointment>(`/cita/${id}`);
-
-    return response.data;
+  return response.data;
 }
-
 
 export async function createAppointment(
-    request: AppointmentRequest
+  request: AppointmentRequest,
 ): Promise<Appointment> {
+  const response = await apiClient.post<Appointment>("/cita", request);
 
-    const response =
-        await apiClient.post<Appointment>(
-            "/cita",
-            request
-        );
-
-    return response.data;
+  return response.data;
 }
-
 
 export async function updateAppointment(
-    id: number,
-    request: AppointmentRequest
+  id: number,
+  request: AppointmentRequest,
 ): Promise<Appointment> {
+  const response = await apiClient.put<Appointment>(`/cita/${id}`, request);
 
-    const response =
-        await apiClient.put<Appointment>(
-            `/cita/${id}`,
-            request
-        );
-
-    return response.data;
+  return response.data;
 }
 
-
-export async function deleteAppointment(
-    id: number
-): Promise<void> {
-
-    await apiClient.delete(`/cita/${id}`);
+export async function deleteAppointment(id: number): Promise<void> {
+  await apiClient.delete(`/cita/${id}`);
 }
-
 
 export async function changeAppointmentStatus(
-    id: number,
-    estadoId: number
+  id: number,
+  estadoId: number,
 ): Promise<void> {
-
-    await apiClient.patch(
-        `/cita/${id}/estado`,
-        null,
-        {
-            params: {
-                estadoId
-            }
-        }
-    );
+  await apiClient.patch(`/cita/${id}/estado`, null, {
+    params: {
+      estadoId,
+    },
+  });
 }
 
+export async function getAgenda(fecha: string): Promise<Appointment[]> {
+  const response = await apiClient.get<Appointment[]>("/cita/agenda", {
+    params: {
+      fecha,
+    },
+  });
 
-export async function getAgenda(
-    fecha: string
-): Promise<Appointment[]> {
-
-    const response =
-        await apiClient.get<Appointment[]>(
-            "/cita/agenda",
-            {
-                params: {
-                    fecha
-                }
-            }
-        );
-
-    return response.data;
+  return response.data;
 }
-
 
 export async function getPatientAppointments(
-    pacienteId: number
+  pacienteId: number,
 ): Promise<Appointment[]> {
+  const response = await apiClient.get<Appointment[]>(
+    `/paciente/${pacienteId}/citas`,
+  );
 
-    const response =
-        await apiClient.get<Appointment[]>(
-            `/paciente/${pacienteId}/citas`
-        );
-
-    return response.data;
+  return response.data;
 }
-
 
 export async function getUserAppointments(
-    usuarioId: number
+  usuarioId: number,
 ): Promise<Appointment[]> {
+  const response = await apiClient.get<Appointment[]>(
+    `/usuarios/${usuarioId}/citas`,
+  );
 
-    const response =
-        await apiClient.get<Appointment[]>(
-            `/usuarios/${usuarioId}/citas`
-        );
-
-    return response.data;
+  return response.data;
 }
-
 
 export async function cancelAppointment(
-    id: number,
-    request: CancellationRequest
+  id: number,
+  request: CancellationRequest,
 ): Promise<Appointment> {
+  const response = await apiClient.post<Appointment>(
+    `/cita/${id}/cancelar`,
+    request,
+  );
 
-    const response =
-        await apiClient.post<Appointment>(
-            `/cita/${id}/cancelar`,
-            request
-        );
-
-    return response.data;
+  return response.data;
 }
 
+export async function getCancellation(id: number): Promise<Cancellation> {
+  const response = await apiClient.get<Cancellation>(`/cita/${id}/cancelacion`);
 
-export async function getCancellation(
-    id: number
-): Promise<Cancellation> {
-
-    const response =
-        await apiClient.get<Cancellation>(
-            `/cita/${id}/cancelacion`
-        );
-
-    return response.data;
+  return response.data;
 }
 
 export async function getAssignedPatients(
-    usuarioId: number
+  usuarioId: number,
 ): Promise<PatientAssignment[]> {
+  const response = await apiClient.get<PatientAssignment[]>(
+    `/usuarios/${usuarioId}/pacientes`,
+  );
 
-    const response =
-        await apiClient.get<PatientAssignment[]>(
-            `/usuarios/${usuarioId}/pacientes`
-        );
-
-    return response.data;
+  return response.data;
 }
 
-export async function getAppointment(
-    id: number
-): Promise<Appointment> {
+export async function getAppointment(id: number): Promise<Appointment> {
+  const response = await apiClient.get<Appointment>(`/cita/${id}`);
 
-    const response =
-        await apiClient.get<Appointment>(
-            `/cita/${id}`
-        );
-
-    return response.data;
+  return response.data;
 }

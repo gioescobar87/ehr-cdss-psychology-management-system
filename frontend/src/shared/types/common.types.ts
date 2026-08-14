@@ -1,4 +1,4 @@
 export interface CatalogStateReference {
-    id: number;
-    nombre: string;
+  id: number;
+  nombre: string;
 }

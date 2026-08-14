@@ -1,59 +1,51 @@
 import apiClient from "../../shared/api/apiClient";
 
 import type {
-    LoginRequest,
-    LoginResponse,
-    UserProfile,
-    ChangePasswordRequest,
-    ForgotPasswordRequest,
-    ForgotPasswordResponse,
-    ResetPasswordRequest
+  LoginRequest,
+  LoginResponse,
+  UserProfile,
+  ChangePasswordRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
 } from "../types/auth.types";
 
 export async function login(request: LoginRequest): Promise<LoginResponse> {
-    const response = await apiClient.post<LoginResponse>(
-        "/auth/login",
-        request
-    );
+  const response = await apiClient.post<LoginResponse>("/auth/login", request);
 
-    return response.data;
+  return response.data;
 }
 
 export async function getCurrentUser(): Promise<UserProfile> {
-    const response = await apiClient.get<UserProfile>(
-        "/auth/me"
-    );
+  const response = await apiClient.get<UserProfile>("/auth/me");
 
-    return response.data;
+  return response.data;
 }
 
 export async function logout(refreshToken: string): Promise<void> {
-    await apiClient.post(
-        "/auth/logout",
-        {
-            refreshToken
-        }
-    );
+  await apiClient.post("/auth/logout", {
+    refreshToken,
+  });
 }
 
-export async function changePassword(request: ChangePasswordRequest): Promise<void> {
-    await apiClient.post(
-        "/auth/change-password",
-        request
-    );
+export async function changePassword(
+  request: ChangePasswordRequest,
+): Promise<void> {
+  await apiClient.post("/auth/change-password", request);
 }
 
-export async function forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
-    const response = await apiClient.post<ForgotPasswordResponse>(
-        "/auth/forgot-password",
-        request
-    );
-    return response.data;
+export async function forgotPassword(
+  request: ForgotPasswordRequest,
+): Promise<ForgotPasswordResponse> {
+  const response = await apiClient.post<ForgotPasswordResponse>(
+    "/auth/forgot-password",
+    request,
+  );
+  return response.data;
 }
 
-export async function resetPassword(request: ResetPasswordRequest): Promise<void> {
-    await apiClient.post(
-        "/auth/reset-password",
-        request
-    )
+export async function resetPassword(
+  request: ResetPasswordRequest,
+): Promise<void> {
+  await apiClient.post("/auth/reset-password", request);
 }

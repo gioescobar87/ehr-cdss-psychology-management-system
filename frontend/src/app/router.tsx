@@ -63,256 +63,256 @@ import AgendaPage from "../appointments/pages/AgendaPage";
 import AppointmentDetailsPage from "../appointments/pages/AppointmentDetailsPage";
 
 export const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Navigate to="/login" replace />
-    },
+  {
+    path: "/",
+    element: <Navigate to="/login" replace />,
+  },
 
-    {
-        element: <PublicOnlyRoute />,
+  {
+    element: <PublicOnlyRoute />,
+    children: [
+      {
+        element: <AuthLayout />,
         children: [
-            {
-                element: <AuthLayout />,
-                children: [
-                    {
-                        path: "/login",
-                        element: <LoginPage />
-                    },
-                    {
-                        path: "/forgot-password",
-                        element: <ForgotPasswordPage />
-                    },
-                    {
-                        path: "/reset-password",
-                        element: <ResetPasswordPage />
-                    }
-                ]
-            }
-        ]
-    },
+          {
+            path: "/login",
+            element: <LoginPage />,
+          },
+          {
+            path: "/forgot-password",
+            element: <ForgotPasswordPage />,
+          },
+          {
+            path: "/reset-password",
+            element: <ResetPasswordPage />,
+          },
+        ],
+      },
+    ],
+  },
 
-    {
-        element: <ProtectedRoute />,
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <AuthenticatedLayout />,
         children: [
-            {
-                element: <AuthenticatedLayout />,
-                children: [
-                    {
-                        path: "/dashboard",
-                        element: <DashboardPage />
-                    },
-                    {
-                        path: "/profile",
-                        element: <ProfilePage />
-                    },
-                    {
-                        path: "/change-password",
-                        element: <ChangePasswordPage />
-                    },
-                    {
-                        path: "/administration/permissions",
-                        element: <PermissionListPage />
-                    },
-                    {
-                        path: "/administration/permissions/new",
-                        element: <PermissionCreatePage />
-                    },
-                    {
-                        path: "/administration/permissions/:id/edit",
-                        element: <PermissionEditPage />
-                    },
-                    {
-                        path: "/administration/categoria-diagnostica",
-                        element: <CategoriaDiagnosticaListPage />
-                    },
-                    {
-                        path: "/administration/categoria-diagnostica/new",
-                        element: <CategoriaDiagnosticaCreatePage />
-                    },
-                    {
-                        path: "/administration/categoria-diagnostica/:id/edit",
-                        element: <CategoriaDiagnosticaEditPage />
-                    },
-                    {
-                        path: "/administration/condicion-medica",
-                        element: <CondicionMedicaListPage />
-                    },
-                    {
-                        path: "/administration/condicion-medica/new",
-                        element: <CondicionMedicaCreatePage />
-                    },
-                    {
-                        path: "/administration/condicion-medica/:id/edit",
-                        element: <CondicionMedicaEditPage />
-                    },
-                    {
-                        path: "/administration/estado-civil",
-                        element: <EstadoCivilListPage />
-                    },
-                    {
-                        path: "/administration/estado-civil/new",
-                        element: <EstadoCivilCreatePage />
-                    },
-                    {
-                        path: "/administration/estado-civil/:id/edit",
-                        element: <EstadoCivilEditPage />
-                    },
-                    {
-                        path: "/administration/nivel-consistencia",
-                        element: <NivelConsistenciaListPage />
-                    },
-                    {
-                        path: "/administration/nivel-consistencia/new",
-                        element: <NivelConsistenciaCreatePage />
-                    },
-                    {
-                        path: "/administration/nivel-consistencia/:id/edit",
-                        element: <NivelConsistenciaEditPage />
-                    },
-                    {
-                        path: "/administration/nivel-escolaridad",
-                        element: <NivelEscolaridadListPage />
-                    },
-                    {
-                        path: "/administration/nivel-escolaridad/new",
-                        element: <NivelEscolaridadCreatePage />
-                    },
-                    {
-                        path: "/administration/nivel-escolaridad/:id/edit",
-                        element: <NivelEscolaridadEditPage />
-                    },
-                    {
-                        path: "/administration/nivel-riesgo",
-                        element: <NivelRiesgoListPage />
-                    },
-                    {
-                        path: "/administration/nivel-riesgo/new",
-                        element: <NivelRiesgoCreatePage />
-                    },
-                    {
-                        path: "/administration/nivel-riesgo/:id/edit",
-                        element: <NivelRiesgoEditPage />
-                    },
-                    {
-                        path: "/administration/nivel-severidad-alergia",
-                        element: <NivelSeveridadAlergiaListPage />
-                    },
-                    {
-                        path: "/administration/nivel-severidad-alergia/new",
-                        element: <NivelSeveridadAlergiaCreatePage />
-                    },
-                    {
-                        path: "/administration/nivel-severidad-alergia/:id/edit",
-                        element: <NivelSeveridadAlergiaEditPage />
-                    },
-                    {
-                        path: "/administration/tipo-intervencion",
-                        element: <TipoIntervencionListPage />
-                    },
-                    {
-                        path: "/administration/tipo-intervencion/new",
-                        element: <TipoIntervencionoCreatePage />
-                    },
-                    {
-                        path: "/administration/tipo-intervencion/:id/edit",
-                        element: <TipoIntervencionEditPage />
-                    },
-                    {
-                        path: "/administration/tipo-prueba",
-                        element: <TipoPruebaListPage />
-                    },
-                    {
-                        path: "/administration/tipo-prueba/new",
-                        element: <TipoPruebaCreatePage />
-                    },
-                    {
-                        path: "/administration/tipo-prueba/:id/edit",
-                        element: <TipoPruebaEditPage />
-                    },
-                    {
-                        path: "/administration/tipo-riesgo",
-                        element: <TipoRiesgoListPage />
-                    },
-                    {
-                        path: "/administration/tipo-riesgo/new",
-                        element: <TipoRiesgoCreatePage />
-                    },
-                    {
-                        path: "/administration/tipo-riesgo/:id/edit",
-                        element: <TipoRiesgoEditPage />
-                    },
-                    {
-                        path: "/administration/tipo-sesion",
-                        element: <TipoSesionListPage />
-                    },
-                    {
-                        path: "/administration/tipo-sesion/new",
-                        element: <TipoSesionCreatePage />
-                    },
-                    {
-                        path: "/administration/tipo-sesion/:id/edit",
-                        element: <TipoSesionEditPage />
-                    },
-                    {
-                        path: "/administration/tipo-sustancia-alergena",
-                        element: <TipoSustanciaAlergenaListPage />
-                    },
-                    {
-                        path: "/administration/tipo-sustancia-alergena/new",
-                        element: <TipoSustanciaAlergenaCreatePage />
-                    },
-                    {
-                        path: "/administration/tipo-sustancia-alergena/:id/edit",
-                        element: <TipoSustanciaAlergenaEditPage />
-                    },
-                    {
-                        path: "/administration/categoria-criterio-clinico",
-                        element: <CategoriaCriterioClinicoListPage />
-                    },
-                    {
-                        path: "/administration/categoria-criterio-clinico/new",
-                        element: <CategoriaCriterioClinicoCreatePage />
-                    },
-                    {
-                        path: "/administration/categoria-criterio-clinico/:id/edit",
-                        element: <CategoriaCriterioClinicoEditPage />
-                    },
-                    {
-                        path: "/citas/new",
-                        element: <AppointmentCreatePage />
-                    },
-                    {
-                        path: "/citas/:id/edit",
-                        element: <AppointmentEditPage />
-                    },
-                    {
-                        path: "/citas",
-                        element: <AgendaPage />
-                    },
-                    {
-                        path: "/citas/:id",
-                        element: <AppointmentDetailsPage />
-                    }
-                ]
-            }
-        ]
-    },
+          {
+            path: "/dashboard",
+            element: <DashboardPage />,
+          },
+          {
+            path: "/profile",
+            element: <ProfilePage />,
+          },
+          {
+            path: "/change-password",
+            element: <ChangePasswordPage />,
+          },
+          {
+            path: "/administration/permissions",
+            element: <PermissionListPage />,
+          },
+          {
+            path: "/administration/permissions/new",
+            element: <PermissionCreatePage />,
+          },
+          {
+            path: "/administration/permissions/:id/edit",
+            element: <PermissionEditPage />,
+          },
+          {
+            path: "/administration/categoria-diagnostica",
+            element: <CategoriaDiagnosticaListPage />,
+          },
+          {
+            path: "/administration/categoria-diagnostica/new",
+            element: <CategoriaDiagnosticaCreatePage />,
+          },
+          {
+            path: "/administration/categoria-diagnostica/:id/edit",
+            element: <CategoriaDiagnosticaEditPage />,
+          },
+          {
+            path: "/administration/condicion-medica",
+            element: <CondicionMedicaListPage />,
+          },
+          {
+            path: "/administration/condicion-medica/new",
+            element: <CondicionMedicaCreatePage />,
+          },
+          {
+            path: "/administration/condicion-medica/:id/edit",
+            element: <CondicionMedicaEditPage />,
+          },
+          {
+            path: "/administration/estado-civil",
+            element: <EstadoCivilListPage />,
+          },
+          {
+            path: "/administration/estado-civil/new",
+            element: <EstadoCivilCreatePage />,
+          },
+          {
+            path: "/administration/estado-civil/:id/edit",
+            element: <EstadoCivilEditPage />,
+          },
+          {
+            path: "/administration/nivel-consistencia",
+            element: <NivelConsistenciaListPage />,
+          },
+          {
+            path: "/administration/nivel-consistencia/new",
+            element: <NivelConsistenciaCreatePage />,
+          },
+          {
+            path: "/administration/nivel-consistencia/:id/edit",
+            element: <NivelConsistenciaEditPage />,
+          },
+          {
+            path: "/administration/nivel-escolaridad",
+            element: <NivelEscolaridadListPage />,
+          },
+          {
+            path: "/administration/nivel-escolaridad/new",
+            element: <NivelEscolaridadCreatePage />,
+          },
+          {
+            path: "/administration/nivel-escolaridad/:id/edit",
+            element: <NivelEscolaridadEditPage />,
+          },
+          {
+            path: "/administration/nivel-riesgo",
+            element: <NivelRiesgoListPage />,
+          },
+          {
+            path: "/administration/nivel-riesgo/new",
+            element: <NivelRiesgoCreatePage />,
+          },
+          {
+            path: "/administration/nivel-riesgo/:id/edit",
+            element: <NivelRiesgoEditPage />,
+          },
+          {
+            path: "/administration/nivel-severidad-alergia",
+            element: <NivelSeveridadAlergiaListPage />,
+          },
+          {
+            path: "/administration/nivel-severidad-alergia/new",
+            element: <NivelSeveridadAlergiaCreatePage />,
+          },
+          {
+            path: "/administration/nivel-severidad-alergia/:id/edit",
+            element: <NivelSeveridadAlergiaEditPage />,
+          },
+          {
+            path: "/administration/tipo-intervencion",
+            element: <TipoIntervencionListPage />,
+          },
+          {
+            path: "/administration/tipo-intervencion/new",
+            element: <TipoIntervencionoCreatePage />,
+          },
+          {
+            path: "/administration/tipo-intervencion/:id/edit",
+            element: <TipoIntervencionEditPage />,
+          },
+          {
+            path: "/administration/tipo-prueba",
+            element: <TipoPruebaListPage />,
+          },
+          {
+            path: "/administration/tipo-prueba/new",
+            element: <TipoPruebaCreatePage />,
+          },
+          {
+            path: "/administration/tipo-prueba/:id/edit",
+            element: <TipoPruebaEditPage />,
+          },
+          {
+            path: "/administration/tipo-riesgo",
+            element: <TipoRiesgoListPage />,
+          },
+          {
+            path: "/administration/tipo-riesgo/new",
+            element: <TipoRiesgoCreatePage />,
+          },
+          {
+            path: "/administration/tipo-riesgo/:id/edit",
+            element: <TipoRiesgoEditPage />,
+          },
+          {
+            path: "/administration/tipo-sesion",
+            element: <TipoSesionListPage />,
+          },
+          {
+            path: "/administration/tipo-sesion/new",
+            element: <TipoSesionCreatePage />,
+          },
+          {
+            path: "/administration/tipo-sesion/:id/edit",
+            element: <TipoSesionEditPage />,
+          },
+          {
+            path: "/administration/tipo-sustancia-alergena",
+            element: <TipoSustanciaAlergenaListPage />,
+          },
+          {
+            path: "/administration/tipo-sustancia-alergena/new",
+            element: <TipoSustanciaAlergenaCreatePage />,
+          },
+          {
+            path: "/administration/tipo-sustancia-alergena/:id/edit",
+            element: <TipoSustanciaAlergenaEditPage />,
+          },
+          {
+            path: "/administration/categoria-criterio-clinico",
+            element: <CategoriaCriterioClinicoListPage />,
+          },
+          {
+            path: "/administration/categoria-criterio-clinico/new",
+            element: <CategoriaCriterioClinicoCreatePage />,
+          },
+          {
+            path: "/administration/categoria-criterio-clinico/:id/edit",
+            element: <CategoriaCriterioClinicoEditPage />,
+          },
+          {
+            path: "/citas/new",
+            element: <AppointmentCreatePage />,
+          },
+          {
+            path: "/citas/:id/edit",
+            element: <AppointmentEditPage />,
+          },
+          {
+            path: "/citas",
+            element: <AgendaPage />,
+          },
+          {
+            path: "/citas/:id",
+            element: <AppointmentDetailsPage />,
+          },
+        ],
+      },
+    ],
+  },
 
-    {
-        element: <EmptyLayout />,
-        children: [
-            {
-                path: "/unauthorized",
-                element: <UnauthorizedPage />
-            },
-            {
-                path: "/forbidden",
-                element: <ForbiddenPage />
-            },
-            {
-                path: "*",
-                element: <NotFoundPage />
-            }
-        ]
-    }
+  {
+    element: <EmptyLayout />,
+    children: [
+      {
+        path: "/unauthorized",
+        element: <UnauthorizedPage />,
+      },
+      {
+        path: "/forbidden",
+        element: <ForbiddenPage />,
+      },
+      {
+        path: "*",
+        element: <NotFoundPage />,
+      },
+    ],
+  },
 ]);
