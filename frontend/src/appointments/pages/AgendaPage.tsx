@@ -122,7 +122,15 @@ export default function AgendaPage() {
                     />
                     <DayAgenda
                         appointments={agendaAppointments}
-                        onAppointmentClick={handleAppointmentClick}
+                        selectedDate={selectedDate}
+                        onAppointmentClick={
+                            handleAppointmentClick
+                        }
+                        onEmptySlotClick={(time) => {
+                            // Phase 2.6:
+                            // open appointment form with
+                            // selectedDate + time prefilled
+                        }}
                     />
                 </>
             )}

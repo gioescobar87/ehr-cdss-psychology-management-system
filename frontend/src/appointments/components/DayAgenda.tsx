@@ -4,28 +4,32 @@ import {
     Typography
 } from "@mui/material";
 
-import type { Appointment }
-    from "../types/appointment.types";
-    
+import type { Appointment } from "../types/appointment.types";
+import { useCurrentTime } from "../../shared/hooks/useCurrentTime";
+import { isToday } from "../../shared/utils/dateUtils";
 import { APPOINTMENT_STATUS_APPEARANCE, DEFAULT_APPOINTMENT_STATUS_APPEARANCE } from "../constants/appointmentStatusAppearance";
-
 
 const DAY_START_HOUR = 7;
 const DAY_END_HOUR = 20;
 const HOUR_HEIGHT = 80;
 
-
 interface DayAgendaProps {
     appointments: Appointment[];
+    selectedDate: string;
     onAppointmentClick: (
         appointment: Appointment
+    ) => void;
+    onEmptySlotClick?: (
+        time: string
     ) => void;
 }
 
 
 export default function DayAgenda({
     appointments,
-    onAppointmentClick
+    selectedDate,
+    onAppointmentClick,
+    onEmptySlotClick
 }: DayAgendaProps) {
 
     const hours = Array.from(
@@ -39,6 +43,31 @@ export default function DayAgenda({
             DAY_START_HOUR + index
     );
 
+
+    /*
+     * Current-time indicator
+     */
+
+    const currentTime = useCurrentTime();
+    const showCurrentTime = isToday(selectedDate);
+
+    const currentMinutes =
+        currentTime.getHours() * 60 +
+        currentTime.getMinutes();
+
+    const currentTimeTop =
+        ((currentMinutes -
+            DAY_START_HOUR * 60) /
+            60) *
+        HOUR_HEIGHT;
+
+    const currentTimeVisible =
+        showCurrentTime &&
+        currentTimeTop >= 0 &&
+        currentTimeTop <=
+            (DAY_END_HOUR -
+                DAY_START_HOUR) *
+            HOUR_HEIGHT;
 
     return (
         <Paper
@@ -77,7 +106,9 @@ export default function DayAgenda({
                                 borderBottom:
                                     "1px solid",
                                 borderColor:
-                                    "divider"
+                                    "divider",
+                                backgroundColor:
+                                    "primary.main"
                             }}
                         />
 
@@ -105,19 +136,14 @@ export default function DayAgenda({
                                     variant="caption"
                                     color="text.secondary"
                                 >
-                                    {String(hour)
-                                        .padStart(2, "0")}:00
+                                    {String(hour).padStart(2, "0")}
+                                    :00
                                 </Typography>
-
                             </Box>
-
                         ))}
-
                     </Box>
 
-
                     {/* Appointment timeline */}
-
                     <Box
                         sx={{
                             position:
@@ -126,6 +152,7 @@ export default function DayAgenda({
                         }}
                     >
 
+                        {/* Timeline header */}
                         <Box
                             sx={{
                                 height: 48,
@@ -137,20 +164,47 @@ export default function DayAgenda({
                                     "flex",
                                 alignItems:
                                     "center",
-                                px: 2
+                                px: 2,
+                                backgroundColor:
+                                    "primary.main"
                             }}
                         >
 
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={600}
+                            <Box
+                                sx={{
+                                    display:
+                                        "flex",
+                                    alignItems:
+                                        "center",
+                                    gap: 1
+                                }}
                             >
-                                Agenda del día
-                            </Typography>
-
+                                <Box
+                                    sx={{
+                                        width: 4,
+                                        height: 22,
+                                        borderRadius: 1,
+                                        backgroundColor:
+                                            "background.default"
+                                    }}
+                                />
+                                <Typography
+                                    variant="subtitle1"
+                                    fontWeight={700}
+                                    sx={{
+                                        letterSpacing:
+                                            0.2,
+                                        color:
+                                            "white"
+                                    }}
+                                >
+                                    Agenda del Día
+                                </Typography>
+                            </Box>
                         </Box>
 
 
+                        {/* Timeline */}
                         <Box
                             sx={{
                                 position:
@@ -161,8 +215,8 @@ export default function DayAgenda({
                             }}
                         >
 
+                            {/* Hour grid */}
                             {hours.map(hour => (
-
                                 <Box
                                     key={hour}
                                     sx={{
@@ -171,13 +225,42 @@ export default function DayAgenda({
                                         borderBottom:
                                             "1px solid",
                                         borderColor:
-                                            "divider"
+                                            "divider",
+                                        cursor:
+                                            onEmptySlotClick
+                                                ? "pointer"
+                                                : "default",
+
+                                        "&:hover":
+                                            onEmptySlotClick
+                                                ? {
+                                                    backgroundColor:
+                                                        "action.hover"
+                                                }
+                                                : undefined
+                                    }}
+
+                                    onClick={() => {
+                                        if (!onEmptySlotClick) {
+                                            return;
+                                        }
+                                        const time = `${String(hour).padStart(2, "0")}:00`;
+                                        onEmptySlotClick(time);
                                     }}
                                 />
-
                             ))}
 
 
+                            {/* Current time */}
+                            {currentTimeVisible && (
+                                <CurrentTimeIndicator
+                                    top={currentTimeTop}
+                                    time={currentTime}
+                                />
+                            )}
+
+
+                            {/* Appointments */}
                             {appointments.map(
                                 appointment => (
                                     <AppointmentBlock
@@ -193,6 +276,7 @@ export default function DayAgenda({
                                             )
                                         }
                                     />
+
                                 )
                             )}
 
@@ -208,26 +292,94 @@ export default function DayAgenda({
     );
 }
 
+
+/*
+ * Current-time indicator
+ */
+
+interface CurrentTimeIndicatorProps {
+    top: number;
+    time: Date;
+}
+
+
+function CurrentTimeIndicator({
+    top,
+    time
+}: CurrentTimeIndicatorProps) {
+
+    const formattedTime =
+        new Intl.DateTimeFormat(
+            "es-GT",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            }
+        ).format(time);
+
+
+    return (
+        <Box
+            sx={{
+                position: "absolute",
+                top,
+                left: 0,
+                right: 0,
+                zIndex: 10,
+                pointerEvents: "none",
+                display: "flex",
+                alignItems: "center"
+            }}
+        >
+
+            {/* Current time label */}
+
+            <Box
+                sx={{
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 1,
+                    backgroundColor:
+                        "error.main",
+                    color:
+                        "error.contrastText",
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    lineHeight: 1.4,
+                    flexShrink: 0
+                }}
+            >
+                {formattedTime}
+            </Box>
+
+
+            {/* Current time line */}
+            <Box
+                sx={{
+                    flex: 1,
+                    height: 2,
+                    backgroundColor:
+                        "error.main"
+                }}
+            />
+
+        </Box>
+    );
+}
+
 interface AppointmentBlockProps {
     appointment: Appointment;
     onClick: () => void;
 }
-
 
 function AppointmentBlock({
     appointment,
     onClick
 }: AppointmentBlockProps) {
 
-    const start =
-        new Date(
-            appointment.fechaHoraInicio
-        );
-
-    const end =
-        new Date(
-            appointment.fechaHoraFin
-        );
+    const start =new Date(appointment.fechaHoraInicio);
+    const end = new Date(appointment.fechaHoraFin);
 
     const startMinutes =
         start.getHours() * 60 +
@@ -241,25 +393,25 @@ function AppointmentBlock({
         DAY_START_HOUR * 60;
 
     const top =
-        ((startMinutes - dayStartMinutes) /
+        ((startMinutes -
+            dayStartMinutes) /
             60) *
         HOUR_HEIGHT;
 
     const height =
         Math.max(
-            ((endMinutes - startMinutes) /
+            ((endMinutes -
+                startMinutes) /
                 60) *
             HOUR_HEIGHT,
             72
         );
-
 
     const appearance =
         APPOINTMENT_STATUS_APPEARANCE[
             appointment.estadoId
         ] ??
         DEFAULT_APPOINTMENT_STATUS_APPEARANCE;
-
 
     return (
         <Box
@@ -300,12 +452,12 @@ function AppointmentBlock({
         >
 
             {/* Patient and status */}
-
             <Box
                 sx={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
+                    justifyContent:
+                        "space-between",
                     gap: 1,
                     minWidth: 0
                 }}
@@ -317,7 +469,8 @@ function AppointmentBlock({
                     sx={{
                         minWidth: 0,
                         overflow: "hidden",
-                        textOverflow: "ellipsis"
+                        textOverflow:
+                            "ellipsis"
                     }}
                 >
                     {appointment.pacienteNombre}
@@ -329,13 +482,13 @@ function AppointmentBlock({
                     sx={{
                         flexShrink: 0,
                         fontWeight: 600,
-                        color: appearance.accentColor
+                        color:
+                            appearance.accentColor
                     }}
                 >
                     {appointment.estado}
                 </Typography>
             </Box>
-
 
             {/* Reason */}
 
@@ -347,7 +500,8 @@ function AppointmentBlock({
                     display: "block",
                     mt: 0.5,
                     overflow: "hidden",
-                    textOverflow: "ellipsis"
+                    textOverflow:
+                        "ellipsis"
                 }}
             >
                 {appointment.motivo || "Cita"}
