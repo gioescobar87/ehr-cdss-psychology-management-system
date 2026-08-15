@@ -25,4 +25,6 @@ public class SesionResponseDTO {
 
     private Integer estadoId;
     private String estado;
+
+    private Integer citaId;
 }

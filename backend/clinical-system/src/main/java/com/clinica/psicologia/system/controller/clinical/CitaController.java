@@ -10,7 +10,9 @@ import com.clinica.psicologia.system.dto.request.clinical.CancelarCitaRequestDTO
 import com.clinica.psicologia.system.dto.request.clinical.CitaRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.service.clinical.CitaService;
+import com.clinica.psicologia.system.service.clinical.SesionService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class CitaController {
 
     private final CitaService service;
+    private final SesionService sesionService;
 
     @PostMapping
     public CitaResponseDTO create(@Valid @RequestBody CitaRequestDTO request) {
@@ -72,5 +75,10 @@ public class CitaController {
     @GetMapping("/{id}/cancelacion")
     public CancelacionResponseDTO getCancelacion(@PathVariable Integer id) {
         return service.getCancelacion(id);
+    }
+
+    @GetMapping("/{id}/sesion")
+    public List<SesionResponseDTO> getByCita(@PathVariable Integer id) {
+        return sesionService.getByCita(id);
     }
 }

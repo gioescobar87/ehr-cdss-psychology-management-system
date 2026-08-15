@@ -15,8 +15,8 @@ public class SesionMapper {
 
         dto.setId(entity.getId());
 
-        dto.setPacienteId(entity.getPaciente().getId());
-        dto.setPacienteNombre(entity.getPaciente().getNombre() + " " + entity.getPaciente().getApellido());
+        dto.setPacienteId(entity.getCita().getPaciente().getId());
+        dto.setPacienteNombre(entity.getCita().getPaciente().getNombre() + " " + entity.getPaciente().getApellido());
 
         dto.setUsuarioId(entity.getUsuario().getId());
         dto.setUsuarioNombre(entity.getUsuario().getNombre() + " " + entity.getUsuario().getApellido());
@@ -29,6 +29,8 @@ public class SesionMapper {
 
         dto.setEstadoId(entity.getEstado().getId());
         dto.setEstado(entity.getEstado().getNombre());
+
+        dto.setCitaId(entity.getCita().getId());
 
         return dto;
     }

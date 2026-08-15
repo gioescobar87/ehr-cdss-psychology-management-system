@@ -23,6 +23,6 @@ public class SesionRequestDTO {
 
     private String observacionesGenerales;
 
-    @NotNull(message = "El estado es obligatorio.")
-    private Integer estadoId;
+    @NotNull(message = "La cita es obligatoria.")
+    private Integer citaId;
 }

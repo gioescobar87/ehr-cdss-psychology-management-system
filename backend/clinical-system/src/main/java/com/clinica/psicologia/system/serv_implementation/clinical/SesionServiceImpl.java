@@ -10,11 +10,13 @@ import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.mapper.clinical.SesionMapper;
 import com.clinica.psicologia.system.model.catalog.Estado;
 import com.clinica.psicologia.system.model.catalog.TipoSesion;
+import com.clinica.psicologia.system.model.clinical.Cita;
 import com.clinica.psicologia.system.model.clinical.Sesion;
 import com.clinica.psicologia.system.model.patient.Paciente;
 import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.catalog.TipoSesionRepository;
+import com.clinica.psicologia.system.repository.clinical.CitaRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRepository;
@@ -22,6 +24,7 @@ import com.clinica.psicologia.system.security.exception.custom.BusinessRuleExcep
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.clinical.SesionService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +46,21 @@ public class SesionServiceImpl implements SesionService {
 
     private final SesionMapper mapper;
 
+    private final CitaRepository citaRepository;
+    private final ApplicationSupportService supportService;
+
     @Override
     public SesionResponseDTO create(SesionRequestDTO request) {
 
-        if (request.getFechaSesion().isAfter(LocalDateTime.now())) {
-            throw new BusinessRuleException("La fecha de la sesión no puede ser futura.");
+        Cita cita = citaRepository.findById(request.getCitaId())
+        .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+
+        LocalDateTime sessionCreationStart = cita.getFechaHoraInicio().minusMinutes(30);
+
+        if (LocalDateTime.now().isBefore(sessionCreationStart)) {
+        throw new BusinessRuleException(
+                "La sesión solo puede crearse hasta 30 minutos antes de la cita."
+        );
         }
 
         Paciente paciente = pacienteRepository.findById(request.getPacienteId())
@@ -68,7 +81,7 @@ public class SesionServiceImpl implements SesionService {
         TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
+        Estado estado = estadoRepository.findById(supportService.getActiveState().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado."));
 
         Sesion entity = new Sesion();
@@ -77,6 +90,7 @@ public class SesionServiceImpl implements SesionService {
         entity.setUsuario(usuario);
         entity.setTipoSesion(tipoSesion);
         entity.setEstado(estado);
+        entity.setCita(cita);
 
         mapper.updateEntity(entity, request);
 
@@ -122,14 +136,10 @@ public class SesionServiceImpl implements SesionService {
 
         TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
-
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado."));
-
+        
         entity.setPaciente(paciente);
         entity.setUsuario(usuario);
         entity.setTipoSesion(tipoSesion);
-        entity.setEstado(estado);
 
         mapper.updateEntity(entity, request);
 
@@ -159,4 +169,8 @@ public class SesionServiceImpl implements SesionService {
                 repository.findByUsuarioIdOrderByFechaSesionDesc(usuarioId));
     }
 
+    @Override
+    public List<SesionResponseDTO> getByCita(Integer citaId) {
+        return mapper.toResponseDTOList(repository.findByCitaId(citaId));
+    }
 }

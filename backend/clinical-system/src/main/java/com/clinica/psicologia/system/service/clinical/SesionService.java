@@ -21,4 +21,6 @@ public interface SesionService {
 
     List<SesionResponseDTO> getByUser(Integer usuarioId);
 
+    List<SesionResponseDTO> getByCita(Integer citaId);
+
 }
