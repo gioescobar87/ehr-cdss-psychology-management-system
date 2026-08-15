@@ -244,7 +244,7 @@ export default function AppointmentDetailsDrawer({
               disabled={!onOpenPatient}
               fullWidth
             >
-              Abrir paciente
+              Ver paciente
             </Button>
 
             <Button
