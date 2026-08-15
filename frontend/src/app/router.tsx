@@ -61,6 +61,7 @@ import AppointmentCreatePage from "../appointments/pages/AppointmentCreatePage";
 import AppointmentEditPage from "../appointments/pages/AppointmentEditPage";
 import AgendaPage from "../appointments/pages/AgendaPage";
 import AppointmentDetailsPage from "../appointments/pages/AppointmentDetailsPage";
+import ClinicalSessionPage from "../sessions/pages/ClinicalSessionpage";
 
 export const router = createBrowserRouter([
   {
@@ -292,6 +293,10 @@ export const router = createBrowserRouter([
           {
             path: "/citas/:id",
             element: <AppointmentDetailsPage />,
+          },
+          {
+            path: "/sesion/:id",
+            element: <ClinicalSessionPage />,
           },
         ],
       },
