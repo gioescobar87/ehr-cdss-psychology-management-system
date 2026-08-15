@@ -19,11 +19,7 @@ export default function ClinicalSessionPage() {
   const [activeSection, setActiveSection] =
     useState<SessionWorkspaceSection>("summary");
 
-  const {
-    data: session,
-    isLoading,
-    isError,
-  } = useSession(sessionId);
+  const { data: session, isLoading, isError } = useSession(sessionId);
 
   if (isLoading) {
     return (
@@ -41,9 +37,7 @@ export default function ClinicalSessionPage() {
 
   if (isError || !session) {
     return (
-      <Alert severity="error">
-        No fue posible cargar la sesión clínica.
-      </Alert>
+      <Alert severity="error">No fue posible cargar la sesión clínica.</Alert>
     );
   }
 
@@ -56,20 +50,14 @@ export default function ClinicalSessionPage() {
         bgcolor: "background.default",
       }}
     >
-      <SessionHeader
-        session={session}
-        onBack={() => navigate("/agenda")}
-      />
+      <SessionHeader session={session} onBack={() => navigate("/agenda")} />
 
       <SessionNavigation
         activeSection={activeSection}
         onSectionChange={setActiveSection}
       />
 
-      <SessionWorkspace
-        session={session}
-        activeSection={activeSection}
-      />
+      <SessionWorkspace session={session} activeSection={activeSection} />
     </Box>
   );
 }

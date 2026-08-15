@@ -1,10 +1,4 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
@@ -16,9 +10,10 @@ import MedicalInformationOutlinedIcon from "@mui/icons-material/MedicalInformati
 
 import type { SessionWorkspaceSection } from "../types/sessionWorkspace.types";
 import type { Sesion } from "../types/session.types";
+import SessionSummary from "./SessionSummary";
 
 interface SessionWorkspaceProps {
-    session: Sesion;
+  session: Sesion;
   activeSection: SessionWorkspaceSection;
 }
 
@@ -104,52 +99,56 @@ export default function SessionWorkspace({
         },
       }}
     >
-      <Card
-        variant="outlined"
-        sx={{
-          minHeight: {
-            xs: 320,
-            md: 420,
-          },
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: 2,
-        }}
-      >
-        <CardContent>
-          <Stack
-            spacing={1.5}
-            alignItems="center"
-            textAlign="center"
-            sx={{
-              maxWidth: 520,
-              mx: "auto",
-            }}
-          >
-            <Icon
+      {activeSection === "summary" ? (
+        <SessionSummary session={session} />
+      ) : (
+        <Card
+          variant="outlined"
+          sx={{
+            minHeight: {
+              xs: 320,
+              md: 420,
+            },
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 2,
+          }}
+        >
+          <CardContent>
+            <Stack
+              spacing={1.5}
+              alignItems="center"
+              textAlign="center"
               sx={{
-                fontSize: 48,
-                color: "text.disabled",
-              }}
-            />
-
-            <Typography variant="h6" fontWeight={700}>
-              {section.title}
-            </Typography>
-
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                maxWidth: 480,
+                maxWidth: 520,
+                mx: "auto",
               }}
             >
-              {section.description}
-            </Typography>
-          </Stack>
-        </CardContent>
-      </Card>
+              <Icon
+                sx={{
+                  fontSize: 48,
+                  color: "text.disabled",
+                }}
+              />
+
+              <Typography variant="h6" fontWeight={700}>
+                {section.title}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  maxWidth: 480,
+                }}
+              >
+                {section.description}
+              </Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
     </Box>
   );
 }

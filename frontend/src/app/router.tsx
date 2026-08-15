@@ -61,7 +61,7 @@ import AppointmentCreatePage from "../appointments/pages/AppointmentCreatePage";
 import AppointmentEditPage from "../appointments/pages/AppointmentEditPage";
 import AgendaPage from "../appointments/pages/AgendaPage";
 import AppointmentDetailsPage from "../appointments/pages/AppointmentDetailsPage";
-import ClinicalSessionPage from "../sessions/pages/ClinicalSessionPage";
+import ClinicalSessionPage from "../sessions/pages/ClinicalSessionpage";
 
 export const router = createBrowserRouter([
   {

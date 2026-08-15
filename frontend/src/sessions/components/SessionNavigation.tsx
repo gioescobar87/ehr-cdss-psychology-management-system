@@ -1,10 +1,4 @@
-import {
-  Box,
-  ButtonBase,
-  Divider,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, ButtonBase, Divider, Stack, Typography } from "@mui/material";
 
 import type {
   SessionWorkspaceNavigationItem,
@@ -101,9 +95,7 @@ export default function SessionNavigation({
                   bottom: -1,
                   height: 2,
                   borderRadius: "2px 2px 0 0",
-                  backgroundColor: active
-                    ? "primary.main"
-                    : "transparent",
+                  backgroundColor: active ? "primary.main" : "transparent",
                   transition: "background-color 0.2s ease",
                 },
               }}

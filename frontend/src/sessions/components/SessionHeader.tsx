@@ -1,10 +1,4 @@
-import {
-  Box,
-  Chip,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Chip, IconButton, Stack, Typography } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PersonIcon from "@mui/icons-material/Person";
