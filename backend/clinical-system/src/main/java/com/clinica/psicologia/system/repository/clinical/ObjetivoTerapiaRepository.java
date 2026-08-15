@@ -9,5 +9,7 @@ import com.clinica.psicologia.system.model.clinical.ObjetivoTerapia;
 public interface ObjetivoTerapiaRepository extends JpaRepository<ObjetivoTerapia, Integer> {
 
     List<ObjetivoTerapia> findByPlanTratamientoId(Integer planTratamientoId);
+
+    List<ObjetivoTerapia> findByPlanTratamientoPacienteDiagnosticoPacienteId(Integer pacienteId);
     
 }

@@ -20,4 +20,6 @@ public interface ObjetivoTerapiaService {
     void changeStatus(Integer id, Integer estadoId);
 
     void delete(Integer id);
+
+    List<ObjetivoTerapiaResponseDTO> getByPaciente(Integer pacienteId);
 }

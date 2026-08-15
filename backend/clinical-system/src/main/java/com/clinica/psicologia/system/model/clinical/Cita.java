@@ -6,7 +6,9 @@ import com.clinica.psicologia.system.model.base.BaseEntity;
 import com.clinica.psicologia.system.model.catalog.Estado;
 import com.clinica.psicologia.system.model.patient.Paciente;
 import com.clinica.psicologia.system.model.security.Usuario;
+import com.clinica.psicologia.system.util.encryption.StringEncryptConverter;
 
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -34,8 +36,10 @@ public class Cita extends BaseEntity {
 
     private LocalDateTime fechaHoraFin;
 
+    @Convert(converter = StringEncryptConverter.class)
     private String motivo;
 
+    @Convert(converter = StringEncryptConverter.class)
     private String observaciones;
 
     @ManyToOne(fetch = FetchType.LAZY)

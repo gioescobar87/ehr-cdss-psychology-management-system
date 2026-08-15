@@ -179,4 +179,10 @@ public class ObjetivoTerapiaServiceImpl implements ObjetivoTerapiaService {
 
                 repository.delete(entity);
         }
+
+        @Override
+        @Transactional(Transactional.TxType.SUPPORTS)
+        public List<ObjetivoTerapiaResponseDTO> getByPaciente(Integer pacienteId) {
+                return mapper.toResponseDTOList(repository.findByPlanTratamientoPacienteDiagnosticoPacienteId(pacienteId));
+        }
 }
