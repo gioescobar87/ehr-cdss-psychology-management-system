@@ -60,11 +60,7 @@ export default function SessionNoteCard({
             </Stack>
 
             {note.tipoNota && (
-              <Chip
-                label={note.tipoNota}
-                size="small"
-                variant="outlined"
-              />
+              <Chip label={note.tipoNota} size="small" variant="outlined" />
             )}
           </Box>
 

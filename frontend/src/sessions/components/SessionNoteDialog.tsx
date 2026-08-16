@@ -29,28 +29,19 @@ interface SessionNoteFormProps {
   onClose: () => void;
 }
 
-function SessionNoteForm({
-  sessionId,
-  note,
-  onClose,
-}: SessionNoteFormProps) {
+function SessionNoteForm({ sessionId, note, onClose }: SessionNoteFormProps) {
   const isEditing = note !== null;
 
-  const [content, setContent] = useState(
-    note?.contenido ?? "",
-  );
+  const [content, setContent] = useState(note?.contenido ?? "");
 
-  const [noteType, setNoteType] = useState(
-    note?.tipoNota ?? "",
-  );
+  const [noteType, setNoteType] = useState(note?.tipoNota ?? "");
 
   const createMutation = useCreateSessionNote();
   const updateMutation = useUpdateSessionNote();
 
   const { showSuccess } = useNotification();
 
-  const isPending =
-    createMutation.isPending || updateMutation.isPending;
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   const handleSave = () => {
     const trimmedContent = content.trim();
@@ -73,9 +64,7 @@ function SessionNoteForm({
         },
         {
           onSuccess: () => {
-            showSuccess(
-              "La nota fue actualizada correctamente.",
-            );
+            showSuccess("La nota fue actualizada correctamente.");
             onClose();
           },
         },
@@ -86,44 +75,30 @@ function SessionNoteForm({
 
     createMutation.mutate(request, {
       onSuccess: () => {
-        showSuccess(
-          "La nota fue registrada correctamente.",
-        );
+        showSuccess("La nota fue registrada correctamente.");
         onClose();
       },
     });
   };
 
-  const error =
-    createMutation.error ?? updateMutation.error;
+  const error = createMutation.error ?? updateMutation.error;
 
-  const errorMessage = error
-    ? getApiErrorMessage(error)
-    : null;
+  const errorMessage = error ? getApiErrorMessage(error) : null;
 
-  const isSaveDisabled =
-    !content.trim() || isPending;
+  const isSaveDisabled = !content.trim() || isPending;
 
   return (
     <>
-      <DialogTitle>
-        {isEditing ? "Editar nota" : "Nueva nota"}
-      </DialogTitle>
+      <DialogTitle>{isEditing ? "Editar nota" : "Nueva nota"}</DialogTitle>
 
       <DialogContent dividers>
         <Stack spacing={2.5} sx={{ pt: 1 }}>
-          {errorMessage && (
-            <Alert severity="error">
-              {errorMessage}
-            </Alert>
-          )}
+          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
 
           <TextField
             label="Asunto"
             value={noteType}
-            onChange={(event) =>
-              setNoteType(event.target.value)
-            }
+            onChange={(event) => setNoteType(event.target.value)}
             placeholder="Ej. Nota clínica, Observación, Seguimiento"
             fullWidth
             disabled={isPending}
@@ -137,9 +112,7 @@ function SessionNoteForm({
           <TextField
             label="Contenido"
             value={content}
-            onChange={(event) =>
-              setContent(event.target.value)
-            }
+            onChange={(event) => setContent(event.target.value)}
             placeholder="Escriba el contenido de la nota clínica..."
             multiline
             minRows={8}
@@ -151,10 +124,7 @@ function SessionNoteForm({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button
-          onClick={onClose}
-          disabled={isPending}
-        >
+        <Button onClick={onClose} disabled={isPending}>
           Cancelar
         </Button>
 
@@ -190,17 +160,10 @@ export default function SessionNoteDialog({
    * This allows the form state to be initialized directly from
    * the selected note without synchronizing state inside an effect.
    */
-  const formKey = note
-    ? `edit-${note.id}`
-    : "create";
+  const formKey = note ? `edit-${note.id}` : "create";
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <SessionNoteForm
         key={formKey}
         sessionId={sessionId}

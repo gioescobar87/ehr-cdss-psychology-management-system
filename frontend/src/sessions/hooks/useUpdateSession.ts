@@ -7,13 +7,8 @@ export function useUpdateSession() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      request,
-    }: {
-      id: number;
-      request: SessionRequest;
-    }) => updateSession(id, request),
+    mutationFn: ({ id, request }: { id: number; request: SessionRequest }) =>
+      updateSession(id, request),
 
     onSuccess: (session) => {
       queryClient.setQueryData(["session", session.id], session);

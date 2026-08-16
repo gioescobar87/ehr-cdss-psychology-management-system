@@ -10,8 +10,11 @@ import MedicalInformationOutlinedIcon from "@mui/icons-material/MedicalInformati
 
 import type { SessionWorkspaceSection } from "../types/sessionWorkspace.types";
 import type { Sesion } from "../types/session.types";
+
 import SessionSummary from "./SessionSummary";
+import SessionObservations from "./SessionObservations";
 import SessionNotes from "./SessionNotes";
+import SessionInterventions from "./SessionIntervention";
 
 interface SessionWorkspaceProps {
   session: Sesion;
@@ -32,6 +35,13 @@ const SECTION_PLACEHOLDERS: Record<
     title: "Resumen de la sesión",
     description:
       "Aquí se mostrará un resumen clínico de la sesión y la información relevante del paciente.",
+    icon: DescriptionOutlinedIcon,
+  },
+
+  observations: {
+    title: "Observaciones generales",
+    description:
+      "Aquí se registrarán las observaciones generales correspondientes a esta sesión.",
     icon: DescriptionOutlinedIcon,
   },
 
@@ -101,57 +111,61 @@ export default function SessionWorkspace({
       }}
     >
       {activeSection === "summary" ? (
-  <SessionSummary session={session} />
-) : activeSection === "notes" ? (
-  <SessionNotes session={session} />
-) : (
-  <Card
-    variant="outlined"
-    sx={{
-      minHeight: {
-        xs: 320,
-        md: 420,
-      },
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 2,
-    }}
-  >
-    <CardContent>
-      <Stack
-        spacing={1.5}
-        alignItems="center"
-        textAlign="center"
-        sx={{
-          maxWidth: 520,
-          mx: "auto",
-        }}
-      >
-        <Icon
+        <SessionSummary session={session} />
+      ) : activeSection === "observations" ? (
+        <SessionObservations session={session} />
+      ) : activeSection === "notes" ? (
+        <SessionNotes session={session} />
+      ) : activeSection === "interventions" ? (
+        <SessionInterventions session={session} />
+      ) : (
+        <Card
+          variant="outlined"
           sx={{
-            fontSize: 48,
-            color: "text.disabled",
-          }}
-        />
-
-        <Typography variant="h6" fontWeight={700}>
-          {section.title}
-        </Typography>
-
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            maxWidth: 480,
+            minHeight: {
+              xs: 320,
+              md: 420,
+            },
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 2,
           }}
         >
-          {section.description}
-        </Typography>
-      </Stack>
-    </CardContent>
-  </Card>
-)}
+          <CardContent>
+            <Stack
+              spacing={1.5}
+              alignItems="center"
+              textAlign="center"
+              sx={{
+                maxWidth: 520,
+                mx: "auto",
+              }}
+            >
+              <Icon
+                sx={{
+                  fontSize: 48,
+                  color: "text.disabled",
+                }}
+              />
+
+              <Typography variant="h6" fontWeight={700}>
+                {section.title}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  maxWidth: 480,
+                }}
+              >
+                {section.description}
+              </Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
     </Box>
   );
 }

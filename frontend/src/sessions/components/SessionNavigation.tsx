@@ -11,6 +11,10 @@ const NAVIGATION_ITEMS: SessionWorkspaceNavigationItem[] = [
     label: "Resumen",
   },
   {
+    id: "observations",
+    label: "Observaciones",
+  },
+  {
     id: "notes",
     label: "Notas",
   },

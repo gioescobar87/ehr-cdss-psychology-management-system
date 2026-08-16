@@ -56,8 +56,7 @@ export default function SessionObservations({
       },
       {
         onSuccess: (updatedSession) => {
-          const savedValue =
-            updatedSession.observacionesGenerales ?? "";
+          const savedValue = updatedSession.observacionesGenerales ?? "";
 
           setObservations(savedValue);
           setSavedObservations(savedValue);
@@ -99,11 +98,7 @@ export default function SessionObservations({
               Observaciones generales
             </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mt: 0.5 }}
-            >
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               Registre la información clínica general correspondiente a esta
               sesión.
             </Typography>
@@ -142,9 +137,7 @@ export default function SessionObservations({
               onClick={handleSave}
               disabled={!hasChanges || updateSessionMutation.isPending}
             >
-              {updateSessionMutation.isPending
-                ? "Guardando..."
-                : "Guardar"}
+              {updateSessionMutation.isPending ? "Guardando..." : "Guardar"}
             </Button>
           </Box>
         </Stack>

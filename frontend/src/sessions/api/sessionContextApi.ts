@@ -73,10 +73,7 @@ export async function getSessionNotes(
 export async function createSessionNote(
   request: SessionNoteRequest,
 ): Promise<SessionNote> {
-  const response = await apiClient.post<SessionNote>(
-    "/nota-sesion",
-    request,
-  );
+  const response = await apiClient.post<SessionNote>("/nota-sesion", request);
 
   return response.data;
 }

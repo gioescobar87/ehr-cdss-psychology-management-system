@@ -1,5 +1,6 @@
 export type SessionWorkspaceSection =
   | "summary"
+  | "observations"
   | "notes"
   | "interventions"
   | "risk"

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
-    createSessionNote,
+  createSessionNote,
   getPatientDiagnoses,
   getPatientObjectives,
   getPatientRiskEvaluations,
@@ -54,8 +54,7 @@ export function useCreateSessionNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: SessionNoteRequest) =>
-      createSessionNote(request),
+    mutationFn: (request: SessionNoteRequest) => createSessionNote(request),
 
     onSuccess: (note) => {
       queryClient.invalidateQueries({
