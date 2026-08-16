@@ -276,40 +276,63 @@ export default function SessionSummary({ session }: SessionSummaryProps) {
       <Card variant="outlined">
         <CardContent>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-            <WarningAmberIcon color="warning" />
+            <WarningAmberIcon color="action" />
 
             <Typography variant="h6" fontWeight={700}>
-              Alertas clínicas
+              Evaluación de riesgo
             </Typography>
           </Stack>
 
           {!latestRisk ? (
-            <Typography color="text.secondary">
-              No existen evaluaciones de riesgo registradas.
-            </Typography>
-          ) : (
-            <Alert
-              severity={
-                latestRisk.nivelRiesgo?.toLowerCase().includes("alto")
-                  ? "error"
-                  : "warning"
-              }
-            >
-              <Typography fontWeight={700}>
-                {latestRisk.tipoRiesgo}: {latestRisk.nivelRiesgo}
+            <Stack spacing={0.75}>
+              <Typography variant="body1" fontWeight={600}>
+                Sin evaluación registrada
               </Typography>
 
-              <Typography variant="body2" sx={{ mt: 0.5 }}>
-                Evaluación del{" "}
+              <Typography variant="body2" color="text.secondary">
+                No existen evaluaciones de riesgo registradas para este
+                paciente.
+              </Typography>
+            </Stack>
+          ) : (
+            <Stack spacing={1}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Estado de riesgo
+                  </Typography>
+
+                  <Typography variant="h6" fontWeight={700}>
+                    {latestRisk.nivelRiesgo}
+                  </Typography>
+                </Box>
+
+                <Chip
+                  label={latestRisk.tipoRiesgo}
+                  variant="outlined"
+                  size="small"
+                />
+              </Box>
+
+              <Typography variant="body2" color="text.secondary">
+                Última evaluación:{" "}
                 {FULL_DATE_FORMATTER.format(new Date(latestRisk.fecha))}
               </Typography>
 
               {latestRisk.observaciones && (
-                <Typography variant="body2" sx={{ mt: 1 }}>
+                <Typography variant="body2" sx={{ mt: 0.5 }}>
                   {latestRisk.observaciones}
                 </Typography>
               )}
-            </Alert>
+            </Stack>
           )}
         </CardContent>
       </Card>
