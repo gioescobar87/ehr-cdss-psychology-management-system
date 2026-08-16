@@ -8,7 +8,7 @@ export function useCreateSesion() {
   return useMutation({
     mutationFn: (request: SessionRequest) => createSession(request),
     onSuccess: (sesion) => {
-      queryClient.invalidateQueries({ queryKey: ["sessons"] });
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.setQueryData(["session", sesion.id], sesion);
     },
   });

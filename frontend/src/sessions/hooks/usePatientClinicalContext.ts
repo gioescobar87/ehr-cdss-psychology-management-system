@@ -1,11 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+    createSessionNote,
   getPatientDiagnoses,
   getPatientObjectives,
   getPatientRiskEvaluations,
   getPatientSessions,
+  getSessionNotes,
 } from "../api/sessionContextApi";
+import type { SessionNoteRequest } from "../types/sessionContext.types";
 
 export function usePatientSessions(patientId?: number) {
   return useQuery({
@@ -36,5 +39,28 @@ export function usePatientRiskEvaluations(patientId?: number) {
     queryKey: ["patient", patientId, "risk-evaluations"],
     queryFn: () => getPatientRiskEvaluations(patientId!),
     enabled: patientId !== undefined,
+  });
+}
+
+export function useSessionNotes(sessionId: number | undefined) {
+  return useQuery({
+    queryKey: ["session-notes", sessionId],
+    queryFn: () => getSessionNotes(sessionId!),
+    enabled: sessionId !== undefined,
+  });
+}
+
+export function useCreateSessionNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: SessionNoteRequest) =>
+      createSessionNote(request),
+
+    onSuccess: (note) => {
+      queryClient.invalidateQueries({
+        queryKey: ["session-notes", note.sesionId],
+      });
+    },
   });
 }

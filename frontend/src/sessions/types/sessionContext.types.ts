@@ -46,3 +46,19 @@ export interface EvaluacionRiesgo {
   observaciones: string | null;
   fecha: string;
 }
+
+export interface SessionNote {
+  id: number;
+  sesionId: number;
+  usuarioId: number;
+  usuarioNombre: string;
+  contenido: string;
+  tipoNota?: string;
+  fechaRegistro: string;
+}
+
+export interface SessionNoteRequest {
+  sesionId: number;
+  contenido: string;
+  tipoNota?: string;
+}

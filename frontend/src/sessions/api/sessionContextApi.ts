@@ -6,6 +6,8 @@ import type {
   EvaluacionRiesgo,
   ObjetivoTerapia,
   SesionPaciente,
+  SessionNote,
+  SessionNoteRequest,
 } from "../types/sessionContext.types";
 
 export async function getPatientSessions(
@@ -53,6 +55,39 @@ export async function getPatientAppointments(
 ): Promise<Appointment[]> {
   const response = await apiClient.get<Appointment[]>(
     `/paciente/${patientId}/citas`,
+  );
+
+  return response.data;
+}
+
+export async function getSessionNotes(
+  sessionId: number,
+): Promise<SessionNote[]> {
+  const response = await apiClient.get<SessionNote[]>(
+    `/sesion/${sessionId}/notas-sesion`,
+  );
+
+  return response.data;
+}
+
+export async function createSessionNote(
+  request: SessionNoteRequest,
+): Promise<SessionNote> {
+  const response = await apiClient.post<SessionNote>(
+    "/nota-sesion",
+    request,
+  );
+
+  return response.data;
+}
+
+export async function updateSessionNote(
+  id: number,
+  request: SessionNoteRequest,
+): Promise<SessionNote> {
+  const response = await apiClient.put<SessionNote>(
+    `/nota-sesion/${id}`,
+    request,
   );
 
   return response.data;
