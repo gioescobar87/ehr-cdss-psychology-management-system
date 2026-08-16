@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.NivelConsistenciaReposit
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.NivelConsistenciaService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class NivelConsistenciaServiceImpl
@@ -24,11 +25,13 @@ public class NivelConsistenciaServiceImpl
     public NivelConsistenciaServiceImpl(
             NivelConsistenciaRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             NivelConsistenciaMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -45,13 +48,6 @@ public class NivelConsistenciaServiceImpl
             NivelConsistenciaRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            NivelConsistenciaRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

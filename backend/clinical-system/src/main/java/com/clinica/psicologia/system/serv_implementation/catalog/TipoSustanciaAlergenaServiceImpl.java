@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.TipoSustanciaAlergenaRep
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.TipoSustanciaAlergenaService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class TipoSustanciaAlergenaServiceImpl extends
@@ -24,11 +25,13 @@ public class TipoSustanciaAlergenaServiceImpl extends
     public TipoSustanciaAlergenaServiceImpl(
             TipoSustanciaAlergenaRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             TipoSustanciaAlergenaMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -45,13 +48,6 @@ public class TipoSustanciaAlergenaServiceImpl extends
             TipoSustanciaAlergenaRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            TipoSustanciaAlergenaRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

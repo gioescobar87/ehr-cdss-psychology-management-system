@@ -15,4 +15,6 @@ public interface SesionIntervencionService {
 
     void delete(Integer id);
 
+    List<SesionIntervencionResponseDTO> getByPaciente(Integer pacienteId);
+
 }

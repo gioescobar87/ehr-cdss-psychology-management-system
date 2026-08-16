@@ -14,6 +14,7 @@ import com.clinica.psicologia.system.security.exception.custom.DuplicateResource
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.clinical.IntervencionService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class IntervencionServiceImpl
@@ -29,12 +30,14 @@ public class IntervencionServiceImpl
     public IntervencionServiceImpl(
             IntervencionRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             TipoIntervencionRepository tipoIntervencionRepository,
             IntervencionMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -49,11 +52,6 @@ public class IntervencionServiceImpl
     @Override
     protected String getNombre(IntervencionRequestDTO request) {
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(IntervencionRequestDTO request) {
-        return request.getEstadoId();
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.EstadoCivilService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class EstadoCivilServiceImpl
@@ -22,11 +23,13 @@ public class EstadoCivilServiceImpl
     public EstadoCivilServiceImpl(
             EstadoCivilRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             EstadoCivilMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -43,13 +46,6 @@ public class EstadoCivilServiceImpl
             EstadoCivilRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            EstadoCivilRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

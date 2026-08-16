@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.NivelEscolaridadReposito
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.NivelEscolaridadService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class NivelEscolaridadServiceImpl
@@ -22,11 +23,13 @@ public class NivelEscolaridadServiceImpl
     public NivelEscolaridadServiceImpl(
             NivelEscolaridadRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             NivelEscolaridadMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -43,13 +46,6 @@ public class NivelEscolaridadServiceImpl
             NivelEscolaridadRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            NivelEscolaridadRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

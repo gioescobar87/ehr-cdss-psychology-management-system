@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.TipoRiesgoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.TipoRiesgoService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class TipoRiesgoServiceImpl extends AbstractCatalogService<TipoRiesgo, TipoRiesgoRequestDTO, TipoRiesgoResponseDTO> implements TipoRiesgoService {
@@ -21,11 +22,13 @@ public class TipoRiesgoServiceImpl extends AbstractCatalogService<TipoRiesgo, Ti
     public TipoRiesgoServiceImpl(
             TipoRiesgoRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             TipoRiesgoMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -42,13 +45,6 @@ public class TipoRiesgoServiceImpl extends AbstractCatalogService<TipoRiesgo, Ti
             TipoRiesgoRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            TipoRiesgoRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

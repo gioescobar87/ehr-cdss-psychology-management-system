@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.TipoSesionRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.TipoSesionService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class TipoSesionServiceImpl extends
@@ -23,11 +24,13 @@ public class TipoSesionServiceImpl extends
     public TipoSesionServiceImpl(
             TipoSesionRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             TipoSesionMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -44,13 +47,6 @@ public class TipoSesionServiceImpl extends
             TipoSesionRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            TipoSesionRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

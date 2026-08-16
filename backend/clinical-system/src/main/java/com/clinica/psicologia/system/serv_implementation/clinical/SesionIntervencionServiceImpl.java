@@ -13,6 +13,7 @@ import com.clinica.psicologia.system.model.clinical.SesionIntervencion;
 import com.clinica.psicologia.system.repository.clinical.IntervencionRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionIntervencionRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
+import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.clinical.SesionIntervencionService;
@@ -28,6 +29,7 @@ public class SesionIntervencionServiceImpl implements SesionIntervencionService 
     private final SesionRepository sesionRepository;
     private final IntervencionRepository intervencionRepository;
     private final SesionIntervencionMapper mapper;
+    private final PacienteRepository pacienteRepository;
 
     @Override
     public SesionIntervencionResponseDTO create(
@@ -88,4 +90,12 @@ public class SesionIntervencionServiceImpl implements SesionIntervencionService 
 
         repository.delete(entity);
     }
+
+    @Override
+@Transactional(Transactional.TxType.SUPPORTS)
+public List<SesionIntervencionResponseDTO> getByPaciente(Integer pacienteId) {
+        pacienteRepository.findById(pacienteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado."));
+        return mapper.toResponseDTOList(repository.findBySesionPacienteIdOrderByIntervencionNombreAsc(pacienteId));
+        }
 }

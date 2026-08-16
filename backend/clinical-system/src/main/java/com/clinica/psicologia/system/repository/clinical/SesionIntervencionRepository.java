@@ -12,4 +12,6 @@ public interface SesionIntervencionRepository extends JpaRepository<SesionInterv
     boolean existsBySesionIdAndIntervencionId(Integer sesionId, Integer intervencionId);
 
     List<SesionIntervencion> findBySesionIdOrderByIntervencionNombreAsc(Integer sesionId);
+
+    List<SesionIntervencion> findBySesionPacienteIdOrderByIntervencionNombreAsc(Integer pacienteId);
 }

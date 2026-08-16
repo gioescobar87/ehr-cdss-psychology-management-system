@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.TipoIntervencionReposito
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.TipoIntervencionService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class TipoIntervencionServiceImpl
@@ -24,11 +25,13 @@ public class TipoIntervencionServiceImpl
     public TipoIntervencionServiceImpl(
             TipoIntervencionRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             TipoIntervencionMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -45,13 +48,6 @@ public class TipoIntervencionServiceImpl
             TipoIntervencionRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            TipoIntervencionRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

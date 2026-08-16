@@ -8,6 +8,7 @@ import com.clinica.psicologia.system.model.catalog.Estado;
 import com.clinica.psicologia.system.repository.catalog.CatalogRepository;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
 
@@ -15,7 +16,7 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
         implements CatalogService<REQUEST, RESPONSE> {
 
     protected final CatalogRepository<ENTITY> repository;
-
+    protected final ApplicationSupportService supportService;
     protected final EstadoRepository estadoRepository;
 
     protected final CatalogoMapper<ENTITY, REQUEST, RESPONSE> mapper;
@@ -23,10 +24,12 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
     protected AbstractCatalogService(
             CatalogRepository<ENTITY> repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             CatalogoMapper<ENTITY, REQUEST, RESPONSE> mapper) {
 
         this.repository = repository;
         this.estadoRepository = estadoRepository;
+        this.supportService = supportService;
         this.mapper = mapper;
     }
 
@@ -53,8 +56,7 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
         validateDuplicate(getNombre(request));
         validateAdditionalFields(request);
 
-        Estado estado = estadoRepository.findById(extractEstadoId(request))
-                .orElseThrow(() -> new ResourceNotFoundException("State not found - CAT"));
+        Estado estado = supportService.getActiveState();
 
         ENTITY entity = createEntity();
 
@@ -75,12 +77,8 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
 
         validateDuplicate(getNombre(request), id);
         validateAdditionalFields(request,id);
-
-        Estado estado = estadoRepository.findById(extractEstadoId(request))
-                .orElseThrow(() -> new ResourceNotFoundException("State not found - CAT"));
-
+        
         mapper.updateEntity(entity, request);
-        entity.setEstado(estado);
 
         validateAdditionalFields(entity, request);
 
@@ -112,7 +110,7 @@ public abstract class AbstractCatalogService<ENTITY extends BaseCatalog, REQUEST
         repository.delete(entity);
     }
 
-    protected abstract Integer extractEstadoId(REQUEST request);
+    //protected abstract Integer extractEstadoId(REQUEST request);
 
     protected abstract void validateDuplicate(String nombre);
 

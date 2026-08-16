@@ -15,7 +15,4 @@ public class IntervencionRequestDTO {
     private Integer tipoIntervencionId;
 
     private String descripcion;
-
-    @NotNull
-    private Integer estadoId;
 }

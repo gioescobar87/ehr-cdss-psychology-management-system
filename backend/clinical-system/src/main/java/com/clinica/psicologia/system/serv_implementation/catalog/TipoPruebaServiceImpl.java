@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.TipoPruebaRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.TipoPruebaService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class TipoPruebaServiceImpl
@@ -23,11 +24,13 @@ private final TipoPruebaRepository repository;
     public TipoPruebaServiceImpl(
             TipoPruebaRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             TipoPruebaMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -44,13 +47,6 @@ private final TipoPruebaRepository repository;
             TipoPruebaRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            TipoPruebaRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override

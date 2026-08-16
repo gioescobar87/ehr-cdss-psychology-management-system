@@ -49,9 +49,4 @@ public class NotaSesionController {
     public void delete(@PathVariable Integer id){
         service.delete(id);
     }
-
-    @GetMapping("/sesion/{sesionId}")
-    public List<NotaSesionResponseDTO> getBySesion(@PathVariable Integer sesionId) {
-        return service.getBySesion(sesionId);
-    }
 }

@@ -11,6 +11,7 @@ import com.clinica.psicologia.system.repository.catalog.NivelSeveridadAlergiaRep
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.service.catalog.AbstractCatalogService;
 import com.clinica.psicologia.system.service.catalog.NivelSeveridadAlergiaService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 @Service
 public class NivelSeveridadAlergiaServiceImpl extends AbstractCatalogService<NivelSeveridadAlergia, NivelSeveridadAlergiaRequestDTO, NivelSeveridadAlergiaResponseDTO> implements NivelSeveridadAlergiaService {
@@ -21,11 +22,13 @@ public class NivelSeveridadAlergiaServiceImpl extends AbstractCatalogService<Niv
     public NivelSeveridadAlergiaServiceImpl(
             NivelSeveridadAlergiaRepository repository,
             EstadoRepository estadoRepository,
+            ApplicationSupportService supportService,
             NivelSeveridadAlergiaMapper mapper) {
 
         super(
                 repository,
                 estadoRepository,
+                supportService,
                 mapper);
 
         this.repository = repository;
@@ -42,13 +45,6 @@ public class NivelSeveridadAlergiaServiceImpl extends AbstractCatalogService<Niv
             NivelSeveridadAlergiaRequestDTO request) {
 
         return request.getNombre();
-    }
-
-    @Override
-    protected Integer extractEstadoId(
-            NivelSeveridadAlergiaRequestDTO request) {
-
-        return request.getEstadoId();
     }
 
     @Override
