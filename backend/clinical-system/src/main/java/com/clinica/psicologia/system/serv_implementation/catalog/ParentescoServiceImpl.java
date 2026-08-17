@@ -14,22 +14,19 @@ import com.clinica.psicologia.system.repository.catalog.ParentescoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.catalog.ParentescoService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ParentescoServiceImpl implements ParentescoService {
     private final ParentescoRepository repository;
     private final EstadoRepository estadoRepository;
     private final ParentescoMapper mapper;
     private final String duplicateMessage = "Relationship already exists";
-
-    public ParentescoServiceImpl(ParentescoRepository repository, EstadoRepository estadoRepository,
-            ParentescoMapper mapper) {
-        this.repository = repository;
-        this.estadoRepository = estadoRepository;
-        this.mapper = mapper;
-    }
+    private final ApplicationSupportService supportService;
 
     @Override
     public List<ParentescoResponseDTO> findAll() {
@@ -60,8 +57,7 @@ public class ParentescoServiceImpl implements ParentescoService {
     public ParentescoResponseDTO create(ParentescoRequestDTO request) {
         validateDuplicate(request.getNombre());
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
+        Estado estado = supportService.getActiveState();
 
         Parentesco entity = new Parentesco();
 
@@ -79,13 +75,7 @@ public class ParentescoServiceImpl implements ParentescoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Relationship not found"));
 
         validateDuplicate(request.getNombre(), id);
-
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
-
         mapper.updateEntity(entity, request);
-
-        entity.setEstado(estado);
 
         return mapper.toResponse(repository.save(entity));
     }

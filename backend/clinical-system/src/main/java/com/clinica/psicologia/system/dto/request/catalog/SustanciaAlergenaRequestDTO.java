@@ -18,7 +18,4 @@ public class SustanciaAlergenaRequestDTO {
 
     @NotNull(message = "El tipo de sustancia alergena es obligatorio")
     private Integer tipoSustanciaAlergenaId;
-
-    @NotNull(message = "El estado es obligatorio")
-    private Integer estadoId;
 }

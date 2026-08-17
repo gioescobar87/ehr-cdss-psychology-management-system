@@ -21,7 +21,4 @@ public class DiagnosticoRequestDTO {
 
     @NotNull(message = "La categoría diagnóstica es obligatoria")
     private Integer categoriaDiagnosticaId;
-
-    @NotNull(message = "El estado es obligatorio")
-    private Integer estadoId;
 }

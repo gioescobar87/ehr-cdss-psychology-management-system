@@ -16,6 +16,7 @@ import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.catalog.CriterioClinicoService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class CriterioClinicoServiceImpl implements CriterioClinicoService {
     private final CategoriaCriterioClinicoRepository categoriaRepository;
     private final EstadoRepository estadoRepository;
     private final CriterioClinicoMapper mapper;
+    private final ApplicationSupportService supportService;
 
     private static final String DUPLICATE_MESSAGE = "Clinical criterion already exists";
 
@@ -59,8 +61,7 @@ public class CriterioClinicoServiceImpl implements CriterioClinicoService {
         CategoriaCriterioClinico categoria = categoriaRepository.findById(request.getCategoriaCriterioClinicoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Clinical criterion category not found"));
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
+        Estado estado = supportService.getActiveState();
 
         CriterioClinico entity = new CriterioClinico();
 
@@ -88,14 +89,10 @@ public class CriterioClinicoServiceImpl implements CriterioClinicoService {
         CategoriaCriterioClinico categoria = categoriaRepository.findById(request.getCategoriaCriterioClinicoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Clinical criterion category not found"));
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
-
         entity.setNombre(request.getNombre());
         entity.setCodigo(request.getCodigo());
         entity.setDescripcion(request.getDescripcion());
         entity.setCategoriaCriterioClinico(categoria);
-        entity.setEstado(estado);
 
         entity = repository.save(entity);
 

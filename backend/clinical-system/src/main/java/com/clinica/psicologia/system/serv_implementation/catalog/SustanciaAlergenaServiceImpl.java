@@ -16,6 +16,7 @@ import com.clinica.psicologia.system.repository.catalog.TipoSustanciaAlergenaRep
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.catalog.SustanciaAlergenaService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class SustanciaAlergenaServiceImpl
     private final TipoSustanciaAlergenaRepository tipoRepository;
     private final EstadoRepository estadoRepository;
     private final SustanciaAlergenaMapper mapper;
+    private final ApplicationSupportService supportService;
 
     private static final String DUPLICATE_MESSAGE =
             "Allergenic substance already exists";
@@ -73,12 +75,7 @@ public class SustanciaAlergenaServiceImpl
                                 new ResourceNotFoundException(
                                         "Allergenic substance type not found"));
 
-        Estado estado =
-                estadoRepository.findById(
-                        request.getEstadoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "State not found"));
+        Estado estado = supportService.getActiveState();
 
         SustanciaAlergena entity =
                 new SustanciaAlergena();
@@ -118,17 +115,9 @@ public class SustanciaAlergenaServiceImpl
                                 new ResourceNotFoundException(
                                         "Allergenic substance type not found"));
 
-        Estado estado =
-                estadoRepository.findById(
-                        request.getEstadoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "State not found"));
-
         entity.setNombre(request.getNombre());
         entity.setDescripcion(request.getDescripcion());
         entity.setTipoSustanciaAlergena(tipo);
-        entity.setEstado(estado);
 
         entity = repository.save(entity);
 

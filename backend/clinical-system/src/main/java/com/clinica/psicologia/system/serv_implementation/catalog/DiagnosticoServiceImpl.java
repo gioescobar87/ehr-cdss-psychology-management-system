@@ -16,6 +16,7 @@ import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.catalog.DiagnosticoService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class DiagnosticoServiceImpl
     private final CategoriaDiagnosticaRepository categoriaRepository;
     private final EstadoRepository estadoRepository;
     private final DiagnosticoMapper mapper;
+    private final ApplicationSupportService supportService;
 
     private static final String DUPLICATE_MESSAGE =
             "Diagnosis already exists";
@@ -73,12 +75,7 @@ public class DiagnosticoServiceImpl
                                 new ResourceNotFoundException(
                                         "Diagnostic category not found"));
 
-        Estado estado =
-                estadoRepository.findById(
-                        request.getEstadoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "State not found"));
+        Estado estado = supportService.getActiveState();
 
         Diagnostico entity =
                 new Diagnostico();
@@ -119,18 +116,10 @@ public class DiagnosticoServiceImpl
                                 new ResourceNotFoundException(
                                         "Diagnostic category not found"));
 
-        Estado estado =
-                estadoRepository.findById(
-                        request.getEstadoId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "State not found"));
-
         entity.setNombre(request.getNombre());
         entity.setCodigoDsm(request.getCodigoDsm());
         entity.setDescripcion(request.getDescripcion());
         entity.setCategoriaDiagnostica(categoria);
-        entity.setEstado(estado);
 
         entity = repository.save(entity);
 
