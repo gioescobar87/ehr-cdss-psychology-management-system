@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.request.clinical.SesionRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.NotaSesionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionIntervencionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
+import com.clinica.psicologia.system.service.clinical.AplicacionPruebaService;
 import com.clinica.psicologia.system.service.clinical.EvaluacionRiesgoService;
 import com.clinica.psicologia.system.service.clinical.NotaSesionService;
 import com.clinica.psicologia.system.service.clinical.SesionIntervencionService;
@@ -34,6 +36,7 @@ public class SesionController {
     private final NotaSesionService notaSesionService;
     private final SesionIntervencionService sesionIntervencionService;
     private final EvaluacionRiesgoService evaluacionRiesgoService;
+    private final AplicacionPruebaService pruebaService;
 
     @PostMapping
     public SesionResponseDTO create(
@@ -81,5 +84,10 @@ public class SesionController {
     @GetMapping("/{id}/evaluacion-riesgo")
     public ResponseEntity<List<EvaluacionRiesgoResponseDTO>> obtenerEvaluacionesRiesgo(@PathVariable Integer id){
         return ResponseEntity.ok(evaluacionRiesgoService.getBySesion(id));
+    }
+
+    @GetMapping("/{id}/pruebas")
+    public ResponseEntity<List<AplicacionPruebaResponseDTO>> obtenerPruebas(@PathVariable Integer id){
+        return ResponseEntity.ok(pruebaService.getBySesion(id));
     }
 }

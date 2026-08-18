@@ -1,8 +1,6 @@
 package com.clinica.psicologia.system.serv_implementation.catalog;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -11,19 +9,12 @@ import com.clinica.psicologia.system.dto.response.catalog.PruebaPsicologicaRespo
 import com.clinica.psicologia.system.mapper.catalog.PruebaPsicologicaMapper;
 import com.clinica.psicologia.system.model.catalog.Estado;
 import com.clinica.psicologia.system.model.catalog.PruebaPsicologica;
-import com.clinica.psicologia.system.model.clinical.Sesion;
-import com.clinica.psicologia.system.model.patient.Paciente;
-import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.catalog.PruebaPsicologicaRepository;
-import com.clinica.psicologia.system.repository.clinical.SesionRepository;
-import com.clinica.psicologia.system.repository.patient.PacienteRepository;
-import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.catalog.PruebaPsicologicaService;
 import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
-import com.clinica.psicologia.system.support_services.authorization.ClinicalAuthorizationService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -16,6 +16,7 @@ import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.catalog.PruebaPsicologicaRepository;
 import com.clinica.psicologia.system.repository.clinical.AplicacionPruebaRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
+import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.clinical.AplicacionPruebaService;
@@ -36,6 +37,7 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
     private final AplicacionMapper mapper;
     private final ClinicalAuthorizationService authorizationService;
     private final ApplicationSupportService common;
+    private final PacienteRepository pacienteRepository;
 
     @Override
     public AplicacionPruebaResponseDTO create(AplicacionPruebaRequestDTO dto) {
@@ -144,6 +146,19 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Test application not found"));
         validateAuthorization(entity.getSesion());
         repository.delete(entity);
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<AplicacionPruebaResponseDTO> getByPaciente(Integer pacienteId) {
+
+        if (!pacienteRepository.existsById(pacienteId)) {
+            throw new ResourceNotFoundException("Patient not found");
+        }
+
+        return mapper.toResponseList(
+                repository.findBySesionPacienteIdOrderByFechaAplicacionDescIdDesc(
+                        pacienteId));
     }
 
     private void validateAuthorization(Sesion sesion) {

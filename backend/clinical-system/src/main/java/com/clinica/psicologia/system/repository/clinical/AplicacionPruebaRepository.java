@@ -14,4 +14,6 @@ public interface AplicacionPruebaRepository extends JpaRepository<AplicacionPrue
 
     List<AplicacionPrueba> findBySesionIdAndPruebaPsicologicaIdOrderByFechaAplicacionDescIdDesc(Integer sesionId,
             Integer pruebaPsicologicaId);
+
+    List<AplicacionPrueba> findBySesionPacienteIdOrderByFechaAplicacionDescIdDesc(Integer pacienteId);
 }

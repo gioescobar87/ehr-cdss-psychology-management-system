@@ -22,4 +22,6 @@ public interface AplicacionPruebaService {
     AplicacionPruebaResponseDTO update(Integer id, AplicacionPruebaRequestDTO dto);
 
     void delete(Integer id);
+
+    List<AplicacionPruebaResponseDTO> getByPaciente(Integer pacienteId);
 }

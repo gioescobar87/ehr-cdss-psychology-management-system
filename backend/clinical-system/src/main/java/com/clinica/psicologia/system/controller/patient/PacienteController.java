@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
+import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.ObjetivoTerapiaResponseDTO;
@@ -28,6 +29,7 @@ import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResp
 import com.clinica.psicologia.system.dto.response.patient.PacienteAlergiaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteMedicamentoResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
+import com.clinica.psicologia.system.service.clinical.AplicacionPruebaService;
 import com.clinica.psicologia.system.service.clinical.CitaService;
 import com.clinica.psicologia.system.service.clinical.EvaluacionRiesgoService;
 import com.clinica.psicologia.system.service.clinical.ObjetivoTerapiaService;
@@ -57,6 +59,7 @@ public class PacienteController {
     private final EvaluacionRiesgoService evaluacionRiesgoService;
     private final ObjetivoTerapiaService objetivoTerapiaService;
     private final SesionIntervencionService sesionIntervencionService;
+    private final AplicacionPruebaService pruebaService;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
@@ -148,5 +151,10 @@ public class PacienteController {
     @GetMapping("/{id}/intervenciones")
     public ResponseEntity<List<SesionIntervencionResponseDTO>> obtenerIntervenciones(@PathVariable Integer id) {
         return ResponseEntity.ok(sesionIntervencionService.getByPaciente(id));
+    }
+
+    @GetMapping("/{id}/pruebas")
+    public ResponseEntity<List<AplicacionPruebaResponseDTO>> obtenerPruebas(@PathVariable Integer id) {
+        return ResponseEntity.ok(pruebaService.getByPaciente(id));
     }
 }

@@ -1,7 +1,5 @@
 package com.clinica.psicologia.system.dto.response.catalog;
 
-import java.time.LocalDate;
-
 import lombok.Getter;
 import lombok.Setter;
 
