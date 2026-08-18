@@ -5,8 +5,10 @@ import java.time.LocalDate;
 import com.clinica.psicologia.system.model.base.BaseEntity;
 import com.clinica.psicologia.system.model.catalog.Estado;
 import com.clinica.psicologia.system.model.catalog.PruebaPsicologica;
+import com.clinica.psicologia.system.util.encryption.StringEncryptConverter;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -34,6 +36,7 @@ public class AplicacionPrueba extends BaseEntity{
     @Column(name = "archivo_adjunto")
     private String archivoAdjunto;
 
+    @Convert(converter = StringEncryptConverter.class)
     private String interpretacion;
 
     @ManyToOne
