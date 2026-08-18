@@ -7,23 +7,20 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PruebaPsicologicaResponseDTO {
-
+public class AplicacionPruebaResponseDTO {
     private Integer id;
-
-    private Integer pacienteId;
-
-    private String pacienteNombre;
 
     private Integer sesionId;
 
-    private Integer tipoPruebaId;
-
-    private String tipoPrueba;
-
-    private String nombre;
+    private Integer pruebaPsicologicaId;
 
     private LocalDate fechaAplicacion;
 
     private String archivoAdjunto;
+
+    private String interpretacion;
+
+    private Integer estadoId;
+
+    private String estado;
 }

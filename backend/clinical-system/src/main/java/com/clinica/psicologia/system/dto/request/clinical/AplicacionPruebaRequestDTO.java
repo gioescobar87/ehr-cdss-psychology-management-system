@@ -1,0 +1,24 @@
+package com.clinica.psicologia.system.dto.request.clinical;
+
+import java.time.LocalDate;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class AplicacionPruebaRequestDTO {
+    @NotNull
+    private Integer sesionId;
+
+    @NotNull
+    private Integer pruebaPsicologicaId;
+
+    @NotNull
+    private LocalDate fechaAplicacion;
+
+    private String archivoAdjunto;
+
+    private String interpretacion;
+}

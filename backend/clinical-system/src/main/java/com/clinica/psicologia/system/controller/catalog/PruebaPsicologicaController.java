@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.controller.clinical;
+package com.clinica.psicologia.system.controller.catalog;
 
 import java.util.List;
 
@@ -13,39 +13,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.clinica.psicologia.system.dto.request.clinical.ResultadoPruebaRequestDTO;
-import com.clinica.psicologia.system.dto.response.clinical.ResultadoPruebaResponseDTO;
-import com.clinica.psicologia.system.service.clinical.ResultadoPruebaService;
+import com.clinica.psicologia.system.dto.request.catalog.PruebaPsicologicaRequestDTO;
+import com.clinica.psicologia.system.dto.response.catalog.PruebaPsicologicaResponseDTO;
+import com.clinica.psicologia.system.service.catalog.PruebaPsicologicaService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/resultado-prueba")
+@RequestMapping("/api/prueba-psicologica")
 @RequiredArgsConstructor
-public class ResultadoPruebaController {
+public class PruebaPsicologicaController {
 
-    private final ResultadoPruebaService service;
+    private final PruebaPsicologicaService service;
 
     @GetMapping
-    public List<ResultadoPruebaResponseDTO> findAll() {
+    public List<PruebaPsicologicaResponseDTO> findAll() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResultadoPruebaResponseDTO findById(@PathVariable Integer id) {
+    public PruebaPsicologicaResponseDTO findById(@PathVariable Integer id) {
         return service.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResultadoPruebaResponseDTO create(@Valid @RequestBody ResultadoPruebaRequestDTO request) {
+    public PruebaPsicologicaResponseDTO create(@Valid @RequestBody PruebaPsicologicaRequestDTO request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public ResultadoPruebaResponseDTO update(@PathVariable Integer id,
-            @Valid @RequestBody ResultadoPruebaRequestDTO request) {
+    public PruebaPsicologicaResponseDTO update(@PathVariable Integer id, @Valid @RequestBody PruebaPsicologicaRequestDTO request) {
         return service.update(id, request);
     }
 
@@ -54,5 +53,4 @@ public class ResultadoPruebaController {
     public void delete(@PathVariable Integer id) {
         service.delete(id);
     }
-
 }

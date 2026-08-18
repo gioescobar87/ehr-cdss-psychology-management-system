@@ -4,8 +4,7 @@ import java.time.LocalDate;
 
 import com.clinica.psicologia.system.model.base.BaseEntity;
 import com.clinica.psicologia.system.model.catalog.Estado;
-import com.clinica.psicologia.system.model.catalog.TipoPrueba;
-import com.clinica.psicologia.system.model.patient.Paciente;
+import com.clinica.psicologia.system.model.catalog.PruebaPsicologica;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,32 +13,28 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+
 @Getter
 @Setter
 @Entity
-@Table(name = "prueba_psicologica")
-public class PruebaPsicologica extends BaseEntity {
+@Table(name="aplicacion_prueba")
+public class AplicacionPrueba extends BaseEntity{
 
     @ManyToOne
-    @JoinColumn(name = "paciente_id", nullable = false)
-    private Paciente paciente;
-
-    @ManyToOne
-    @JoinColumn(name = "sesion_id")
+    @JoinColumn(name = "sesion_id", nullable = false)
     private Sesion sesion;
 
     @ManyToOne
-    @JoinColumn(name = "tipo_prueba_id", nullable = false)
-    private TipoPrueba tipoPrueba;
-
-    @Column(name = "nombre", nullable = false, length = 200)
-    private String nombre;
+    @JoinColumn(name = "prueba_psicologica_id", nullable = false)
+    private PruebaPsicologica pruebaPsicologica;
 
     @Column(name = "fecha_aplicacion")
     private LocalDate fechaAplicacion;
 
     @Column(name = "archivo_adjunto")
     private String archivoAdjunto;
+
+    private String interpretacion;
 
     @ManyToOne
     @JoinColumn(name = "estado_id", nullable = false)

@@ -22,7 +22,6 @@ import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.ObjetivoTerapiaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.PacienteDiagnosticoResponseDTO;
-import com.clinica.psicologia.system.dto.response.clinical.PruebaPsicologicaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionIntervencionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
@@ -33,7 +32,6 @@ import com.clinica.psicologia.system.service.clinical.CitaService;
 import com.clinica.psicologia.system.service.clinical.EvaluacionRiesgoService;
 import com.clinica.psicologia.system.service.clinical.ObjetivoTerapiaService;
 import com.clinica.psicologia.system.service.clinical.PacienteDiagnosticoService;
-import com.clinica.psicologia.system.service.clinical.PruebaPsicologicaService;
 import com.clinica.psicologia.system.service.clinical.SesionIntervencionService;
 import com.clinica.psicologia.system.service.clinical.SesionService;
 import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
@@ -57,7 +55,6 @@ public class PacienteController {
     private final SesionService sesionService;
     private final PacienteDiagnosticoService pacienteDiagnosticoService;
     private final EvaluacionRiesgoService evaluacionRiesgoService;
-    private final PruebaPsicologicaService pruebaPsicologicaService;
     private final ObjetivoTerapiaService objetivoTerapiaService;
     private final SesionIntervencionService sesionIntervencionService;
 
@@ -141,11 +138,6 @@ public class PacienteController {
     @GetMapping("/{id}/evaluaciones-riesgo")
     public ResponseEntity<List<EvaluacionRiesgoResponseDTO>> obtenerEvaluacionesRiesgo(@PathVariable Integer id) {
         return ResponseEntity.ok(evaluacionRiesgoService.getByPaciente(id));
-    }
-
-    @GetMapping("/{id}/pruebas")
-    public ResponseEntity<List<PruebaPsicologicaResponseDTO>> obtenerPruebas(@PathVariable Integer id) {
-        return ResponseEntity.ok(pruebaPsicologicaService.getByPaciente(id));
     }
 
     @GetMapping("/{id}/objetivos")
