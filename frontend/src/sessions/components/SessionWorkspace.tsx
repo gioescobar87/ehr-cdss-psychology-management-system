@@ -17,6 +17,7 @@ import SessionNotes from "./SessionNotes";
 import SessionInterventions from "./SessionIntervention";
 import SessionRiskEvaluation from "./SessionRiskEvaluation";
 import SessionPsychologicalTests from "./SessionPsychologicalTests";
+import SessionObjectives from "./SessionObjectives";
 
 interface SessionWorkspaceProps {
   session: Sesion;
@@ -124,6 +125,8 @@ export default function SessionWorkspace({
         <SessionRiskEvaluation session={session} />
       ) : activeSection === "tests" ? (
         <SessionPsychologicalTests session={session} />
+      ) : activeSection === "objectives" ? (
+        <SessionObjectives session={session} />
       ) : (
         <Card
           variant="outlined"

@@ -50,7 +50,7 @@ export default function ClinicalSessionPage() {
         bgcolor: "background.default",
       }}
     >
-      <SessionHeader session={session} onBack={() => navigate("/agenda")} />
+      <SessionHeader session={session} onBack={() => navigate("/citas")} />
 
       <SessionNavigation
         activeSection={activeSection}
