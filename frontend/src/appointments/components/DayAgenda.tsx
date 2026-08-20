@@ -1,10 +1,8 @@
 import { Box, Paper, Typography } from "@mui/material";
-
 import type { Appointment } from "../types/appointment.types";
-
 import { useCurrentTime } from "../../shared/hooks/useCurrentTime";
-
 import { isToday } from "../../shared/utils/dateUtils";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import {
   APPOINTMENT_STATUS_APPEARANCE,
@@ -346,17 +344,35 @@ function AppointmentBlock({ appointment, onClick }: AppointmentBlockProps) {
           {appointment.pacienteNombre}
         </Typography>
 
-        <Typography
-          variant="caption"
-          noWrap
+        <Box
           sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
             flexShrink: 0,
-            fontWeight: 600,
-            color: appearance.accentColor,
           }}
         >
-          {appointment.estado}
-        </Typography>
+          {appointment.tieneSesion && (
+            <CheckCircleIcon
+              sx={{
+                fontSize: 16,
+                color: "success.main",
+              }}
+              titleAccess="Sesión iniciada"
+            />
+          )}
+
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{
+              fontWeight: 600,
+              color: appearance.accentColor,
+            }}
+          >
+            {appointment.estado}
+          </Typography>
+        </Box>
       </Box>
 
       {/* Reason */}

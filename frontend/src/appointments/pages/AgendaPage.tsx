@@ -84,6 +84,11 @@ export default function AgendaPage() {
     setSelectedAppointment(null);
   };
 
+  const handleOpenSession = (sessionId: number) => {
+    setSelectedAppointment(null);
+    navigate(`/sesion/${sessionId}`);
+  };
+
   const handleCloseStartSession = () => {
     if (startSessionMutation.isPending) {
       return;
@@ -187,6 +192,7 @@ export default function AgendaPage() {
         appointment={selectedAppointment}
         onClose={() => setSelectedAppointment(null)}
         onStartSession={handleOpenStartSession}
+        onOpenSession={handleOpenSession}
       />
 
       <StartSessionDialog

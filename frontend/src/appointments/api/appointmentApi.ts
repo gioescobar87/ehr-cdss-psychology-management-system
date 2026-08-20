@@ -1,3 +1,4 @@
+import type { Sesion } from "../../sessions/types/session.types";
 import apiClient from "../../shared/api/apiClient";
 
 import type {
@@ -112,6 +113,14 @@ export async function getAssignedPatients(
 
 export async function getAppointment(id: number): Promise<Appointment> {
   const response = await apiClient.get<Appointment>(`/cita/${id}`);
+
+  return response.data;
+}
+
+export async function getAppointmentSessions(
+  citaId: number,
+): Promise<Sesion[]> {
+  const response = await apiClient.get<Sesion[]>(`/cita/${citaId}/sesion`);
 
   return response.data;
 }

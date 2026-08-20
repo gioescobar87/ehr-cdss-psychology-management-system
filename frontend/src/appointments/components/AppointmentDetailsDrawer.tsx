@@ -15,8 +15,11 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotesIcon from "@mui/icons-material/Notes";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { CircularProgress } from "@mui/material";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 import type { Appointment } from "../types/appointment.types";
+import { useAppointmentSession } from "../hooks/useAppointmentSession";
 
 import {
   APPOINTMENT_STATUS_APPEARANCE,
@@ -29,6 +32,7 @@ interface AppointmentDetailsDrawerProps {
   onClose: () => void;
   onOpenPatient?: (appointment: Appointment) => void;
   onStartSession?: (appointment: Appointment) => void;
+  onOpenSession?: (sessionId: number) => void;
 }
 
 export default function AppointmentDetailsDrawer({
@@ -37,7 +41,14 @@ export default function AppointmentDetailsDrawer({
   onClose,
   onOpenPatient,
   onStartSession,
+  onOpenSession,
 }: AppointmentDetailsDrawerProps) {
+  const {
+    data: session,
+    isLoading: isLoadingSession,
+    isError: isSessionError,
+  } = useAppointmentSession(appointment?.id, open);
+
   if (!appointment) {
     return null;
   }
@@ -234,6 +245,14 @@ export default function AppointmentDetailsDrawer({
             </Typography>
           </Box>
 
+          {/* If Session validation fails */}
+
+          {isSessionError && (
+            <Typography variant="body2" color="error">
+              No fue posible verificar si esta cita tiene una sesión clínica.
+            </Typography>
+          )}
+
           {/* Actions */}
 
           <Stack spacing={1.5} sx={{ pt: 1 }}>
@@ -249,12 +268,36 @@ export default function AppointmentDetailsDrawer({
 
             <Button
               variant="contained"
-              startIcon={<PlayArrowIcon />}
-              onClick={() => onStartSession?.(appointment)}
-              disabled={!onStartSession}
+              startIcon={
+                isLoadingSession ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : session ? (
+                  <OpenInNewIcon />
+                ) : (
+                  <PlayArrowIcon />
+                )
+              }
+              onClick={() => {
+                if (session) {
+                  onOpenSession?.(session.id);
+                  return;
+                }
+
+                onStartSession?.(appointment);
+              }}
+              disabled={
+                isLoadingSession ||
+                isSessionError ||
+                (!session && !onStartSession) ||
+                (session !== null && !onOpenSession)
+              }
               fullWidth
             >
-              Iniciar sesión
+              {isLoadingSession
+                ? "Verificando sesión..."
+                : session
+                  ? "Abrir sesión terapéutica"
+                  : "Iniciar sesión terapéutica"}
             </Button>
 
             <Button

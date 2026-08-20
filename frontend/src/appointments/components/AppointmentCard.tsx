@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import type { Appointment } from "../types/appointment.types";
 import AppointmentStatusChip from "./AppointmentStatusChip";
 
@@ -41,13 +42,13 @@ export default function AppointmentCard({
             <Box
               sx={{
                 display: "flex",
+                alignItems: "center",
                 justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: 2,
+                gap: 1,
               }}
             >
-              <Box>
-                <Typography variant="subtitle1" fontWeight={600}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="subtitle1" fontWeight={600} noWrap>
                   {appointment.pacienteNombre}
                 </Typography>
 
@@ -56,10 +57,25 @@ export default function AppointmentCard({
                 </Typography>
               </Box>
 
-              <AppointmentStatusChip
-                statusId={appointment.estadoId}
-                label={appointment.estado}
-              />
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ flexShrink: 0 }}
+              >
+                {appointment.tieneSesion && (
+                  <CheckCircleIcon
+                    fontSize="small"
+                    color="success"
+                    titleAccess="Sesión iniciada"
+                  />
+                )}
+
+                <AppointmentStatusChip
+                  statusId={appointment.estadoId}
+                  label={appointment.estado}
+                />
+              </Stack>
             </Box>
 
             {appointment.motivo && (

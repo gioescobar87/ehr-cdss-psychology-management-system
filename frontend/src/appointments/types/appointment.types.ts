@@ -57,3 +57,19 @@ export interface AppointmentFormValues {
   motivo: string;
   observaciones: string;
 }
+
+export interface Appointment {
+  id: number;
+  pacienteId: number;
+  pacienteNombre: string;
+  usuarioId: number;
+  usuarioNombre: string;
+  fechaHoraInicio: string;
+  fechaHoraFin: string;
+  motivo?: string;
+  observaciones?: string;
+  estadoId: number;
+  estado: string;
+  tieneSesion: boolean;
+  sesionId?: number | null;
+}
