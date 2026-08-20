@@ -447,6 +447,9 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/sesion/*/pruebas")
                                                 .access(hasPermission("SESION_READ"))
 
+                                                .requestMatchers(HttpMethod.GET, "/api/sesion/*/contexto-clinico")
+                                                .access(hasPermission("SESION_READ"))
+
                                                 // =========================
                                                 // CLINICAL SESSION NOTES
                                                 // =========================

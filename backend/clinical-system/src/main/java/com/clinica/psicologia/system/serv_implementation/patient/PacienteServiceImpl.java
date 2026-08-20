@@ -7,11 +7,16 @@ import org.springframework.stereotype.Service;
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 import com.clinica.psicologia.system.mapper.patient.PacienteMapper;
-import com.clinica.psicologia.system.model.catalog.Estado;
+import com.clinica.psicologia.system.model.catalog.EstadoCivil;
+import com.clinica.psicologia.system.model.catalog.NivelEscolaridad;
 import com.clinica.psicologia.system.model.patient.Paciente;
+import com.clinica.psicologia.system.repository.catalog.EstadoCivilRepository;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
+import com.clinica.psicologia.system.repository.catalog.NivelEscolaridadRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
+import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.patient.PacienteService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,75 +26,86 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class PacienteServiceImpl implements PacienteService {
 
+    private static final int ESTADO_ACTIVO_ID = 1;
+
     private final PacienteRepository pacienteRepository;
     private final PacienteMapper pacienteMapper;
-    private final EstadoRepository estadoRepository;
 
-    /* =====================================================
-       CREAR PACIENTE
-       ===================================================== */
+    private final EstadoRepository estadoRepository;
+    private final EstadoCivilRepository estadoCivilRepository;
+    private final NivelEscolaridadRepository nivelEscolaridadRepository;
+    private final ApplicationSupportService supportService;
+
     @Override
     public PacienteResponseDTO crearPaciente(PacienteRequestDTO dto) {
 
         Paciente paciente = pacienteMapper.toEntity(dto);
 
-        // =================================================
-        // ASIGNAR ESTADO ACTIVO POR DEFECTO
-        // =================================================
-        Estado estadoActivo = estadoRepository.findById(1)
-                .orElseThrow(() ->
-                        new RuntimeException("Estado ACTIVO no encontrado"));
-
-        paciente.setEstado(estadoActivo);
-
+        paciente.setEstado(supportService.getActiveState());
+        paciente.setEstadoCivil(obtenerEstadoCivil(dto.estadoCivilId()));
+        paciente.setNivelEscolaridad(obtenerNivelEscolaridad(dto.nivelEscolaridadId()));
         paciente = pacienteRepository.save(paciente);
 
         return pacienteMapper.toResponse(paciente);
     }
 
-    /* =====================================================
-       LISTAR PACIENTES
-       ===================================================== */
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public List<PacienteResponseDTO> obtenerPacientes() {
-
         return pacienteRepository.findAll()
                 .stream()
                 .map(pacienteMapper::toResponse)
                 .toList();
     }
 
-    /* =====================================================
-       OBTENER POR ID
-       ===================================================== */
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public PacienteResponseDTO obtenerPorId(Integer id) {
 
-        Paciente paciente = pacienteRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Paciente no encontrado: " + id));
+        Paciente paciente = obtenerPaciente(id);
 
         return pacienteMapper.toResponse(paciente);
     }
 
-    /* =====================================================
-       OBTENER POR ID
-       ===================================================== */
     @Override
-    public PacienteResponseDTO actualizarPaciente(
-            Integer id,
-            PacienteRequestDTO dto) {
+    public PacienteResponseDTO actualizarPaciente(Integer id, PacienteRequestDTO dto) {
 
-        Paciente paciente = pacienteRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Paciente no encontrado: " + id));
+        Paciente paciente = obtenerPaciente(id);
 
         pacienteMapper.updateEntityFromDto(dto, paciente);
 
+        paciente.setEstadoCivil(obtenerEstadoCivil(dto.estadoCivilId()));
+        paciente.setNivelEscolaridad(obtenerNivelEscolaridad(dto.nivelEscolaridadId()));
         paciente = pacienteRepository.save(paciente);
 
         return pacienteMapper.toResponse(paciente);
+    }
+
+    private Paciente obtenerPaciente(Integer id) {
+        return pacienteRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Paciente no encontrado: " + id));
+    }
+
+    private EstadoCivil obtenerEstadoCivil(Integer id) {
+        if (id == null) {
+            return null;
+        }
+
+        return estadoCivilRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Estado civil no encontrado: " + id));
+    }
+
+    private NivelEscolaridad obtenerNivelEscolaridad(Integer id) {
+        if (id == null) {
+            return null;
+        }
+
+        return nivelEscolaridadRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Nivel de escolaridad no encontrado: " + id
+                        )
+                );
     }
 }

@@ -15,7 +15,7 @@ public class PacienteMapper {
     public Paciente toEntity(PacienteRequestDTO dto) {
 
         Paciente paciente = new Paciente();
-        
+
         paciente.setNombre(dto.nombre());
         paciente.setApellido(dto.apellido());
         paciente.setFechaNacimiento(dto.fechaNacimiento());
@@ -24,30 +24,26 @@ public class PacienteMapper {
 
         return paciente;
     }
-    
+
     public PacienteResponseDTO toResponse(Paciente paciente) {
+        int edad = Period.between(
+                paciente.getFechaNacimiento(),
+                LocalDate.now()
+        ).getYears();
 
-    int edad = Period.between(
-            paciente.getFechaNacimiento(),
-            LocalDate.now()
-    ).getYears();
-
-    return new PacienteResponseDTO(
-            paciente.getId(),
-            paciente.getNombre() + " " + paciente.getApellido(),
-            paciente.getSexo(),
-            edad
+        return new PacienteResponseDTO(
+                paciente.getId(),
+                paciente.getNombre() + " " + paciente.getApellido(),
+                paciente.getSexo(),
+                edad
         );
     }
 
-    public void updateEntityFromDto(
-        PacienteRequestDTO dto,
-        Paciente paciente) {
-
-            paciente.setNombre(dto.nombre());
-            paciente.setApellido(dto.apellido());
-            paciente.setFechaNacimiento(dto.fechaNacimiento());
-            paciente.setSexo(dto.sexo());
-            paciente.setOcupacion(dto.ocupacion());
-        }
+    public void updateEntityFromDto(PacienteRequestDTO dto, Paciente paciente) {
+        paciente.setNombre(dto.nombre());
+        paciente.setApellido(dto.apellido());
+        paciente.setFechaNacimiento(dto.fechaNacimiento());
+        paciente.setSexo(dto.sexo());
+        paciente.setOcupacion(dto.ocupacion());
+    }
 }
