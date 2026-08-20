@@ -17,10 +17,7 @@ export function useCreateObjectiveProgress() {
 
     onSuccess: (_, request) => {
       queryClient.invalidateQueries({
-        queryKey: [
-          "objective-progress",
-          request.objetivoTerapiaId,
-        ],
+        queryKey: ["objective-progress", request.objetivoTerapiaId],
       });
     },
   });
@@ -40,10 +37,7 @@ export function useUpdateObjectiveProgress() {
 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [
-          "objective-progress",
-          variables.request.objetivoTerapiaId,
-        ],
+        queryKey: ["objective-progress", variables.request.objetivoTerapiaId],
       });
     },
   });
@@ -63,10 +57,7 @@ export function useDeleteObjectiveProgress() {
 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [
-          "objective-progress",
-          variables.objectiveId,
-        ],
+        queryKey: ["objective-progress", variables.objectiveId],
       });
     },
   });

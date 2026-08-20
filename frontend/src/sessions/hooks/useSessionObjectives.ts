@@ -6,10 +6,7 @@ import {
   getPatientTherapyObjectives,
 } from "../api/sessionObjectiveApi";
 
-export function usePatientTherapyObjectives(
-  patientId: number,
-  enabled = true,
-) {
+export function usePatientTherapyObjectives(patientId: number, enabled = true) {
   return useQuery({
     queryKey: ["patient-therapy-objectives", patientId],
     queryFn: () => getPatientTherapyObjectives(patientId),
@@ -17,10 +14,7 @@ export function usePatientTherapyObjectives(
   });
 }
 
-export function useObjectiveProgress(
-  objectiveId: number,
-  enabled = true,
-) {
+export function useObjectiveProgress(objectiveId: number, enabled = true) {
   return useQuery({
     queryKey: ["objective-progress", objectiveId],
     queryFn: () => getObjectiveProgress(objectiveId),

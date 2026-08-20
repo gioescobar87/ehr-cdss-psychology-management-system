@@ -49,9 +49,7 @@ export async function updateObjectiveProgress(
   return response.data;
 }
 
-export async function deleteObjectiveProgress(
-  id: number,
-): Promise<void> {
+export async function deleteObjectiveProgress(id: number): Promise<void> {
   await apiClient.delete(`/seguimiento-objetivo/${id}`);
 }
 

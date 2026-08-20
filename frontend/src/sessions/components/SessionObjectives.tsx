@@ -21,9 +21,7 @@ import TrackChangesOutlinedIcon from "@mui/icons-material/TrackChangesOutlined";
 import type { Sesion } from "../types/session.types";
 import type { ObjetivoTerapia } from "../types/objetivoTerapia.types";
 
-import {
-  usePatientObjectives,
-} from "../hooks/useSessionObjectives";
+import { usePatientObjectives } from "../hooks/useSessionObjectives";
 
 import SessionObjectiveProgressDialog from "./SessionObjectiveProgressDialog";
 
@@ -59,9 +57,7 @@ function formatDate(date?: string | null): string {
   }).format(parsedDate);
 }
 
-export default function SessionObjectives({
-  session,
-}: SessionObjectivesProps) {
+export default function SessionObjectives({ session }: SessionObjectivesProps) {
   const [selectedObjective, setSelectedObjective] =
     useState<ObjetivoTerapia | null>(null);
 
@@ -80,9 +76,7 @@ export default function SessionObjectives({
         return activeComparison;
       }
 
-      const dateComparison = b.fechaInicio.localeCompare(
-        a.fechaInicio,
-      );
+      const dateComparison = b.fechaInicio.localeCompare(a.fechaInicio);
 
       if (dateComparison !== 0) {
         return dateComparison;
@@ -154,10 +148,7 @@ export default function SessionObjectives({
               >
                 <CircularProgress size={32} />
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
+                <Typography variant="body2" color="text.secondary">
                   Cargando objetivos terapéuticos...
                 </Typography>
               </Stack>
@@ -227,8 +218,8 @@ function EmptyObjectivesState() {
                 maxWidth: 500,
               }}
             >
-              El paciente no tiene objetivos terapéuticos registrados.
-              Los objetivos deben gestionarse desde el plan de tratamiento.
+              El paciente no tiene objetivos terapéuticos registrados. Los
+              objetivos deben gestionarse desde el plan de tratamiento.
             </Typography>
           </Box>
         </Stack>
@@ -305,10 +296,7 @@ function SessionObjectiveCard({
                   {objective.descripcion}
                 </Typography>
 
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                >
+                <Typography variant="caption" color="text.secondary">
                   Objetivo #{objective.id}
                 </Typography>
               </Box>
@@ -334,20 +322,10 @@ function SessionObjectiveCard({
               sm: 3,
             }}
           >
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-            >
-              <CalendarTodayOutlinedIcon
-                fontSize="small"
-                color="action"
-              />
+            <Stack direction="row" spacing={1} alignItems="center">
+              <CalendarTodayOutlinedIcon fontSize="small" color="action" />
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
+              <Typography variant="body2" color="text.secondary">
                 Inicio:
               </Typography>
 
@@ -356,20 +334,10 @@ function SessionObjectiveCard({
               </Typography>
             </Stack>
 
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-            >
-              <CalendarTodayOutlinedIcon
-                fontSize="small"
-                color="action"
-              />
+            <Stack direction="row" spacing={1} alignItems="center">
+              <CalendarTodayOutlinedIcon fontSize="small" color="action" />
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
+              <Typography variant="body2" color="text.secondary">
                 Meta:
               </Typography>
 
@@ -399,9 +367,7 @@ function SessionObjectiveCard({
               onClick={() => onRegisterProgress(objective)}
               disabled={!isActive}
             >
-              {isActive
-                ? "Registrar avance"
-                : "Objetivo no disponible"}
+              {isActive ? "Registrar avance" : "Objetivo no disponible"}
             </Button>
           </Box>
         </Stack>

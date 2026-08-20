@@ -58,11 +58,7 @@ export default function SessionObjectiveProgressDialog({
   };
 
   const handleSave = () => {
-    if (
-      !objective ||
-      !progressDescription.trim() ||
-      createMutation.isPending
-    ) {
+    if (!objective || !progressDescription.trim() || createMutation.isPending) {
       return;
     }
 
@@ -91,17 +87,10 @@ export default function SessionObjectiveProgressDialog({
     : null;
 
   const isSaveDisabled =
-    !objective ||
-    !progressDescription.trim() ||
-    createMutation.isPending;
+    !objective || !progressDescription.trim() || createMutation.isPending;
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="sm"
-    >
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
         <Stack spacing={0.5}>
           <Typography variant="h6" fontWeight={700}>
@@ -116,11 +105,7 @@ export default function SessionObjectiveProgressDialog({
 
       <DialogContent dividers>
         <Stack spacing={2.5} sx={{ pt: 1 }}>
-          {errorMessage && (
-            <Alert severity="error">
-              {errorMessage}
-            </Alert>
-          )}
+          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
 
           {objective && (
             <Box
@@ -130,11 +115,7 @@ export default function SessionObjectiveProgressDialog({
                 bgcolor: "action.hover",
               }}
             >
-              <Stack
-                direction="row"
-                spacing={1.5}
-                alignItems="flex-start"
-              >
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
                 <Box
                   sx={{
                     width: 42,
@@ -177,8 +158,7 @@ export default function SessionObjectiveProgressDialog({
           <Alert severity="info">
             <Stack spacing={0.5}>
               <Typography variant="body2">
-                <strong>Paciente:</strong>{" "}
-                {session.pacienteNombre}
+                <strong>Paciente:</strong> {session.pacienteNombre}
               </Typography>
 
               <Typography variant="body2">
@@ -204,9 +184,7 @@ export default function SessionObjectiveProgressDialog({
             label="Progreso de esta sesión"
             placeholder="Describa los avances observados, logros alcanzados, dificultades presentadas o cambios relevantes relacionados con este objetivo..."
             value={progressDescription}
-            onChange={(event) =>
-              setProgressDescription(event.target.value)
-            }
+            onChange={(event) => setProgressDescription(event.target.value)}
             disabled={createMutation.isPending}
             inputProps={{
               maxLength: 5000,
@@ -225,27 +203,18 @@ export default function SessionObjectiveProgressDialog({
               borderRadius: 2,
             }}
           >
-            <EventOutlinedIcon
-              fontSize="small"
-              color="action"
-            />
+            <EventOutlinedIcon fontSize="small" color="action" />
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-            >
-              Este avance quedará asociado automáticamente a la sesión
-              actual y al objetivo terapéutico seleccionado.
+            <Typography variant="body2" color="text.secondary">
+              Este avance quedará asociado automáticamente a la sesión actual y
+              al objetivo terapéutico seleccionado.
             </Typography>
           </Box>
         </Stack>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button
-          onClick={handleClose}
-          disabled={createMutation.isPending}
-        >
+        <Button onClick={handleClose} disabled={createMutation.isPending}>
           Cancelar
         </Button>
 
@@ -255,9 +224,7 @@ export default function SessionObjectiveProgressDialog({
           onClick={handleSave}
           disabled={isSaveDisabled}
         >
-          {createMutation.isPending
-            ? "Registrando..."
-            : "Registrar avance"}
+          {createMutation.isPending ? "Registrando..." : "Registrar avance"}
         </Button>
       </DialogActions>
     </Dialog>
