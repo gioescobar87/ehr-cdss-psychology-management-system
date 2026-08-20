@@ -2,8 +2,8 @@ import { Box, Chip, IconButton, Stack, Typography } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PersonIcon from "@mui/icons-material/Person";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import EventIcon from "@mui/icons-material/Event";
+//import AccessTimeIcon from "@mui/icons-material/AccessTime";
+//import EventIcon from "@mui/icons-material/Event";
 
 import type { Sesion } from "../types/session.types";
 import {
@@ -36,45 +36,48 @@ export default function SessionHeader({
             xs: 2,
             md: 3,
           },
-          pt: 1.5,
-          pb: 2.5,
+          py: {
+            xs: 1.25,
+            sm: 1.5,
+          },
         }}
       >
-        {/* Back navigation */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={{
+            mb: 1,
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={onBack}
+            aria-label="Volver a la agenda"
+          >
+            <ArrowBackIcon fontSize="small" />
+          </IconButton>
 
-        <Box sx={{ mb: 2 }}>
-          <Stack direction="row" alignItems="center" spacing={0.5}>
-            <IconButton
-              size="small"
-              onClick={onBack}
-              aria-label="Volver a la agenda"
-            >
-              <ArrowBackIcon fontSize="small" />
-            </IconButton>
+          <Typography
+            component="button"
+            variant="body2"
+            onClick={onBack}
+            sx={{
+              border: 0,
+              background: "none",
+              cursor: "pointer",
+              color: "text.secondary",
+              fontWeight: 600,
+              p: 0,
 
-            <Typography
-              component="button"
-              variant="body2"
-              onClick={onBack}
-              sx={{
-                border: 0,
-                background: "none",
-                cursor: "pointer",
-                color: "text.secondary",
-                fontWeight: 600,
-                p: 0,
-
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              Agenda
-            </Typography>
-          </Stack>
-        </Box>
-
-        {/* Patient identity */}
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            Agenda
+          </Typography>
+        </Stack>
 
         <Stack
           direction={{
@@ -86,14 +89,30 @@ export default function SessionHeader({
             xs: "flex-start",
             sm: "center",
           }}
-          spacing={2}
+          spacing={{
+            xs: 1.25,
+            sm: 2,
+          }}
         >
-          <Box>
-            <Stack direction="row" spacing={1.25} alignItems="center">
+          <Stack
+            direction={{
+              xs: "column",
+              sm: "row",
+            }}
+            alignItems={{
+              xs: "flex-start",
+              sm: "center",
+            }}
+            spacing={{
+              xs: 0.5,
+              sm: 1.5,
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center">
               <PersonIcon
                 color="action"
                 sx={{
-                  fontSize: 28,
+                  fontSize: 24,
                 }}
               />
 
@@ -101,7 +120,7 @@ export default function SessionHeader({
                 <Typography
                   component="button"
                   onClick={() => onPatientClick(session.pacienteId)}
-                  variant="h5"
+                  variant="h6"
                   fontWeight={700}
                   sx={{
                     border: 0,
@@ -120,7 +139,7 @@ export default function SessionHeader({
                   {session.pacienteNombre}
                 </Typography>
               ) : (
-                <Typography variant="h5" fontWeight={700}>
+                <Typography variant="h6" fontWeight={700}>
                   {session.pacienteNombre}
                 </Typography>
               )}
@@ -130,61 +149,27 @@ export default function SessionHeader({
               variant="body2"
               color="text.secondary"
               sx={{
-                mt: 0.5,
-                ml: {
-                  xs: 0,
-                  sm: 5.25,
+                display: {
+                  xs: "block",
+                  sm: "inline",
                 },
               }}
             >
-              Paciente activo
+              · Sesión clínica · {formatAppointmentDate(session.fechaSesion)} ·{" "}
+              {formatAppointmentTime(session.fechaSesion)}
             </Typography>
-          </Box>
-
-          {/* Session status */}
+          </Stack>
 
           <Chip
             label="Sesión en curso"
             color="success"
             variant="outlined"
+            size="small"
             sx={{
               fontWeight: 700,
               borderRadius: 2,
             }}
           />
-        </Stack>
-
-        {/* Session metadata */}
-
-        <Stack
-          direction={{
-            xs: "column",
-            sm: "row",
-          }}
-          spacing={{
-            xs: 1,
-            sm: 3,
-          }}
-          sx={{
-            mt: 2.5,
-            color: "text.secondary",
-          }}
-        >
-          <Stack direction="row" spacing={1} alignItems="center">
-            <EventIcon fontSize="small" />
-
-            <Typography variant="body2">
-              {formatAppointmentDate(session.fechaSesion)}
-            </Typography>
-          </Stack>
-
-          <Stack direction="row" spacing={1} alignItems="center">
-            <AccessTimeIcon fontSize="small" />
-
-            <Typography variant="body2">
-              {formatAppointmentTime(session.fechaSesion)}
-            </Typography>
-          </Stack>
         </Stack>
       </Box>
     </Box>

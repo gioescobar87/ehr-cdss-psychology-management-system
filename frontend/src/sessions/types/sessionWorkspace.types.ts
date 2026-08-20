@@ -1,14 +1,7 @@
-export type SessionWorkspaceSection =
-  | "summary"
-  | "observations"
-  | "notes"
-  | "interventions"
-  | "risk"
-  | "tests"
-  | "objectives"
-  | "diagnosis";
+export type SessionStage =
+  "context" | "evaluation" | "intervention" | "evolution";
 
-export interface SessionWorkspaceNavigationItem {
-  id: SessionWorkspaceSection;
+export interface SessionStageNavigationItem {
+  id: SessionStage;
   label: string;
 }

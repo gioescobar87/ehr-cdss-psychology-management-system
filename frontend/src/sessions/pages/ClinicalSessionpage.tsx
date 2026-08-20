@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Alert, Box, CircularProgress } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
 import SessionHeader from "../components/SessionHeader";
-import SessionNavigation from "../components/SessionNavigation";
+import SessionProgress from "../components/SessionProgress";
 import SessionWorkspace from "../components/SessionWorkspace";
 
 import { useSession } from "../hooks/useSession";
+import { useSessionStageObserver } from "../hooks/useSessionStageObserver";
 
-import type { SessionWorkspaceSection } from "../types/sessionWorkspace.types";
+import type { SessionStage } from "../types/sessionWorkspace.types";
 
 export default function ClinicalSessionPage() {
   const navigate = useNavigate();
@@ -16,10 +17,18 @@ export default function ClinicalSessionPage() {
 
   const sessionId = id ? Number(id) : undefined;
 
-  const [activeSection, setActiveSection] =
-    useState<SessionWorkspaceSection>("summary");
+  const [activeStage, setActiveStage] = useState<SessionStage>("context");
+
+  const handleStageChange = useCallback((stage: SessionStage) => {
+    setActiveStage(stage);
+  }, []);
 
   const { data: session, isLoading, isError } = useSession(sessionId);
+
+  useSessionStageObserver({
+    enabled: Boolean(session),
+    onStageChange: handleStageChange,
+  });
 
   if (isLoading) {
     return (
@@ -52,12 +61,9 @@ export default function ClinicalSessionPage() {
     >
       <SessionHeader session={session} onBack={() => navigate("/citas")} />
 
-      <SessionNavigation
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-      />
+      <SessionProgress activeStage={activeStage} />
 
-      <SessionWorkspace session={session} activeSection={activeSection} />
+      <SessionWorkspace session={session} />
     </Box>
   );
 }
