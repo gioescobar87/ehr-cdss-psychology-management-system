@@ -3,16 +3,16 @@ package com.clinica.psicologia.system.repository.clinical_context;
 
 import java.util.List;
 
-import com.clinica.psicologia.system.model.catalog.Diagnostico;
 import com.clinica.psicologia.system.model.clinical.AplicacionPrueba;
 import com.clinica.psicologia.system.model.clinical.EvaluacionRiesgo;
 import com.clinica.psicologia.system.model.clinical.ObjetivoTerapia;
+import com.clinica.psicologia.system.model.clinical.PacienteDiagnostico;
 import com.clinica.psicologia.system.model.clinical.Sesion;
 import com.clinica.psicologia.system.model.patient.PacienteAlergia;
 
 public interface ClinicalSessionContextRepository {
 
-    List<Diagnostico> findActiveDiagnosesByPatientId(Integer pacienteId);
+    List<PacienteDiagnostico> findActiveDiagnosesByPatientId(Integer pacienteId);
 
     List<PacienteAlergia> findAllergiesByPatientId(Integer pacienteId);
 

@@ -8,6 +8,7 @@ import com.clinica.psicologia.system.model.catalog.Diagnostico;
 import com.clinica.psicologia.system.model.clinical.AplicacionPrueba;
 import com.clinica.psicologia.system.model.clinical.EvaluacionRiesgo;
 import com.clinica.psicologia.system.model.clinical.ObjetivoTerapia;
+import com.clinica.psicologia.system.model.clinical.PacienteDiagnostico;
 import com.clinica.psicologia.system.model.clinical.Sesion;
 import com.clinica.psicologia.system.model.patient.PacienteAlergia;
 
@@ -22,11 +23,11 @@ public class ClinicalSessionContextRepositoryImpl
         private EntityManager entityManager;
 
         @Override
-        public List<Diagnostico> findActiveDiagnosesByPatientId(Integer pacienteId) {
+        public List<PacienteDiagnostico> findActiveDiagnosesByPatientId(Integer pacienteId) {
 
                 return entityManager.createQuery(
                                 """
-                                                SELECT pd.diagnostico
+                                                SELECT pd
                                                 FROM PacienteDiagnostico pd
                                                 WHERE pd.paciente.id = :pacienteId
                                                   AND pd.estado.id = (
@@ -36,7 +37,7 @@ public class ClinicalSessionContextRepositoryImpl
                                                   )
                                                 ORDER BY pd.fechaDiagnostico DESC
                                                 """,
-                                Diagnostico.class)
+                                PacienteDiagnostico.class)
                                 .setParameter("pacienteId", pacienteId)
                                 .getResultList();
         }

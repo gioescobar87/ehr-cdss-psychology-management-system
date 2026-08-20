@@ -13,10 +13,10 @@ import com.clinica.psicologia.system.dto.response.clinical_context.ClinicalConte
 import com.clinica.psicologia.system.dto.response.clinical_context.ClinicalContextRiskDTO;
 import com.clinica.psicologia.system.dto.response.clinical_context.ClinicalContextSessionDTO;
 import com.clinica.psicologia.system.dto.response.clinical_context.ClinicalSessionContextResponseDTO;
-import com.clinica.psicologia.system.model.catalog.Diagnostico;
 import com.clinica.psicologia.system.model.clinical.AplicacionPrueba;
 import com.clinica.psicologia.system.model.clinical.EvaluacionRiesgo;
 import com.clinica.psicologia.system.model.clinical.ObjetivoTerapia;
+import com.clinica.psicologia.system.model.clinical.PacienteDiagnostico;
 import com.clinica.psicologia.system.model.clinical.Sesion;
 import com.clinica.psicologia.system.model.patient.Paciente;
 import com.clinica.psicologia.system.model.patient.PacienteAlergia;
@@ -50,17 +50,18 @@ public class ClinicalSessionContextMapper {
     }
 
     public ClinicalContextDiagnosisDTO toDiagnosisDTO(
-            Diagnostico diagnostico) {
+            PacienteDiagnostico diagnostico) {
 
         ClinicalContextDiagnosisDTO dto = new ClinicalContextDiagnosisDTO();
 
         dto.setId(diagnostico.getId());
-        dto.setDiagnosticoId(diagnostico.getId());
-        dto.setCodigoDsm(diagnostico.getCodigoDsm());
-        dto.setNombre(diagnostico.getNombre());
+        dto.setDiagnosticoId(diagnostico.getDiagnostico().getId());
+        dto.setCodigoDsm(diagnostico.getDiagnostico().getCodigoDsm());
+        dto.setNombre(diagnostico.getDiagnostico().getNombre());
+        dto.setFechaDiagnostico(diagnostico.getFechaDiagnostico());
 
-        if (diagnostico.getCategoriaDiagnostica() != null) {
-            dto.setCategoriaDiagnostica(diagnostico.getCategoriaDiagnostica().getNombre());
+        if (diagnostico.getDiagnostico().getCategoriaDiagnostica() != null) {
+            dto.setCategoriaDiagnostica(diagnostico.getDiagnostico().getCategoriaDiagnostica().getNombre());
         }
 
         return dto;

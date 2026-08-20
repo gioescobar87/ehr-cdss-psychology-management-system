@@ -11,7 +11,6 @@ import com.clinica.psicologia.system.model.catalog.EstadoCivil;
 import com.clinica.psicologia.system.model.catalog.NivelEscolaridad;
 import com.clinica.psicologia.system.model.patient.Paciente;
 import com.clinica.psicologia.system.repository.catalog.EstadoCivilRepository;
-import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.catalog.NivelEscolaridadRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
@@ -26,12 +25,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class PacienteServiceImpl implements PacienteService {
 
-    private static final int ESTADO_ACTIVO_ID = 1;
-
     private final PacienteRepository pacienteRepository;
     private final PacienteMapper pacienteMapper;
-
-    private final EstadoRepository estadoRepository;
     private final EstadoCivilRepository estadoCivilRepository;
     private final NivelEscolaridadRepository nivelEscolaridadRepository;
     private final ApplicationSupportService supportService;
