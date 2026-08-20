@@ -31,4 +31,10 @@ public class ApplicationSupportServiceImpl implements ApplicationSupportService 
         return estadoRepository.getByNombre("ELIMINADO")
                 .orElseThrow(() -> new ResourceNotFoundException("Deleted state not found"));
     }
+
+    @Override
+    public Estado getEstado(String nombre) {
+        return estadoRepository.getByNombre(nombre.toUpperCase())
+                .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado: " + nombre));
+    }
 }

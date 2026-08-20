@@ -34,143 +34,138 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class SesionServiceImpl implements SesionService {
 
-    private final SesionRepository repository;
+        private final SesionRepository repository;
+        private final PacienteRepository pacienteRepository;
+        private final UsuarioRepository usuarioRepository;
+        private final TipoSesionRepository tipoSesionRepository;
+        private final EstadoRepository estadoRepository;
+        private final SesionMapper mapper;
+        private final CitaRepository citaRepository;
+        private final ApplicationSupportService supportService;
 
-    private final PacienteRepository pacienteRepository;
+        @Override
+        public SesionResponseDTO create(SesionRequestDTO request) {
 
-    private final UsuarioRepository usuarioRepository;
+                Cita cita = citaRepository.findById(request.getCitaId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
 
-    private final TipoSesionRepository tipoSesionRepository;
+                if (repository.existsByCitaId(cita.getId())) {
+                        throw new BusinessRuleException("Se identificó una sesión existente asociada a la cita " + cita.getId());
+                }
+                LocalDateTime sessionCreationStart = cita.getFechaHoraInicio().minusMinutes(30);
 
-    private final EstadoRepository estadoRepository;
+                if (LocalDateTime.now().isBefore(sessionCreationStart)) {
+                        throw new BusinessRuleException("La sesión solo puede crearse hasta 30 minutos antes de la cita.");
+                }
 
-    private final SesionMapper mapper;
+                Paciente paciente = pacienteRepository.findById(request.getPacienteId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado."));
 
-    private final CitaRepository citaRepository;
-    private final ApplicationSupportService supportService;
+                Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
 
-    @Override
-    public SesionResponseDTO create(SesionRequestDTO request) {
+                if (repository.existsByPacienteIdAndUsuarioIdAndFechaSesion(
+                                request.getPacienteId(),
+                                request.getUsuarioId(),
+                                request.getFechaSesion())) {
 
-        Cita cita = citaRepository.findById(request.getCitaId())
-        .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+                        throw new DuplicateResourceException(
+                                        "Ya existe una sesión registrada para este paciente, psicólogo y fecha.");
+                }
 
-        LocalDateTime sessionCreationStart = cita.getFechaHoraInicio().minusMinutes(30);
+                TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
 
-        if (LocalDateTime.now().isBefore(sessionCreationStart)) {
-        throw new BusinessRuleException(
-                "La sesión solo puede crearse hasta 30 minutos antes de la cita."
-        );
+                Estado estado = estadoRepository.findById(supportService.getActiveState().getId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado."));
+
+                Sesion entity = new Sesion();
+
+                entity.setPaciente(paciente);
+                entity.setUsuario(usuario);
+                entity.setTipoSesion(tipoSesion);
+                entity.setEstado(estado);
+                entity.setCita(cita);
+
+                mapper.updateEntity(entity, request);
+
+                return mapper.toResponseDTO(repository.save(entity));
         }
 
-        Paciente paciente = pacienteRepository.findById(request.getPacienteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado."));
+        @Override
+        public List<SesionResponseDTO> findAll() {
 
-        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
-
-        if (repository.existsByPacienteIdAndUsuarioIdAndFechaSesion(
-                request.getPacienteId(),
-                request.getUsuarioId(),
-                request.getFechaSesion())) {
-
-            throw new DuplicateResourceException(
-                    "Ya existe una sesión registrada para este paciente, psicólogo y fecha.");
+                return mapper.toResponseDTOList(repository.findAll());
         }
 
-        TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
+        @Override
+        public SesionResponseDTO findById(Integer id) {
 
-        Estado estado = estadoRepository.findById(supportService.getActiveState().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado."));
+                Sesion entity = repository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Sesión no encontrada."));
 
-        Sesion entity = new Sesion();
-
-        entity.setPaciente(paciente);
-        entity.setUsuario(usuario);
-        entity.setTipoSesion(tipoSesion);
-        entity.setEstado(estado);
-        entity.setCita(cita);
-
-        mapper.updateEntity(entity, request);
-
-        return mapper.toResponseDTO(repository.save(entity));
-    }
-
-    @Override
-    public List<SesionResponseDTO> findAll() {
-
-        return mapper.toResponseDTOList(repository.findAll());
-    }
-
-    @Override
-    public SesionResponseDTO findById(Integer id) {
-
-        Sesion entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sesión no encontrada."));
-
-        return mapper.toResponseDTO(entity);
-    }
-
-    @Override
-    public SesionResponseDTO update(Integer id, SesionRequestDTO request) {
-
-        Sesion entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sesión no encontrada."));
-
-        Paciente paciente = pacienteRepository.findById(request.getPacienteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado."));
-
-        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
-
-        if (repository.existsByPacienteIdAndUsuarioIdAndFechaSesionAndIdNot(
-                request.getPacienteId(),
-                request.getUsuarioId(),
-                request.getFechaSesion(),
-                id)) {
-
-            throw new DuplicateResourceException(
-                    "Ya existe una sesión registrada para este paciente, psicólogo y fecha.");
+                return mapper.toResponseDTO(entity);
         }
 
-        TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
-        
-        entity.setPaciente(paciente);
-        entity.setUsuario(usuario);
-        entity.setTipoSesion(tipoSesion);
+        @Override
+        public SesionResponseDTO update(Integer id, SesionRequestDTO request) {
 
-        mapper.updateEntity(entity, request);
+                Sesion entity = repository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Sesión no encontrada."));
 
-        return mapper.toResponseDTO(repository.save(entity));
-    }
+                Paciente paciente = pacienteRepository.findById(request.getPacienteId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado."));
 
-    @Override
-    public void delete(Integer id) {
+                Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
 
-        Sesion entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sesión no encontrada."));
+                if (repository.existsByPacienteIdAndUsuarioIdAndFechaSesionAndIdNot(
+                                request.getPacienteId(),
+                                request.getUsuarioId(),
+                                request.getFechaSesion(),
+                                id)) {
 
-        repository.delete(entity);
-    }
+                        throw new DuplicateResourceException(
+                                        "Ya existe una sesión registrada para este paciente, psicólogo y fecha.");
+                }
 
-    @Override
-    public List<SesionResponseDTO> getByPatient(Integer pacienteId) {
+                TipoSesion tipoSesion = tipoSesionRepository.findById(request.getTipoSesionId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Tipo de sesión no encontrado."));
 
-        return mapper.toResponseDTOList(
-                repository.findByPacienteIdOrderByFechaSesionDesc(pacienteId));
-    }
+                entity.setPaciente(paciente);
+                entity.setUsuario(usuario);
+                entity.setTipoSesion(tipoSesion);
 
-    @Override
-    public List<SesionResponseDTO> getByUser(Integer usuarioId) {
+                mapper.updateEntity(entity, request);
 
-        return mapper.toResponseDTOList(
-                repository.findByUsuarioIdOrderByFechaSesionDesc(usuarioId));
-    }
+                return mapper.toResponseDTO(repository.save(entity));
+        }
 
-    @Override
-    public List<SesionResponseDTO> getByCita(Integer citaId) {
-        return mapper.toResponseDTOList(repository.findByCitaId(citaId));
-    }
+        @Override
+        public void delete(Integer id) {
+
+                Sesion entity = repository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Sesión no encontrada."));
+
+                repository.delete(entity);
+        }
+
+        @Override
+        public List<SesionResponseDTO> getByPatient(Integer pacienteId) {
+
+                return mapper.toResponseDTOList(
+                                repository.findByPacienteIdOrderByFechaSesionDesc(pacienteId));
+        }
+
+        @Override
+        public List<SesionResponseDTO> getByUser(Integer usuarioId) {
+
+                return mapper.toResponseDTOList(
+                                repository.findByUsuarioIdOrderByFechaSesionDesc(usuarioId));
+        }
+
+        @Override
+        public List<SesionResponseDTO> getByCita(Integer citaId) {
+                return mapper.toResponseDTOList(repository.findByCitaId(citaId));
+        }
 }

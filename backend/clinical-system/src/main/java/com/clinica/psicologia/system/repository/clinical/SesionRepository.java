@@ -2,6 +2,7 @@ package com.clinica.psicologia.system.repository.clinical;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -26,4 +27,8 @@ public interface SesionRepository extends JpaRepository<Sesion, Integer> {
                         Integer id);
 
         List<Sesion> findByCitaId(Integer citaId);
+
+        Optional<Sesion> findFirstByCitaId(Integer citaId);
+
+        boolean existsByCitaId(Integer citaId);
 }

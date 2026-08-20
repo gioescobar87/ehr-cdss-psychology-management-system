@@ -12,23 +12,20 @@ public class CitaResponseDTO {
     private Integer id;
 
     private Integer pacienteId;
-
     private String pacienteNombre;
 
     private Integer usuarioId;
-
     private String usuarioNombre;
 
     private LocalDateTime fechaHoraInicio;
-
     private LocalDateTime fechaHoraFin;
 
     private String motivo;
-
     private String observaciones;
 
     private Integer estadoId;
-
     private String estado;
 
+    private boolean tieneSesion;
+    private Integer sesionId;
 }

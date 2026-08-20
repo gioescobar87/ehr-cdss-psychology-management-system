@@ -21,12 +21,14 @@ import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.clinical.CancelacionRepository;
 import com.clinica.psicologia.system.repository.clinical.CitaRepository;
+import com.clinica.psicologia.system.repository.clinical.SesionRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRepository;
 import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.security.model.SecurityUser;
 import com.clinica.psicologia.system.service.clinical.CitaService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,8 @@ public class CitaServiceImpl implements CitaService {
         private final CitaMapper mapper;
         private final CancelacionRepository cancelacionRepository;
         private final CancelacionMapper cancelacionMapper;
+        private final SesionRepository sesionRepository;
+        private final ApplicationSupportService supportService;
 
         @Override
         public CitaResponseDTO create(CitaRequestDTO dto) {
@@ -90,7 +94,7 @@ public class CitaServiceImpl implements CitaService {
                 Cita entity = repository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada: " + id));
 
-                return mapper.toResponseDTO(entity);
+                return toResponseDTOWithSession(entity);
         }
 
         @Override
@@ -111,23 +115,7 @@ public class CitaServiceImpl implements CitaService {
                 Estado estado = estadoRepository.findById(dto.getEstadoId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado"));
 
-                if (repository.existsByUsuarioIdAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThanAndIdNot(
-                                dto.getUsuarioId(),
-                                dto.getFechaHoraFin(),
-                                dto.getFechaHoraInicio(),
-                                id)) {
-
-                        throw new BusinessRuleException("El psicólogo ya tiene una cita en ese horario.");
-                }
-
-                if (repository.existsByPacienteIdAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThanAndIdNot(
-                                dto.getPacienteId(),
-                                dto.getFechaHoraFin(),
-                                dto.getFechaHoraInicio(),
-                                id)) {
-
-                        throw new BusinessRuleException("El paciente ya tiene una cita en ese horario.");
-                }
+                validarTraslapes(dto);
 
                 entity.setPaciente(paciente);
                 entity.setUsuario(usuario);
@@ -137,12 +125,11 @@ public class CitaServiceImpl implements CitaService {
 
                 entity = repository.save(entity);
 
-                return mapper.toResponseDTO(entity);
+                return toResponseDTOWithSession(entity);
         }
 
         @Override
-        public void changeStatus(Integer id,
-                        Integer estadoId) {
+        public void changeStatus(Integer id, Integer estadoId) {
 
                 Cita entity = repository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
@@ -200,8 +187,9 @@ public class CitaServiceImpl implements CitaService {
 
         private void validarTraslapes(CitaRequestDTO dto) {
 
-                if (repository.existsByUsuarioIdAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThan(
+                if (repository.existsByUsuarioIdAndEstadoIdNotAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThan(
                                 dto.getUsuarioId(),
+                                supportService.getEstado("CANCELADA").getId(),
                                 dto.getFechaHoraFin(),
                                 dto.getFechaHoraInicio())) {
 
@@ -209,8 +197,9 @@ public class CitaServiceImpl implements CitaService {
                                         "El psicólogo ya tiene una cita programada en ese horario.");
                 }
 
-                if (repository.existsByPacienteIdAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThan(
+                if (repository.existsByPacienteIdAndEstadoIdNotAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThan(
                                 dto.getPacienteId(),
+                                supportService.getEstado("CANCELADA").getId(),
                                 dto.getFechaHoraFin(),
                                 dto.getFechaHoraInicio())) {
 
@@ -258,7 +247,7 @@ public class CitaServiceImpl implements CitaService {
 
                 repository.save(cita);
 
-                return mapper.toResponseDTO(cita);
+                return toResponseDTOWithSession(cita);
         }
 
         @Override
@@ -269,5 +258,11 @@ public class CitaServiceImpl implements CitaService {
                                 .orElseThrow(() -> new ResourceNotFoundException("La cita no posee cancelación."));
 
                 return cancelacionMapper.toResponseDTO(cancelacion);
+        }
+
+        private CitaResponseDTO toResponseDTOWithSession(Cita cita) {
+                CitaResponseDTO dto = mapper.toResponseDTO(cita);
+                sesionRepository.findFirstByCitaId(cita.getId()).ifPresent(sesion -> dto.setSesionId(sesion.getId()));
+                return dto;
         }
 }

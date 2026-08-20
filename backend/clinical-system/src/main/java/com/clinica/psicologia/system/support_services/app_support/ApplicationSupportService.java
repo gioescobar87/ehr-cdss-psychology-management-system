@@ -8,4 +8,6 @@ public interface ApplicationSupportService {
     Estado getInactiveState();
 
     Estado getDeletedState();
+
+    Estado getEstado(String nombre);
 }
