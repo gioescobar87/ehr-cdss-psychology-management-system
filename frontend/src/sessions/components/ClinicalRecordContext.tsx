@@ -3,9 +3,7 @@ import { useMemo, useState } from "react";
 import {
   Alert,
   Box,
-  Divider,
   IconButton,
-  Stack,
   Typography,
   useMediaQuery,
   useTheme,
@@ -27,41 +25,6 @@ import ClinicalRecordDetail from "./ClinicalRecordDetail";
 
 interface ClinicalRecordProps {
   session: Sesion;
-}
-
-function calculateAge(dateOfBirth: string): number {
-  const birthDate = new Date(dateOfBirth);
-  const today = new Date();
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-
-  const monthDifference = today.getMonth() - birthDate.getMonth();
-
-  if (
-    monthDifference < 0 ||
-    (monthDifference === 0 && today.getDate() < birthDate.getDate())
-  ) {
-    age--;
-  }
-
-  return age;
-}
-
-function formatSex(sex: string | null): string | null {
-  if (!sex) {
-    return null;
-  }
-
-  switch (sex.toUpperCase()) {
-    case "M":
-      return "Masculino";
-
-    case "F":
-      return "Femenino";
-
-    default:
-      return sex;
-  }
 }
 
 export default function ClinicalRecord({ session }: ClinicalRecordProps) {
@@ -147,43 +110,8 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
     );
   }
 
-  const { patient } = context;
-
-  const age = patient.fechaNacimiento
-    ? calculateAge(patient.fechaNacimiento)
-    : null;
-
-  const formattedSex = formatSex(patient.sexo);
-
   return (
-    <Stack spacing={3}>
-      {/* Patient header */}
-
-      <Box>
-        <Typography
-          variant="h4"
-          component="h3"
-          fontWeight={700}
-          sx={{
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {patient.nombre} {patient.apellido}
-        </Typography>
-
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
-          {[
-            age !== null ? `${age} años` : null,
-            formattedSex,
-            patient.ocupacion,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </Typography>
-      </Box>
-
-      <Divider />
-
+    <Box>
       {/* Clinical record explorer */}
 
       <Box
@@ -314,8 +242,6 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
           )
         ) : (
           <>
-            {/* Desktop timeline */}
-
             <Box
               sx={{
                 minHeight: 0,
@@ -326,11 +252,6 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
                 },
 
                 borderColor: "divider",
-
-                p: {
-                  xs: 1.5,
-                  md: 2,
-                },
               }}
             >
               <Box
@@ -339,7 +260,10 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
                   top: 0,
                   zIndex: 1,
 
-                  px: 1,
+                  px: {
+                    xs: 2.5,
+                    md: 3,
+                  },
                   pt: 0.5,
                   pb: 1.5,
 
@@ -361,31 +285,69 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
                 </Typography>
               </Box>
 
-              {encounters.length > 0 ? (
-                <ClinicalRecordTimeline
-                  encounters={encounters}
-                  selectedActivity={selectedActivity}
-                  onSelectActivity={(activity) =>
-                    handleSelectActivity(activity.id)
-                  }
-                />
-              ) : (
-                <Box
-                  sx={{
-                    px: 1,
-                    py: 4,
-                  }}
-                >
-                  <Typography variant="body2" color="text.secondary">
-                    No hay actividades clínicas históricas disponibles.
-                  </Typography>
-                </Box>
-              )}
+              <Box
+                sx={{
+                  p: {
+                    xs: 1.5,
+                    md: 2,
+                  },
+                }}
+              >
+                {encounters.length > 0 ? (
+                  <ClinicalRecordTimeline
+                    encounters={encounters}
+                    selectedActivity={selectedActivity}
+                    onSelectActivity={(activity) =>
+                      handleSelectActivity(activity.id)
+                    }
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      px: 1,
+                      py: 4,
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      No hay actividades clínicas históricas disponibles.
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </Box>
 
             {/* Desktop detail */}
+<Box
+                sx={{
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 1,
 
-            <Box
+                  px: {
+                    xs: 2.5,
+                    md: 3,
+                  },
+                  pt: 0.5,
+                  pb: 1.5,
+
+                  bgcolor: "background.paper",
+
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <Typography
+                  variant="overline"
+                  color="text.secondary"
+                  fontWeight={700}
+                  sx={{
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  Documentación
+                </Typography>
+
+                <Box
               sx={{
                 minWidth: 0,
                 minHeight: 0,
@@ -399,9 +361,11 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
             >
               <ClinicalRecordDetail activity={selectedActivity} />
             </Box>
+              </Box>
+            
           </>
         )}
       </Box>
-    </Stack>
+    </Box>
   );
 }

@@ -4,9 +4,9 @@ import { Outlet } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
-import Footer from "./Footer";
+//import Footer from "./Footer";
 
-const drawerWidth = 260;
+const drawerWidth = 15;
 
 export default function MainLayout() {
   return (
@@ -29,7 +29,7 @@ export default function MainLayout() {
 
         <Outlet />
 
-        <Footer />
+        {/* <Footer /> */}
       </Box>
     </Box>
   );

@@ -58,11 +58,7 @@ interface ClinicalSubsectionProps {
 }
 
 function ClinicalSubsection({ children }: ClinicalSubsectionProps) {
-  return (
-    <Box>
-      {children}
-    </Box>
-  );
+  return <Box>{children}</Box>;
 }
 
 export default function SessionWorkspace({ session }: SessionWorkspaceProps) {

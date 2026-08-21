@@ -2,14 +2,11 @@ import { useCallback, useState } from "react";
 import { Alert, Box, CircularProgress } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
-import SessionHeader from "../components/SessionHeader";
-import SessionProgress from "../components/SessionProgress";
-import SessionWorkspace from "../components/SessionWorkspace";
-
 import { useSession } from "../hooks/useSession";
 import { useSessionStageObserver } from "../hooks/useSessionStageObserver";
 
 import type { SessionStage } from "../types/sessionWorkspace.types";
+import ClinicalSessionWorkspace from "../components/ClinicalSessionWorkspace";
 
 export default function ClinicalSessionPage() {
   const navigate = useNavigate();
@@ -59,11 +56,11 @@ export default function ClinicalSessionPage() {
         bgcolor: "background.default",
       }}
     >
-      <SessionHeader session={session} onBack={() => navigate("/citas")} />
-
-      <SessionProgress activeStage={activeStage} />
-
-      <SessionWorkspace session={session} />
+      <ClinicalSessionWorkspace
+        session={session}
+        activeStage={activeStage}
+        onBack={() => navigate("/citas")}
+      />
     </Box>
   );
 }
