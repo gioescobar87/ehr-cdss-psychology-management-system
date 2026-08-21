@@ -42,7 +42,6 @@ public class SesionMapper {
     }
 
     public void updateEntity(Sesion entity, SesionRequestDTO request) {
-        entity.setFechaSesion(request.getFechaSesion());
         entity.setObservacionesGenerales(request.getObservacionesGenerales());
     }
 }

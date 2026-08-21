@@ -20,4 +20,6 @@
         private String categoriaDiagnostica;
 
         private LocalDate fechaDiagnostico;
+
+        private Integer sesionId;
     }

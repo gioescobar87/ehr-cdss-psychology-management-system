@@ -59,6 +59,7 @@ public class ClinicalSessionContextMapper {
         dto.setCodigoDsm(diagnostico.getDiagnostico().getCodigoDsm());
         dto.setNombre(diagnostico.getDiagnostico().getNombre());
         dto.setFechaDiagnostico(diagnostico.getFechaDiagnostico());
+        dto.setSesionId(diagnostico.getSesion().getId());
 
         if (diagnostico.getDiagnostico().getCategoriaDiagnostica() != null) {
             dto.setCategoriaDiagnostica(diagnostico.getDiagnostico().getCategoriaDiagnostica().getNombre());
@@ -92,7 +93,7 @@ public class ClinicalSessionContextMapper {
 
         dto.setId(aplicacionPrueba.getId());
         dto.setFechaAplicacion(aplicacionPrueba.getFechaAplicacion());
-
+        dto.setSesionId(aplicacionPrueba.getSesion().getId());
         if (aplicacionPrueba.getPruebaPsicologica() != null) {
             dto.setPruebaPsicologicaId(aplicacionPrueba.getPruebaPsicologica().getId());
             dto.setPruebaNombre(aplicacionPrueba.getPruebaPsicologica().getNombre());

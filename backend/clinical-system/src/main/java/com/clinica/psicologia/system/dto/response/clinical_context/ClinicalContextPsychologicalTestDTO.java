@@ -16,4 +16,6 @@ public class ClinicalContextPsychologicalTestDTO {
     private String pruebaNombre;
 
     private LocalDate fechaAplicacion;
+
+    private Integer sesionId;
 }

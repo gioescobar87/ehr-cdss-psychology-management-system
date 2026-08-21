@@ -86,6 +86,7 @@ public class SesionServiceImpl implements SesionService {
                 entity.setTipoSesion(tipoSesion);
                 entity.setEstado(estado);
                 entity.setCita(cita);
+                entity.setFechaSesion(cita.getFechaHoraInicio());
 
                 mapper.updateEntity(entity, request);
 

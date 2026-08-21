@@ -56,7 +56,7 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
 
         entity.setSesion(sesion);
         entity.setPruebaPsicologica(pruebaPsicologica);
-        entity.setFechaAplicacion(dto.getFechaAplicacion());
+        entity.setFechaAplicacion(sesion.getCita().getFechaHoraInicio().toLocalDate());
         entity.setEstado(common.getActiveState());
 
         mapper.updateEntity(entity, dto);

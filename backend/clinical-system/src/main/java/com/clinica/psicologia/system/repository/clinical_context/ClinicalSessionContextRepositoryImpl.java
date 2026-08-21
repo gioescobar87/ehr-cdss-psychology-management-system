@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.clinica.psicologia.system.model.catalog.Diagnostico;
 import com.clinica.psicologia.system.model.clinical.AplicacionPrueba;
 import com.clinica.psicologia.system.model.clinical.EvaluacionRiesgo;
 import com.clinica.psicologia.system.model.clinical.ObjetivoTerapia;
