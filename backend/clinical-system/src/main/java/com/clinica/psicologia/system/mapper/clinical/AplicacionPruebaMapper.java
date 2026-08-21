@@ -9,7 +9,7 @@ import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaRespo
 import com.clinica.psicologia.system.model.clinical.AplicacionPrueba;
 
 @Component
-public class AplicacionMapper {
+public class AplicacionPruebaMapper {
 
     public AplicacionPruebaResponseDTO toResponseDTO(AplicacionPrueba entity) {
 

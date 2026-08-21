@@ -15,9 +15,6 @@ public class AplicacionPruebaRequestDTO {
     @NotNull
     private Integer pruebaPsicologicaId;
 
-    @NotNull
-    private LocalDate fechaAplicacion;
-
     private String archivoAdjunto;
 
     private String interpretacion;

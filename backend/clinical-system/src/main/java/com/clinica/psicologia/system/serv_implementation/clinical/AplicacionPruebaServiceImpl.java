@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.clinica.psicologia.system.dto.request.clinical.AplicacionPruebaRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
-import com.clinica.psicologia.system.mapper.clinical.AplicacionMapper;
+import com.clinica.psicologia.system.mapper.clinical.AplicacionPruebaMapper;
 import com.clinica.psicologia.system.model.catalog.PruebaPsicologica;
 import com.clinica.psicologia.system.model.clinical.AplicacionPrueba;
 import com.clinica.psicologia.system.model.clinical.Sesion;
@@ -34,7 +34,7 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
     private final AplicacionPruebaRepository repository;
     private final SesionRepository sesionRepository;
     private final PruebaPsicologicaRepository pruebaPsicologicaRepository;
-    private final AplicacionMapper mapper;
+    private final AplicacionPruebaMapper mapper;
     private final ClinicalAuthorizationService authorizationService;
     private final ApplicationSupportService common;
     private final PacienteRepository pacienteRepository;
@@ -50,7 +50,7 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
 
         validateAuthorization(sesion);
 
-        validateApplicationDate(dto.getFechaAplicacion(), sesion);
+        validateApplicationDate(sesion.getFechaSesion().toLocalDate(), sesion);
 
         AplicacionPrueba entity = new AplicacionPrueba();
 
@@ -126,12 +126,8 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Psychological test not found"));
 
         validateAuthorization(sesion);
-
-        validateApplicationDate(dto.getFechaAplicacion(), sesion);
-
         entity.setSesion(sesion);
         entity.setPruebaPsicologica(pruebaPsicologica);
-        entity.setFechaAplicacion(dto.getFechaAplicacion());
 
         mapper.updateEntity(entity, dto);
 
