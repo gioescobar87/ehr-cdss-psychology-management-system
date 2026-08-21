@@ -1,11 +1,6 @@
 import type { ReactNode } from "react";
 
-import {
-  Box,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
+import { Box, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 
 import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
@@ -27,7 +22,6 @@ function assertNever(value: never): never {
 
 function getActivityIcon(type: ClinicalActivity["type"]): ReactNode {
   switch (type) {
-
     case "observation":
       return <NotesOutlinedIcon />;
 
@@ -84,6 +78,17 @@ export default function ClinicalRecordActivity({
         alignItems: "flex-start",
         py: 1,
         px: 1.25,
+
+        "&.Mui-selected": {
+          bgcolor: "action.selected",
+          borderLeft: 3,
+          borderColor: "primary.main",
+          pl: 1,
+        },
+
+        "&.Mui-selected:hover": {
+          bgcolor: "action.selected",
+        },
       }}
     >
       <ListItemIcon
@@ -103,6 +108,7 @@ export default function ClinicalRecordActivity({
             sx={{
               fontSize: "0.875rem",
               fontWeight: selected ? 700 : 600,
+              color: selected ? "primary.main" : "text.primary",
             }}
           >
             {getActivityLabel(activity.type)}

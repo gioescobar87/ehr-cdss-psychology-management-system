@@ -85,10 +85,7 @@ export function buildClinicalEncounters(
 ): ClinicalEncounter[] {
   const encounterMap = new Map<number, ClinicalEncounter>();
 
-  const allSessions = [
-    context.currentSession,
-    ...context.recentSessions.items,
-  ];
+  const allSessions = [context.currentSession, ...context.recentSessions.items];
 
   /*
    * Each session becomes an encounter.
@@ -105,9 +102,7 @@ export function buildClinicalEncounters(
       date: session.fechaSesion,
       sessionType: session.tipoSesion,
       reason: session.motivoCita,
-      activities: [
-        createObservationActivity(session),
-      ],
+      activities: [createObservationActivity(session)],
     });
   }
 
@@ -148,8 +143,7 @@ export function buildClinicalEncounters(
       continue;
     }
 
-    const activity =
-      createPsychologicalTestActivity(test);
+    const activity = createPsychologicalTestActivity(test);
 
     if (activity) {
       encounter.activities.push(activity);
@@ -160,16 +154,13 @@ export function buildClinicalEncounters(
    * Diagnoses are directly associated with a session.
    */
   for (const diagnosis of context.diagnoses) {
-    const encounter = encounterMap.get(
-      diagnosis.sesionId,
-    );
+    const encounter = encounterMap.get(diagnosis.sesionId);
 
     if (!encounter) {
       continue;
     }
 
-    const activity =
-      createDiagnosisActivity(diagnosis);
+    const activity = createDiagnosisActivity(diagnosis);
 
     encounter.activities.push(activity);
   }
@@ -179,27 +170,19 @@ export function buildClinicalEncounters(
    * encounter by their start date.
    */
   for (const objective of context.objectives.items) {
-    const encounter = findEncounterForDate(
-      encounterMap,
-      objective.fechaInicio,
-    );
+    const encounter = findEncounterForDate(encounterMap, objective.fechaInicio);
 
     if (!encounter) {
       continue;
     }
 
-    const activity = createObjectiveActivity(
-      objective,
-      encounter.sessionId,
-    );
+    const activity = createObjectiveActivity(objective, encounter.sessionId);
 
     encounter.activities.push(activity);
   }
 
   return Array.from(encounterMap.values()).sort(
-    (a, b) =>
-      new Date(b.date).getTime() -
-      new Date(a.date).getTime(),
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 }
 
@@ -210,8 +193,7 @@ function findEncounterForDate(
   const targetDate = date.substring(0, 10);
 
   for (const encounter of encounterMap.values()) {
-    const encounterDate =
-      encounter.date.substring(0, 10);
+    const encounterDate = encounter.date.substring(0, 10);
 
     if (encounterDate === targetDate) {
       return encounter;
@@ -226,15 +208,13 @@ export function getDefaultClinicalActivity(
   currentSessionId: number,
 ): ClinicalActivity | null {
   const currentEncounter = encounters.find(
-    (encounter) =>
-      encounter.sessionId === currentSessionId,
+    (encounter) => encounter.sessionId === currentSessionId,
   );
 
   if (currentEncounter) {
     return (
       currentEncounter.activities.find(
-        (activity) =>
-          activity.type === "observation",
+        (activity) => activity.type === "observation",
       ) ??
       currentEncounter.activities[0] ??
       null

@@ -1,10 +1,4 @@
-import {
-  Box,
-  Divider,
-  List,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Divider, List, Stack, Typography } from "@mui/material";
 
 import type {
   ClinicalActivity,
@@ -27,23 +21,30 @@ export default function ClinicalRecordTimeline({
   onSelectActivity,
 }: ClinicalRecordTimelineProps) {
   return (
-    <Stack spacing={2}>
+    <Stack
+      spacing={2}
+      sx={{
+        pt: 1,
+      }}
+    >
       {encounters.map((encounter, encounterIndex) => (
         <Box key={encounter.sessionId}>
-          <Box sx={{ px: 1, mb: 1 }}>
+          <Box
+            sx={{
+              px: 1,
+              mb: 1,
+            }}
+          >
             <Typography
               variant="subtitle2"
               fontWeight={700}
+              color="text.primary"
             >
               {formatRecordDate(encounter.date)}
             </Typography>
 
-            <Typography
-              variant="caption"
-              color="text.secondary"
-            >
-              {encounter.sessionType ??
-                "Sesión clínica"}
+            <Typography variant="caption" color="text.secondary">
+              {encounter.sessionType ?? "Sesión clínica"}
             </Typography>
 
             {encounter.reason && (
@@ -51,7 +52,9 @@ export default function ClinicalRecordTimeline({
                 variant="caption"
                 color="text.secondary"
                 display="block"
-                sx={{ mt: 0.25 }}
+                sx={{
+                  mt: 0.25,
+                }}
               >
                 Motivo: {encounter.reason}
               </Typography>
@@ -63,18 +66,18 @@ export default function ClinicalRecordTimeline({
               <ClinicalRecordActivity
                 key={activity.id}
                 activity={activity}
-                selected={
-                  selectedActivity?.id === activity.id
-                }
-                onClick={() =>
-                  onSelectActivity(activity)
-                }
+                selected={selectedActivity?.id === activity.id}
+                onClick={() => onSelectActivity(activity)}
               />
             ))}
           </List>
 
           {encounterIndex < encounters.length - 1 && (
-            <Divider sx={{ mt: 1.5 }} />
+            <Divider
+              sx={{
+                mt: 1.5,
+              }}
+            />
           )}
         </Box>
       ))}

@@ -57,20 +57,9 @@ interface ClinicalSubsectionProps {
   children: ReactNode;
 }
 
-function ClinicalSubsection({ title, children }: ClinicalSubsectionProps) {
+function ClinicalSubsection({ children }: ClinicalSubsectionProps) {
   return (
     <Box>
-      <Typography
-        variant="subtitle1"
-        component="h3"
-        fontWeight={700}
-        sx={{
-          mb: 1.5,
-        }}
-      >
-        {title}
-      </Typography>
-
       {children}
     </Box>
   );
@@ -119,9 +108,9 @@ export default function SessionWorkspace({ session }: SessionWorkspaceProps) {
           }}
         >
           {/* Context */}
-          <ClinicalSection id="session-context" title="Contexto clínico">
+          <ClinicalSection id="session-context" title="CONTEXTO CLÍNICO">
             <Stack spacing={3}>
-              <ClinicalSubsection title="Historia clínica2">
+              <ClinicalSubsection title="Historia clínica">
                 <SessionSummary session={session} />
               </ClinicalSubsection>
 

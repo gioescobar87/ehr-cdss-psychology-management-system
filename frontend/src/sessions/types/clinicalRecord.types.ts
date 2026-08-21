@@ -13,40 +13,34 @@ export interface ClinicalActivityBase {
   sessionId: number | null;
 }
 
-export interface ClinicalSessionActivity
-  extends ClinicalActivityBase {
+export interface ClinicalSessionActivity extends ClinicalActivityBase {
   type: "session";
   sessionId: number;
 }
 
-export interface ClinicalObservationActivity
-  extends ClinicalActivityBase {
+export interface ClinicalObservationActivity extends ClinicalActivityBase {
   type: "observation";
   sessionId: number;
 }
 
-export interface ClinicalRiskActivity
-  extends ClinicalActivityBase {
+export interface ClinicalRiskActivity extends ClinicalActivityBase {
   type: "risk";
   sessionId: number;
   riskId: number;
 }
 
-export interface ClinicalPsychologicalTestActivity
-  extends ClinicalActivityBase {
+export interface ClinicalPsychologicalTestActivity extends ClinicalActivityBase {
   type: "psychological-test";
   sessionId: number;
   testId: number;
 }
 
-export interface ClinicalDiagnosisActivity
-  extends ClinicalActivityBase {
+export interface ClinicalDiagnosisActivity extends ClinicalActivityBase {
   type: "diagnosis";
   diagnosisId: number;
 }
 
-export interface ClinicalObjectiveActivity
-  extends ClinicalActivityBase {
+export interface ClinicalObjectiveActivity extends ClinicalActivityBase {
   type: "objective";
   objectiveId: number;
   sessionId: number | null;

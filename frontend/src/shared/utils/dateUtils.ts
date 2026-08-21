@@ -44,9 +44,7 @@ export function formatAppointmentDate(value: string): string {
 export function formatDateOnly(value: string): string {
   const [year, month, day] = value.split("-").map(Number);
 
-  return SHORT_DATE_FORMATTER.format(
-    new Date(year, month - 1, day),
-  );
+  return SHORT_DATE_FORMATTER.format(new Date(year, month - 1, day));
 }
 
 export function formatShortDate(value: string): string {

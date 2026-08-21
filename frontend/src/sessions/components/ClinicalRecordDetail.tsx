@@ -7,9 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import type {
-  ClinicalActivity,
-} from "../types/clinicalRecord.types";
+import type { ClinicalActivity } from "../types/clinicalRecord.types";
 
 import {
   useHistoricalPsychologicalTest,
@@ -37,10 +35,7 @@ export default function ClinicalRecordDetail({
           px: 3,
         }}
       >
-        <Typography
-          color="text.secondary"
-          textAlign="center"
-        >
+        <Typography color="text.secondary" textAlign="center">
           Seleccione una actividad del historial clínico.
         </Typography>
       </Box>
@@ -49,25 +44,13 @@ export default function ClinicalRecordDetail({
 
   switch (activity.type) {
     case "observation":
-      return (
-        <ObservationDetail
-          sessionId={activity.sessionId}
-        />
-      );
+      return <ObservationDetail sessionId={activity.sessionId} />;
 
     case "risk":
-      return (
-        <RiskDetail
-          evaluationId={activity.riskId}
-        />
-      );
+      return <RiskDetail evaluationId={activity.riskId} />;
 
     case "psychological-test":
-      return (
-        <PsychologicalTestDetail
-          applicationId={activity.testId}
-        />
-      );
+      return <PsychologicalTestDetail applicationId={activity.testId} />;
 
     case "diagnosis":
       return (
@@ -87,16 +70,8 @@ export default function ClinicalRecordDetail({
   }
 }
 
-function ObservationDetail({
-  sessionId,
-}: {
-  sessionId: number;
-}) {
-  const {
-    data: session,
-    isLoading,
-    isError,
-  } = useHistoricalSession(sessionId);
+function ObservationDetail({ sessionId }: { sessionId: number }) {
+  const { data: session, isLoading, isError } = useHistoricalSession(sessionId);
 
   if (isLoading) {
     return <DetailLoading />;
@@ -123,19 +98,13 @@ function ObservationDetail({
           Observaciones generales
         </Typography>
 
-        <ClinicalText
-          value={session.observacionesGenerales}
-        />
+        <ClinicalText value={session.observacionesGenerales} />
       </Box>
     </Stack>
   );
 }
 
-function RiskDetail({
-  evaluationId,
-}: {
-  evaluationId: number;
-}) {
+function RiskDetail({ evaluationId }: { evaluationId: number }) {
   const {
     data: evaluation,
     isLoading,
@@ -152,26 +121,17 @@ function RiskDetail({
 
   return (
     <Stack spacing={3}>
-      <DetailHeader
-        title="Evaluación de riesgo"
-        date={evaluation.fecha}
-      />
+      <DetailHeader title="Evaluación de riesgo" date={evaluation.fecha} />
 
       <Stack spacing={2}>
         <DetailField
           label="Tipo de riesgo"
-          value={
-            evaluation.tipoRiesgo ??
-            "No especificado"
-          }
+          value={evaluation.tipoRiesgo ?? "No especificado"}
         />
 
         <DetailField
           label="Nivel de riesgo"
-          value={
-            evaluation.nivelRiesgo ??
-            "No especificado"
-          }
+          value={evaluation.nivelRiesgo ?? "No especificado"}
         />
 
         <Box>
@@ -184,27 +144,19 @@ function RiskDetail({
             Observaciones
           </Typography>
 
-          <ClinicalText
-            value={evaluation.observaciones}
-          />
+          <ClinicalText value={evaluation.observaciones} />
         </Box>
       </Stack>
     </Stack>
   );
 }
 
-function PsychologicalTestDetail({
-  applicationId,
-}: {
-  applicationId: number;
-}) {
+function PsychologicalTestDetail({ applicationId }: { applicationId: number }) {
   const {
     data: application,
     isLoading,
     isError,
-  } = useHistoricalPsychologicalTest(
-    applicationId,
-  );
+  } = useHistoricalPsychologicalTest(applicationId);
 
   if (isLoading) {
     return <DetailLoading />;
@@ -229,10 +181,7 @@ function PsychologicalTestDetail({
 
         <DetailField
           label="Estado"
-          value={
-            application.estado ??
-            "No especificado"
-          }
+          value={application.estado ?? "No especificado"}
         />
 
         <Box>
@@ -245,9 +194,7 @@ function PsychologicalTestDetail({
             Interpretación
           </Typography>
 
-          <ClinicalText
-            value={application.interpretacion}
-          />
+          <ClinicalText value={application.interpretacion} />
         </Box>
 
         {application.archivoAdjunto && (
@@ -261,27 +208,14 @@ function PsychologicalTestDetail({
   );
 }
 
-function DetailHeader({
-  title,
-  date,
-}: {
-  title: string;
-  date: string;
-}) {
+function DetailHeader({ title, date }: { title: string; date: string }) {
   return (
     <Box>
-      <Typography
-        variant="h5"
-        fontWeight={700}
-      >
+      <Typography variant="h5" fontWeight={700}>
         {title}
       </Typography>
 
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        sx={{ mt: 0.5 }}
-      >
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
         {formatRecordDate(date)}
       </Typography>
 
@@ -290,13 +224,7 @@ function DetailHeader({
   );
 }
 
-function DetailField({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <Box>
       <Typography
@@ -308,21 +236,14 @@ function DetailField({
         {label}
       </Typography>
 
-      <Typography
-        variant="body1"
-        sx={{ mt: 0.5 }}
-      >
+      <Typography variant="body1" sx={{ mt: 0.5 }}>
         {value}
       </Typography>
     </Box>
   );
 }
 
-function ClinicalText({
-  value,
-}: {
-  value: string | null | undefined;
-}) {
+function ClinicalText({ value }: { value: string | null | undefined }) {
   return (
     <Typography
       variant="body1"
@@ -332,8 +253,7 @@ function ClinicalText({
         lineHeight: 1.7,
       }}
     >
-      {value?.trim() ||
-        "Sin información registrada."}
+      {value?.trim() || "Sin información registrada."}
     </Typography>
   );
 }
@@ -342,6 +262,7 @@ function DetailLoading() {
   return (
     <Box
       sx={{
+        height: "100%",
         minHeight: 420,
         display: "flex",
         alignItems: "center",
@@ -356,8 +277,7 @@ function DetailLoading() {
 function DetailError() {
   return (
     <Alert severity="error">
-      No fue posible cargar el detalle del registro
-      clínico.
+      No fue posible cargar el detalle del registro clínico.
     </Alert>
   );
 }
@@ -371,16 +291,11 @@ function UnsupportedDetail({
 }) {
   return (
     <Stack spacing={2}>
-      <Typography
-        variant="h5"
-        fontWeight={700}
-      >
+      <Typography variant="h5" fontWeight={700}>
         {title}
       </Typography>
 
-      <Alert severity="info">
-        {message}
-      </Alert>
+      <Alert severity="info">{message}</Alert>
     </Stack>
   );
 }

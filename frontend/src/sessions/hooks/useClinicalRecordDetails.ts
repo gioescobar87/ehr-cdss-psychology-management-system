@@ -1,12 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
-import {
-  getRiskEvaluationById,
-} from "../api/sessionRiskEvaluationApi";
+import { getRiskEvaluationById } from "../api/sessionRiskEvaluationApi";
 
-import {
-  getPsychologicalTestApplicationById,
-} from "../api/sessionPsychologicalTestApi";
+import { getPsychologicalTestApplicationById } from "../api/sessionPsychologicalTestApi";
 
 import { getSessionById } from "../api/sessionApi";
 
@@ -18,9 +14,7 @@ export function useHistoricalSession(sessionId: number | null) {
   });
 }
 
-export function useHistoricalRiskEvaluation(
-  evaluationId: number | null,
-) {
+export function useHistoricalRiskEvaluation(evaluationId: number | null) {
   return useQuery({
     queryKey: ["historical-risk-evaluation", evaluationId],
     queryFn: () => getRiskEvaluationById(evaluationId!),
@@ -28,16 +22,10 @@ export function useHistoricalRiskEvaluation(
   });
 }
 
-export function useHistoricalPsychologicalTest(
-  applicationId: number | null,
-) {
+export function useHistoricalPsychologicalTest(applicationId: number | null) {
   return useQuery({
-    queryKey: [
-      "historical-psychological-test",
-      applicationId,
-    ],
-    queryFn: () =>
-      getPsychologicalTestApplicationById(applicationId!),
+    queryKey: ["historical-psychological-test", applicationId],
+    queryFn: () => getPsychologicalTestApplicationById(applicationId!),
     enabled: applicationId !== null,
   });
 }

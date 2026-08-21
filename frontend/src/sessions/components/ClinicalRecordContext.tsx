@@ -4,14 +4,18 @@ import {
   Alert,
   Box,
   Divider,
+  IconButton,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 
 import type { Sesion } from "../types/session.types";
-//import type { ClinicalActivity } from "../types/clinicalRecord.types";
 
 import {
   buildClinicalEncounters,
@@ -29,18 +33,13 @@ function calculateAge(dateOfBirth: string): number {
   const birthDate = new Date(dateOfBirth);
   const today = new Date();
 
-  let age =
-    today.getFullYear() -
-    birthDate.getFullYear();
+  let age = today.getFullYear() - birthDate.getFullYear();
 
-  const monthDifference =
-    today.getMonth() -
-    birthDate.getMonth();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
 
   if (
     monthDifference < 0 ||
-    (monthDifference === 0 &&
-      today.getDate() < birthDate.getDate())
+    (monthDifference === 0 && today.getDate() < birthDate.getDate())
   ) {
     age--;
   }
@@ -48,9 +47,7 @@ function calculateAge(dateOfBirth: string): number {
   return age;
 }
 
-function formatSex(
-  sex: string | null,
-): string | null {
+function formatSex(sex: string | null): string | null {
   if (!sex) {
     return null;
   }
@@ -67,56 +64,63 @@ function formatSex(
   }
 }
 
-export default function ClinicalRecord({
-  session,
-}: ClinicalRecordProps) {
+export default function ClinicalRecord({ session }: ClinicalRecordProps) {
+  const theme = useTheme();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const {
     data: context,
     isLoading,
     isError,
   } = useClinicalSessionContext(session.id);
 
-  const [selectedActivityId, setSelectedActivityId] =
-  useState<string | null>(null);
-
-const encounters = useMemo(() => {
-  if (!context) {
-    return [];
-  }
-
-  return buildClinicalEncounters(context);
-}, [context]);
-
-const defaultActivity = useMemo(() => {
-  if (!context || encounters.length === 0) {
-    return null;
-  }
-
-  return getDefaultClinicalActivity(
-    encounters,
-    context.currentSession.id,
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(
+    null,
   );
-}, [context, encounters]);
 
-const selectedActivity = useMemo(() => {
-  if (selectedActivityId) {
-    for (const encounter of encounters) {
-      const activity = encounter.activities.find(
-        (item) => item.id === selectedActivityId,
-      );
+  const encounters = useMemo(() => {
+    if (!context) {
+      return [];
+    }
 
-      if (activity) {
-        return activity;
+    return buildClinicalEncounters(context);
+  }, [context]);
+
+  const defaultActivity = useMemo(() => {
+    if (!context || encounters.length === 0) {
+      return null;
+    }
+
+    return getDefaultClinicalActivity(encounters, context.currentSession.id);
+  }, [context, encounters]);
+
+  const selectedActivity = useMemo(() => {
+    if (selectedActivityId) {
+      for (const encounter of encounters) {
+        const activity = encounter.activities.find(
+          (item) => item.id === selectedActivityId,
+        );
+
+        if (activity) {
+          return activity;
+        }
       }
     }
-  }
 
-  return defaultActivity;
-}, [
-  encounters,
-  selectedActivityId,
-  defaultActivity,
-]);
+    return defaultActivity;
+  }, [encounters, selectedActivityId, defaultActivity]);
+
+  const hasExplicitSelectedActivity =
+    selectedActivityId !== null && selectedActivity?.id === selectedActivityId;
+
+  const handleSelectActivity = (activityId: string) => {
+    setSelectedActivityId(activityId);
+  };
+
+  const handleBackToTimeline = () => {
+    setSelectedActivityId(null);
+  };
 
   if (isLoading) {
     return (
@@ -128,10 +132,7 @@ const selectedActivity = useMemo(() => {
           justifyContent: "center",
         }}
       >
-        <Typography
-          variant="body2"
-          color="text.secondary"
-        >
+        <Typography variant="body2" color="text.secondary">
           Cargando historia clínica...
         </Typography>
       </Box>
@@ -141,8 +142,7 @@ const selectedActivity = useMemo(() => {
   if (isError || !context) {
     return (
       <Alert severity="warning">
-        No fue posible cargar el contexto clínico
-        del paciente.
+        No fue posible cargar el contexto clínico del paciente.
       </Alert>
     );
   }
@@ -168,19 +168,12 @@ const selectedActivity = useMemo(() => {
             letterSpacing: "-0.02em",
           }}
         >
-          {patient.nombre}{" "}
-          {patient.apellido}
+          {patient.nombre} {patient.apellido}
         </Typography>
 
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{ mt: 0.5 }}
-        >
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
           {[
-            age !== null
-              ? `${age} años`
-              : null,
+            age !== null ? `${age} años` : null,
             formattedSex,
             patient.ocupacion,
           ]
@@ -191,18 +184,34 @@ const selectedActivity = useMemo(() => {
 
       <Divider />
 
-      {/* Clinical record */}
+      {/* Clinical record explorer */}
 
       <Box
         sx={{
           display: "grid",
+
           gridTemplateColumns: {
             xs: "1fr",
-            md: "minmax(260px, 30%) minmax(0, 1fr)",
+            md: "minmax(280px, 32%) minmax(0, 1fr)",
           },
+
+          /*
+           * Desktop gets a bounded working area.
+           *
+           * Mobile intentionally does not use a fixed
+           * height because the interaction becomes
+           * list -> detail.
+           */
+          height: {
+            xs: "auto",
+            md: "min(700px, calc(100vh - 280px))",
+          },
+
           minHeight: {
+            xs: 0,
             md: 560,
           },
+
           border: 1,
           borderColor: "divider",
           borderRadius: 2,
@@ -210,80 +219,188 @@ const selectedActivity = useMemo(() => {
           bgcolor: "background.paper",
         }}
       >
-        {/* Timeline */}
-
-        <Box
-          sx={{
-            borderRight: {
-              xs: "none",
-              md: 1,
-            },
-            borderBottom: {
-              xs: 1,
-              md: "none",
-            },
-            borderColor: "divider",
-            p: {
-              xs: 1.5,
-              md: 2,
-            },
-            overflowY: "auto",
-          }}
-        >
-          <Box sx={{ px: 1, pb: 1.5 }}>
-            <Typography
-              variant="overline"
-              color="text.secondary"
-              fontWeight={700}
+        {/*
+         * MOBILE
+         *
+         * List -> detail navigation.
+         */}
+        {isMobile ? (
+          hasExplicitSelectedActivity ? (
+            <Box
               sx={{
-                letterSpacing: 0.8,
+                minWidth: 0,
+                minHeight: 0,
+                overflowY: "auto",
+                p: 2,
               }}
             >
-              Historia clínica
-            </Typography>
-          </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <IconButton
+                  edge="start"
+                  size="small"
+                  onClick={handleBackToTimeline}
+                  aria-label="Volver a historia clínica"
+                >
+                  <ArrowBackIcon />
+                </IconButton>
 
-          {encounters.length > 0 ? (
-            <ClinicalRecordTimeline
-              encounters={encounters}
-              selectedActivity={selectedActivity}
-              onSelectActivity={(activity) =>
-                setSelectedActivityId(activity.id)
-              }
-            />
+                <Typography variant="body2" fontWeight={700} sx={{ ml: 1 }}>
+                  Historia clínica
+                </Typography>
+              </Box>
+
+              <ClinicalRecordDetail activity={selectedActivity} />
+            </Box>
           ) : (
             <Box
               sx={{
-                px: 1,
-                py: 4,
+                minHeight: 0,
+                overflowY: "auto",
+                p: 1.5,
               }}
             >
-              <Typography
-                variant="body2"
-                color="text.secondary"
+              <Box
+                sx={{
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 1,
+                  px: 1,
+                  pt: 0.5,
+                  pb: 1.5,
+                  bgcolor: "background.paper",
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
               >
-                No hay actividades clínicas
-                históricas disponibles.
-              </Typography>
+                <Typography
+                  variant="overline"
+                  color="text.secondary"
+                  fontWeight={700}
+                  sx={{
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  Historia clínica
+                </Typography>
+              </Box>
+
+              {encounters.length > 0 ? (
+                <ClinicalRecordTimeline
+                  encounters={encounters}
+                  selectedActivity={selectedActivity}
+                  onSelectActivity={(activity) =>
+                    handleSelectActivity(activity.id)
+                  }
+                />
+              ) : (
+                <Box
+                  sx={{
+                    px: 1,
+                    py: 4,
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    No hay actividades clínicas históricas disponibles.
+                  </Typography>
+                </Box>
+              )}
             </Box>
-          )}
-        </Box>
+          )
+        ) : (
+          <>
+            {/* Desktop timeline */}
 
-        {/* Detail */}
+            <Box
+              sx={{
+                minHeight: 0,
+                overflowY: "auto",
 
-        <Box
-          sx={{
-            p: {
-              xs: 2,
-              md: 3,
-            },
-            overflowY: "auto",
-          }}
-        >
-          <ClinicalRecordDetail
-            activity={selectedActivity}
-          />
-        </Box>
+                borderRight: {
+                  md: 1,
+                },
+
+                borderColor: "divider",
+
+                p: {
+                  xs: 1.5,
+                  md: 2,
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 1,
+
+                  px: 1,
+                  pt: 0.5,
+                  pb: 1.5,
+
+                  bgcolor: "background.paper",
+
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <Typography
+                  variant="overline"
+                  color="text.secondary"
+                  fontWeight={700}
+                  sx={{
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  Historia clínica
+                </Typography>
+              </Box>
+
+              {encounters.length > 0 ? (
+                <ClinicalRecordTimeline
+                  encounters={encounters}
+                  selectedActivity={selectedActivity}
+                  onSelectActivity={(activity) =>
+                    handleSelectActivity(activity.id)
+                  }
+                />
+              ) : (
+                <Box
+                  sx={{
+                    px: 1,
+                    py: 4,
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    No hay actividades clínicas históricas disponibles.
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            {/* Desktop detail */}
+
+            <Box
+              sx={{
+                minWidth: 0,
+                minHeight: 0,
+                overflowY: "auto",
+
+                p: {
+                  xs: 2,
+                  md: 3,
+                },
+              }}
+            >
+              <ClinicalRecordDetail activity={selectedActivity} />
+            </Box>
+          </>
+        )}
       </Box>
     </Stack>
   );
