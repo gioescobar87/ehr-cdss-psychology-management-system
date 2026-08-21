@@ -7,8 +7,17 @@ import {
   getPatientRiskEvaluations,
   getPatientSessions,
   getSessionNotes,
+  getClinicalSessionContext,
 } from "../api/sessionContextApi";
 import type { SessionNoteRequest } from "../types/sessionContext.types";
+
+export function useClinicalSessionContext(sessionId?: number) {
+  return useQuery({
+    queryKey: ["clinical-session-context", sessionId],
+    queryFn: () => getClinicalSessionContext(sessionId!),
+    enabled: sessionId !== undefined,
+  });
+}
 
 export function usePatientSessions(patientId?: number) {
   return useQuery({

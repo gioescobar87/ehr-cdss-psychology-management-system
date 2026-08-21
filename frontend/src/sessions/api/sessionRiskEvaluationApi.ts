@@ -65,3 +65,13 @@ export async function updateRiskEvaluation(
 export async function deleteRiskEvaluation(id: number): Promise<void> {
   await apiClient.delete(`/evaluacion-riesgo/${id}`);
 }
+
+export async function getRiskEvaluationById(
+  id: number,
+): Promise<SessionRiskEvaluation> {
+  const response = await apiClient.get<SessionRiskEvaluation>(
+    `/evaluacion-riesgo/${id}`,
+  );
+
+  return response.data;
+}

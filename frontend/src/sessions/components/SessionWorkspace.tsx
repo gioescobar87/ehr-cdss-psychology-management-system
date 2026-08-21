@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { Sesion } from "../types/session.types";
 import { SESSION_PROGRESS_HEIGHT } from "../constants/sessionStage.constants";
 
-import SessionSummary from "./SessionSummary";
+import SessionSummary from "./ClinicalRecordContext";
 import SessionObservations from "./SessionObservations";
 import SessionNotes from "./SessionNotes";
 import SessionInterventions from "./SessionIntervention";
@@ -121,7 +121,7 @@ export default function SessionWorkspace({ session }: SessionWorkspaceProps) {
           {/* Context */}
           <ClinicalSection id="session-context" title="Contexto clínico">
             <Stack spacing={3}>
-              <ClinicalSubsection title="Resumen">
+              <ClinicalSubsection title="Historia clínica2">
                 <SessionSummary session={session} />
               </ClinicalSubsection>
 

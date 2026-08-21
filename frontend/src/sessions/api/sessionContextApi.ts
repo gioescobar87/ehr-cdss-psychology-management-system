@@ -1,6 +1,8 @@
 import apiClient from "../../shared/api/apiClient";
 
 import type { Appointment } from "../../appointments/types/appointment.types";
+import type { ClinicalSessionContext } from "../types/clinicalSessionContext.types";
+
 import type {
   DiagnosticoPaciente,
   EvaluacionRiesgo,
@@ -9,6 +11,16 @@ import type {
   SessionNote,
   SessionNoteRequest,
 } from "../types/sessionContext.types";
+
+export async function getClinicalSessionContext(
+  sessionId: number,
+): Promise<ClinicalSessionContext> {
+  const response = await apiClient.get<ClinicalSessionContext>(
+    `/sesion/${sessionId}/contexto-clinico`,
+  );
+
+  return response.data;
+}
 
 export async function getPatientSessions(
   patientId: number,
