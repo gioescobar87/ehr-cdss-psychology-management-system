@@ -39,4 +39,7 @@ public class PacienteDiagnostico extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
+
+    @Column(name = "diagnostico_inicial", nullable = false)
+    private Boolean diagnosticoInicial;
 }

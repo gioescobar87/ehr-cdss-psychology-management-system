@@ -7,25 +7,13 @@ import com.clinica.psicologia.system.dto.response.clinical.PacienteDiagnosticoRe
 
 public interface PacienteDiagnosticoService {
 
-    PacienteDiagnosticoResponseDTO create(
-            PacienteDiagnosticoRequestDTO request);
+    PacienteDiagnosticoResponseDTO create(PacienteDiagnosticoRequestDTO request);
 
     List<PacienteDiagnosticoResponseDTO> findAll();
 
-    PacienteDiagnosticoResponseDTO findById(
-            Integer id);
+    PacienteDiagnosticoResponseDTO findById(Integer id);
 
-    List<PacienteDiagnosticoResponseDTO> getByPatient(
-            Integer pacienteId);
+    List<PacienteDiagnosticoResponseDTO> getByPatient(Integer pacienteId);
 
-    PacienteDiagnosticoResponseDTO update(
-            Integer id,
-            PacienteDiagnosticoRequestDTO request);
-
-    void changeStatus(
-            Integer id,
-            Integer estadoId);
-
-    void delete(
-            Integer id);
+    void changeStatus(Integer id);
 }

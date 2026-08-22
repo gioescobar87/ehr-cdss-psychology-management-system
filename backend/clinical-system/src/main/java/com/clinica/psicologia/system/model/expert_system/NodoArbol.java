@@ -45,4 +45,7 @@ public class NodoArbol extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
+
+    @JoinColumn(name = "nodo_raiz", nullable = false)
+    private Boolean nodoRaiz;
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.clinica.psicologia.system.dto.request.clinical.PacienteDiagnosticoRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.PacienteDiagnosticoResponseDTO;
 import com.clinica.psicologia.system.model.clinical.PacienteDiagnostico;
 
@@ -45,10 +44,5 @@ public class PacienteDiagnosticoMapper {
         return entities.stream()
                 .map(this::toResponseDTO)
                 .toList();
-    }
-
-    public void updateEntity(PacienteDiagnostico entity, PacienteDiagnosticoRequestDTO dto) {
-        entity.setFechaDiagnostico(
-                dto.getFechaDiagnostico());
     }
 }

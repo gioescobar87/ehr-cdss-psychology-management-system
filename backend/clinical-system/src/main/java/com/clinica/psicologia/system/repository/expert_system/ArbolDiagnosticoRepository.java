@@ -27,4 +27,6 @@ public interface ArbolDiagnosticoRepository extends JpaRepository<ArbolDiagnosti
     boolean existsByCodigoArbolAndEstadoNombreAndIdNot(String codigoArbol, String estado, Integer id);
 
     List<ArbolDiagnostico> findByCodigoArbolAndEstadoId(String codigoArbol, Integer estadoId);
+
+    List<ArbolDiagnostico> findAllByEstadoId(Integer id);
 }

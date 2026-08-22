@@ -1,6 +1,5 @@
 package com.clinica.psicologia.system.serv_implementation.clinical;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
