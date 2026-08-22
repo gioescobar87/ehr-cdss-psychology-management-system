@@ -3,12 +3,15 @@ import { Box, Stack, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export type ClinicalSessionStep =
-  "context" | "evaluation" | "intervention" | "evolution";
+  | "context"
+  | "evaluation"
+  | "intervention"
+  | "evolution";
 
 interface ClinicalSessionStepperProps {
   activeStep: ClinicalSessionStep;
-  onStepChange?: (step: ClinicalSessionStep) => void;
-  onBack?: () => void;
+  onStepChange: (step: ClinicalSessionStep) => void;
+  onBack: () => void;
 }
 
 interface StepDefinition {
@@ -39,7 +42,9 @@ interface StepIndicatorProps {
   active: boolean;
 }
 
-function StepIndicator({ active }: StepIndicatorProps) {
+function StepIndicator({
+  active,
+}: StepIndicatorProps) {
   return (
     <Box
       sx={{
@@ -53,11 +58,16 @@ function StepIndicator({ active }: StepIndicatorProps) {
         justifyContent: "center",
 
         border: 2,
-        borderColor: active ? "primary.main" : "divider",
+        borderColor: active
+          ? "primary.main"
+          : "divider",
 
-        bgcolor: active ? "primary.main" : "background.paper",
+        bgcolor: active
+          ? "primary.main"
+          : "background.paper",
 
-        transition: "background-color 150ms ease, border-color 150ms ease",
+        transition:
+          "background-color 150ms ease, border-color 150ms ease",
       }}
     >
       <Box
@@ -65,8 +75,9 @@ function StepIndicator({ active }: StepIndicatorProps) {
           width: active ? 7 : 5,
           height: active ? 7 : 5,
           borderRadius: "50%",
-
-          bgcolor: active ? "common.white" : "text.disabled",
+          bgcolor: active
+            ? "common.white"
+            : "text.disabled",
         }}
       />
     </Box>
@@ -83,10 +94,7 @@ export default function ClinicalSessionStepper({
       component="nav"
       aria-label="Etapas de la sesión clínica"
       sx={{
-        width: {
-          xs: "100%",
-          md: 156,
-        },
+        width: 156,
         flexShrink: 0,
       }}
     >
@@ -116,13 +124,18 @@ export default function ClinicalSessionStepper({
 
           textAlign: "left",
 
-          cursor: onBack ? "pointer" : "default",
+          cursor: "pointer",
 
-          "&:hover": onBack
-            ? {
-                color: "primary.main",
-              }
-            : undefined,
+          "&:hover": {
+            color: "primary.main",
+          },
+
+          "&:focus-visible": {
+            outline: 2,
+            outlineOffset: 2,
+            outlineColor: "primary.main",
+            borderRadius: 1,
+          },
         }}
       >
         <ArrowBackIcon
@@ -131,15 +144,24 @@ export default function ClinicalSessionStepper({
           }}
         />
 
-        <Typography component="span" variant="body2" fontWeight={600}>
+        <Typography
+          component="span"
+          variant="body2"
+          fontWeight={600}
+        >
           Agenda
         </Typography>
       </Box>
+
+      {/* Clinical stages */}
+
       <Stack spacing={0}>
         {STEPS.map((step, index) => {
-          const isActive = step.id === activeStep;
+          const isActive =
+            step.id === activeStep;
 
-          const isLast = index === STEPS.length - 1;
+          const isLast =
+            index === STEPS.length - 1;
 
           return (
             <Box
@@ -151,8 +173,14 @@ export default function ClinicalSessionStepper({
               <Box
                 component="button"
                 type="button"
-                onClick={() => onStepChange?.(step.id)}
-                aria-current={isActive ? "step" : undefined}
+                onClick={() =>
+                  onStepChange(step.id)
+                }
+                aria-current={
+                  isActive
+                    ? "step"
+                    : undefined
+                }
                 sx={{
                   width: "100%",
 
@@ -170,24 +198,37 @@ export default function ClinicalSessionStepper({
                   textAlign: "left",
                   font: "inherit",
 
-                  cursor: onStepChange ? "pointer" : "default",
+                  cursor: "pointer",
 
                   borderRadius: 1.5,
 
-                  "&:hover": onStepChange
-                    ? {
-                        bgcolor: "action.hover",
-                      }
-                    : undefined,
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
+
+                  "&:focus-visible": {
+                    outline: 2,
+                    outlineOffset: 1,
+                    outlineColor:
+                      "primary.main",
+                  },
                 }}
               >
-                <StepIndicator active={isActive} />
+                <StepIndicator
+                  active={isActive}
+                />
 
                 <Typography
                   variant="body2"
                   fontSize="0.8125rem"
-                  fontWeight={isActive ? 700 : 500}
-                  color={isActive ? "primary.main" : "text.secondary"}
+                  fontWeight={
+                    isActive ? 700 : 500
+                  }
+                  color={
+                    isActive
+                      ? "primary.main"
+                      : "text.secondary"
+                  }
                   sx={{
                     lineHeight: 1.25,
                   }}

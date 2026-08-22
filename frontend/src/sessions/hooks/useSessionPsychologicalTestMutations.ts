@@ -1,12 +1,25 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import {
   createPsychologicalTestApplication,
-  deletePsychologicalTestApplication,
   updatePsychologicalTestApplication,
 } from "../api/sessionPsychologicalTestApi";
 
-import type { SessionPsychologicalTestRequest } from "../types/sessionPsychologicalTest.types";
+import {
+  sessionPsychologicalTestQueryKeys,
+} from "./useSessionPsychologicalTests";
+
+import type {
+  SessionPsychologicalTestRequest,
+} from "../types/sessionPsychologicalTest.types";
+
+interface UpdatePsychologicalTestApplicationVariables {
+  id: number;
+  request: SessionPsychologicalTestRequest;
+}
 
 export function useCreatePsychologicalTestApplication() {
   const queryClient = useQueryClient();
@@ -15,9 +28,11 @@ export function useCreatePsychologicalTestApplication() {
     mutationFn: (request: SessionPsychologicalTestRequest) =>
       createPsychologicalTestApplication(request),
 
-    onSuccess: (_, request) => {
+    onSuccess: (application) => {
       queryClient.invalidateQueries({
-        queryKey: ["session-psychological-tests", request.sesionId],
+        queryKey: sessionPsychologicalTestQueryKeys.bySession(
+          application.sesionId,
+        ),
       });
     },
   });
@@ -30,37 +45,14 @@ export function useUpdatePsychologicalTestApplication() {
     mutationFn: ({
       id,
       request,
-    }: {
-      id: number;
-      request: SessionPsychologicalTestRequest;
-    }) => updatePsychologicalTestApplication(id, request),
+    }: UpdatePsychologicalTestApplicationVariables) =>
+      updatePsychologicalTestApplication(id, request),
 
-    onSuccess: (_, variables) => {
+    onSuccess: (application) => {
       queryClient.invalidateQueries({
-        queryKey: ["session-psychological-tests", variables.request.sesionId],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["psychological-test-application", variables.id],
-      });
-    },
-  });
-}
-
-export function useDeletePsychologicalTestApplication() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id }: { id: number; sessionId: number }) =>
-      deletePsychologicalTestApplication(id),
-
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["session-psychological-tests", variables.sessionId],
-      });
-
-      queryClient.removeQueries({
-        queryKey: ["psychological-test-application", variables.id],
+        queryKey: sessionPsychologicalTestQueryKeys.bySession(
+          application.sesionId,
+        ),
       });
     },
   });

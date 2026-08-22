@@ -12,7 +12,6 @@ export interface SessionPsychologicalTest {
 export interface SessionPsychologicalTestRequest {
   sesionId: number;
   pruebaPsicologicaId: number;
-  fechaAplicacion: string;
   archivoAdjunto?: string;
   interpretacion?: string;
 }

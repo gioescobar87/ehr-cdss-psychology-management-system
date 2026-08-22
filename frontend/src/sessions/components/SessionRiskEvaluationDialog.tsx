@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Alert,
@@ -16,10 +16,13 @@ import {
   Typography,
 } from "@mui/material";
 
-import type { RiskLevel, RiskType } from "../types/sessionRiskEvaluation.types";
+import type { RiskLevel, RiskType, SessionRiskEvaluation } from "../types/sessionRiskEvaluation.types";
 
 import { useRiskLevels, useRiskTypes } from "../hooks/useSessionRiskEvaluation";
-import { useCreateRiskEvaluation } from "../hooks/useSessionRiskEvaluationMutations";
+import {
+  useCreateRiskEvaluation,
+  useUpdateRiskEvaluation,
+} from "../hooks/useSessionRiskEvaluationMutations";
 
 import { getApiErrorMessage } from "../../shared/utils/apiError";
 import { useNotification } from "../../shared/hooks/useNotification";
@@ -28,6 +31,7 @@ interface SessionRiskEvaluationDialogProps {
   open: boolean;
   sessionId: number;
   patientId: number;
+  evaluation?: SessionRiskEvaluation | null;
   onClose: () => void;
 }
 
@@ -65,11 +69,12 @@ export default function SessionRiskEvaluationDialog({
   open,
   sessionId,
   patientId,
+  evaluation = null,
   onClose,
 }: SessionRiskEvaluationDialogProps) {
-  const [riskTypeId, setRiskTypeId] = useState<number | "">("");
-  const [riskLevelId, setRiskLevelId] = useState<number | "">("");
-  const [observations, setObservations] = useState("");
+  const [riskTypeId, setRiskTypeId] = useState<number | "">(evaluation?.tipoRiesgoId ?? "");
+  const [riskLevelId, setRiskLevelId] = useState<number | "">(evaluation?.nivelRiesgoId ?? "");
+  const [observations, setObservations] = useState(evaluation?.observaciones ?? "");
 
   const {
     data: riskTypes = [],
@@ -84,8 +89,19 @@ export default function SessionRiskEvaluationDialog({
   } = useRiskLevels(open);
 
   const createMutation = useCreateRiskEvaluation();
+  const updateMutation = useUpdateRiskEvaluation();
 
   const { showSuccess } = useNotification();
+  const isEditMode = evaluation !== null;
+  const mutation = isEditMode ? updateMutation : createMutation;
+
+  useEffect(() => {
+    if (open) {
+      setRiskTypeId(evaluation?.tipoRiesgoId ?? "");
+      setRiskLevelId(evaluation?.nivelRiesgoId ?? "");
+      setObservations(evaluation?.observaciones ?? "");
+    }
+  }, [open, evaluation]);
 
   const availableRiskTypes = useMemo(
     () => riskTypes.filter((type) => isActiveStatus(type.estado)),
@@ -98,7 +114,7 @@ export default function SessionRiskEvaluationDialog({
   );
 
   const handleClose = () => {
-    if (createMutation.isPending) {
+    if (mutation.isPending) {
       return;
     }
 
@@ -110,41 +126,46 @@ export default function SessionRiskEvaluationDialog({
   };
 
   const handleSave = () => {
-    if (riskTypeId === "" || riskLevelId === "" || createMutation.isPending) {
+    if (riskTypeId === "" || riskLevelId === "" || mutation.isPending) {
       return;
     }
 
-    createMutation.mutate(
-      {
+    const request = {
         pacienteId: patientId,
         sesionId: sessionId,
         tipoRiesgoId: riskTypeId,
         nivelRiesgoId: riskLevelId,
         observaciones: observations.trim() || undefined,
-        fecha: getCurrentLocalDateTime(),
-      },
-      {
+        fecha: evaluation?.fecha ?? getCurrentLocalDateTime(),
+      };
+
+    const options = {
         onSuccess: () => {
-          showSuccess("La evaluación de riesgo fue registrada correctamente.");
+          showSuccess(isEditMode ? "El riesgo fue actualizado correctamente." : "El riesgo fue registrado correctamente.");
 
           handleClose();
         },
-      },
-    );
+      };
+
+    if (isEditMode && evaluation) {
+      updateMutation.mutate({ id: evaluation.id, request }, options);
+    } else {
+      createMutation.mutate(request, options);
+    }
   };
 
-  const errorMessage = createMutation.error
-    ? getApiErrorMessage(createMutation.error)
+  const errorMessage = mutation.error
+    ? getApiErrorMessage(mutation.error)
     : null;
 
   const isLoading = isLoadingTypes || isLoadingLevels;
 
   const isSaveDisabled =
-    riskTypeId === "" || riskLevelId === "" || createMutation.isPending;
+    riskTypeId === "" || riskLevelId === "" || mutation.isPending;
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Registrar evaluación de riesgo</DialogTitle>
+      <DialogTitle>{isEditMode ? "Editar riesgo identificado" : "Registrar riesgo identificado"}</DialogTitle>
 
       <DialogContent dividers>
         <Stack spacing={2.5} sx={{ pt: 1 }}>
@@ -163,7 +184,7 @@ export default function SessionRiskEvaluationDialog({
 
           <FormControl
             fullWidth
-            disabled={isLoading || createMutation.isPending}
+            disabled={isLoading || mutation.isPending}
           >
             <InputLabel id="risk-type-label">Tipo de riesgo</InputLabel>
 
@@ -191,7 +212,7 @@ export default function SessionRiskEvaluationDialog({
 
           <FormControl
             fullWidth
-            disabled={isLoading || createMutation.isPending}
+            disabled={isLoading || mutation.isPending}
           >
             <InputLabel id="risk-level-label">Nivel de riesgo</InputLabel>
 
@@ -224,14 +245,14 @@ export default function SessionRiskEvaluationDialog({
             label="Observaciones"
             value={observations}
             onChange={(event) => setObservations(event.target.value)}
-            disabled={createMutation.isPending}
+            disabled={mutation.isPending}
             placeholder="Registre los hallazgos u observaciones clínicas relevantes."
           />
         </Stack>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={handleClose} disabled={createMutation.isPending}>
+        <Button onClick={handleClose} disabled={mutation.isPending}>
           Cancelar
         </Button>
 
@@ -240,7 +261,7 @@ export default function SessionRiskEvaluationDialog({
           onClick={handleSave}
           disabled={isSaveDisabled}
         >
-          {createMutation.isPending ? "Registrando..." : "Registrar evaluación"}
+          {mutation.isPending ? "Guardando..." : isEditMode ? "Guardar cambios" : "Registrar riesgo"}
         </Button>
       </DialogActions>
     </Dialog>

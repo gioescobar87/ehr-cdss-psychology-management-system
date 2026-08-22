@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Alert,
@@ -54,7 +54,18 @@ export default function SessionPsychologicalTestSelectionDialog({
   const [search, setSearch] = useState("");
   const [selectedTestId, setSelectedTestId] = useState<number | null>(null);
 
-  const { data: tests = [], isLoading, isError } = usePsychologicalTests(open);
+  const {
+    data: tests = [],
+    isLoading,
+    isError,
+  } = usePsychologicalTests(open);
+
+  useEffect(() => {
+    if (!open) {
+      setSearch("");
+      setSelectedTestId(null);
+    }
+  }, [open]);
 
   const availableTests = useMemo(
     () => tests.filter((test) => isActiveStatus(test.estado)),
@@ -85,18 +96,19 @@ export default function SessionPsychologicalTestSelectionDialog({
   }, [availableTests, search]);
 
   const selectedTest = useMemo(
-    () => availableTests.find((test) => test.id === selectedTestId) ?? null,
+    () =>
+      availableTests.find((test) => test.id === selectedTestId) ?? null,
     [availableTests, selectedTestId],
   );
 
   const handleClose = () => {
+    if (isLoading) {
+      return;
+    }
+
     setSearch("");
     setSelectedTestId(null);
     onClose();
-  };
-
-  const handleSelect = (test: PsychologicalTest) => {
-    setSelectedTestId(test.id);
   };
 
   const handleContinue = () => {
@@ -115,10 +127,11 @@ export default function SessionPsychologicalTestSelectionDialog({
       maxWidth="lg"
       PaperProps={{
         sx: {
-          minHeight: {
-            xs: "auto",
-            md: 650,
+          height: {
+            xs: "90vh",
+            md: 700,
           },
+          maxHeight: "90vh",
         },
       }}
     >
@@ -129,26 +142,32 @@ export default function SessionPsychologicalTestSelectionDialog({
           </Typography>
 
           <Typography variant="body2" color="text.secondary">
-            Seleccione la prueba que mejor se adapte a las necesidades clínicas
-            del paciente.
+            Seleccione una prueba disponible para aplicarla durante esta
+            sesión.
           </Typography>
         </Stack>
       </DialogTitle>
 
       <DialogContent dividers sx={{ p: 0 }}>
         {isError ? (
-          <Box sx={{ p: 3 }}>
+          <Stack
+            justifyContent="center"
+            sx={{
+              minHeight: 500,
+              p: 3,
+            }}
+          >
             <Alert severity="error">
               No fue posible cargar las pruebas psicológicas disponibles.
             </Alert>
-          </Box>
+          </Stack>
         ) : isLoading ? (
           <Stack
             alignItems="center"
             justifyContent="center"
             spacing={2}
             sx={{
-              minHeight: 420,
+              minHeight: 500,
               p: 3,
             }}
           >
@@ -164,12 +183,12 @@ export default function SessionPsychologicalTestSelectionDialog({
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                md: "minmax(280px, 0.9fr) minmax(400px, 1.5fr)",
+                md: "minmax(300px, 0.85fr) minmax(420px, 1.4fr)",
               },
+              height: "100%",
               minHeight: 500,
             }}
           >
-            {/* Catalog / Search */}
             <Box
               sx={{
                 borderRight: {
@@ -190,17 +209,19 @@ export default function SessionPsychologicalTestSelectionDialog({
                 <TextField
                   fullWidth
                   size="small"
+                  label="Buscar"
+                  placeholder="Nombre, objetivo o descripción..."
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar prueba..."
-                  label="Buscar"
                   autoComplete="off"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchOutlinedIcon fontSize="small" />
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchOutlinedIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    },
                   }}
                 />
 
@@ -234,7 +255,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                 >
                   <SearchOutlinedIcon
                     sx={{
-                      fontSize: 40,
+                      fontSize: 42,
                       color: "text.disabled",
                     }}
                   />
@@ -244,7 +265,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                   </Typography>
 
                   <Typography variant="body2" color="text.secondary">
-                    Intente con otro término de búsqueda.
+                    Pruebe con otro término de búsqueda.
                   </Typography>
                 </Stack>
               ) : (
@@ -256,13 +277,13 @@ export default function SessionPsychologicalTestSelectionDialog({
                   }}
                 >
                   {filteredTests.map((test) => {
-                    const isSelected = test.id === selectedTestId;
+                    const selected = test.id === selectedTestId;
 
                     return (
                       <ListItemButton
                         key={test.id}
-                        selected={isSelected}
-                        onClick={() => handleSelect(test)}
+                        selected={selected}
+                        onClick={() => setSelectedTestId(test.id)}
                         sx={{
                           px: 2,
                           py: 1.5,
@@ -272,34 +293,37 @@ export default function SessionPsychologicalTestSelectionDialog({
                         }}
                       >
                         <PsychologyOutlinedIcon
+                          fontSize="small"
                           sx={{
                             mr: 1.5,
                             mt: 0.25,
-                            color: isSelected
+                            color: selected
                               ? "primary.main"
                               : "text.secondary",
                           }}
-                          fontSize="small"
                         />
 
                         <ListItemText
                           primary={
                             <Typography
                               variant="body2"
-                              fontWeight={isSelected ? 700 : 500}
+                              fontWeight={selected ? 700 : 500}
                             >
                               {test.nombre}
                             </Typography>
                           }
-                          secondary={test.descripcion || "Sin descripción."}
-                          secondaryTypographyProps={{
-                            variant: "caption",
-                            sx: {
-                              mt: 0.5,
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
+                          secondary={
+                            test.descripcion || "Sin descripción."
+                          }
+                          slotProps={{
+                            secondary: {
+                              sx: {
+                                mt: 0.5,
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                              },
                             },
                           }}
                         />
@@ -310,7 +334,6 @@ export default function SessionPsychologicalTestSelectionDialog({
               )}
             </Box>
 
-            {/* Test information */}
             <Box
               sx={{
                 p: {
@@ -346,13 +369,17 @@ export default function SessionPsychologicalTestSelectionDialog({
                   </Typography>
 
                   <Typography variant="body2" color="text.secondary">
-                    Seleccione una prueba del catálogo para consultar su
-                    información clínica antes de aplicarla.
+                    Consulte la información de la prueba antes de registrarla
+                    en la sesión.
                   </Typography>
                 </Stack>
               ) : (
                 <Stack spacing={3}>
-                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                  <Stack
+                    direction="row"
+                    spacing={1.5}
+                    alignItems="flex-start"
+                  >
                     <PsychologyOutlinedIcon
                       sx={{
                         color: "primary.main",
@@ -372,8 +399,11 @@ export default function SessionPsychologicalTestSelectionDialog({
                         {selectedTest.nombre}
                       </Typography>
 
-                      <Typography variant="caption" color="text.secondary">
-                        Información de la prueba
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                      >
+                        Prueba disponible para aplicación
                       </Typography>
                     </Box>
 
@@ -404,7 +434,8 @@ export default function SessionPsychologicalTestSelectionDialog({
 
                   <Alert severity="info">
                     <Typography variant="body2">
-                      Paciente: <strong>{session.pacienteNombre}</strong>
+                      Paciente:{" "}
+                      <strong>{session.pacienteNombre}</strong>
                     </Typography>
                   </Alert>
                 </Stack>
@@ -420,12 +451,14 @@ export default function SessionPsychologicalTestSelectionDialog({
           py: 2,
         }}
       >
-        <Button onClick={handleClose}>Cancelar</Button>
+        <Button onClick={handleClose} disabled={isLoading}>
+          Cancelar
+        </Button>
 
         <Button
           variant="contained"
           onClick={handleContinue}
-          disabled={!selectedTest}
+          disabled={!selectedTest || isLoading}
         >
           Continuar
         </Button>
@@ -439,14 +472,17 @@ interface TestInformationSectionProps {
   value?: string | null;
 }
 
-function TestInformationSection({ title, value }: TestInformationSectionProps) {
+function TestInformationSection({
+  title,
+  value,
+}: TestInformationSectionProps) {
   if (!value?.trim()) {
     return null;
   }
 
   return (
     <Stack spacing={0.75}>
-      <Typography variant="subtitle2" fontWeight={700} color="text.primary">
+      <Typography variant="subtitle2" fontWeight={700}>
         {title}
       </Typography>
 

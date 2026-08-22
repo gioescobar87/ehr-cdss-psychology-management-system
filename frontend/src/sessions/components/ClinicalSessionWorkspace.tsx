@@ -1,52 +1,43 @@
-import { Alert, Box, CircularProgress, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 
 import type { Sesion } from "../types/session.types";
-import type { SessionStage } from "../types/sessionWorkspace.types";
+import type {
+  SessionStage,
+} from "../types/sessionWorkspace.types";
 
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 
-import ClinicalSessionStepper, {
-  type ClinicalSessionStep,
-} from "./ClinicalSessionStepper";
-
-import ClinicalRecord from "./ClinicalRecordContext";
+import ClinicalSessionStepper from "./ClinicalSessionStepper";
+import ClinicalStageWorkspace from "./stages/ClinicalStageWorkspace";
 
 interface ClinicalSessionWorkspaceProps {
   session: Sesion;
   activeStage: SessionStage;
+  onStageChange: (stage: SessionStage) => void;
   onBack: () => void;
-}
-
-function toClinicalSessionStep(stage: SessionStage): ClinicalSessionStep {
-  switch (stage) {
-    case "context":
-      return "context";
-
-    case "evaluation":
-      return "evaluation";
-
-    case "intervention":
-      return "intervention";
-
-    case "evolution":
-      return "evolution";
-
-    default:
-      return "context";
-  }
 }
 
 function calculateAge(dateOfBirth: string): number {
   const birthDate = new Date(dateOfBirth);
   const today = new Date();
 
-  let age = today.getFullYear() - birthDate.getFullYear();
+  let age =
+    today.getFullYear() -
+    birthDate.getFullYear();
 
-  const monthDifference = today.getMonth() - birthDate.getMonth();
+  const monthDifference =
+    today.getMonth() -
+    birthDate.getMonth();
 
   if (
     monthDifference < 0 ||
-    (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    (monthDifference === 0 &&
+      today.getDate() < birthDate.getDate())
   ) {
     age--;
   }
@@ -74,10 +65,9 @@ function formatSex(sex: string | null): string | null {
 export default function ClinicalSessionWorkspace({
   session,
   activeStage,
+  onStageChange,
   onBack,
 }: ClinicalSessionWorkspaceProps) {
-  const activeStep = toClinicalSessionStep(activeStage);
-
   const {
     data: context,
     isLoading,
@@ -148,7 +138,9 @@ export default function ClinicalSessionWorkspace({
           }}
         >
           {[
-            age !== null ? `${age} años` : null,
+            age !== null
+              ? `${age} años`
+              : null,
             formattedSex,
             patient.ocupacion,
           ]
@@ -157,15 +149,15 @@ export default function ClinicalSessionWorkspace({
         </Typography>
       </Box>
 
-      {/* Clinical session canvas */}
+      {/* Clinical session workspace */}
 
       <Box
         sx={{
           display: "flex",
           alignItems: "flex-start",
-
           minWidth: 0,
           width: "100%",
+          gap: 2,
         }}
       >
         {/* Clinical session navigation */}
@@ -176,18 +168,19 @@ export default function ClinicalSessionWorkspace({
               xs: "none",
               md: "block",
             },
-
             width: 156,
             flexShrink: 0,
-
-            pr: 1.5,
             pt: 1,
           }}
         >
-          <ClinicalSessionStepper activeStep={activeStep} onBack={onBack} />
+          <ClinicalSessionStepper
+            activeStep={activeStage}
+            onStepChange={onStageChange}
+            onBack={onBack}
+          />
         </Box>
 
-        {/* Clinical record */}
+        {/* Current clinical stage */}
 
         <Box
           sx={{
@@ -195,7 +188,10 @@ export default function ClinicalSessionWorkspace({
             flex: 1,
           }}
         >
-          <ClinicalRecord session={session} />
+          <ClinicalStageWorkspace
+            session={session}
+            stage={activeStage}
+          />
         </Box>
       </Box>
     </Box>

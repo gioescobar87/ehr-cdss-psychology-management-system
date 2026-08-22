@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Divider,
   Stack,
@@ -15,35 +14,25 @@ import {
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import PsychologyOutlinedIcon from "@mui/icons-material/PsychologyOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
 import type { Sesion } from "../types/session.types";
 import type { SessionPsychologicalTest } from "../types/sessionPsychologicalTest.types";
 import type { PsychologicalTest } from "../../catalog/types/psychologicalTest.types";
+import type { ClinicalContextPsychologicalTest } from "../types/clinicalSessionContext.types";
 
 import SessionPsychologicalTestSelectionDialog from "./SessionPsychologicalTestSelectionDialog";
 import SessionPsychologicalTestApplicationDialog from "./SessionPsychologicalTestApplicationDialog";
 
 import {
-  useSessionPsychologicalTests,
   usePsychologicalTests,
+  useSessionPsychologicalTests,
 } from "../hooks/useSessionPsychologicalTests";
+import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 
 interface SessionPsychologicalTestsProps {
   session: Sesion;
-}
-
-function isActiveStatus(status?: string | null): boolean {
-  if (!status) {
-    return false;
-  }
-
-  const normalized = status.trim().toUpperCase();
-
-  return normalized === "ACTIVE" || normalized === "ACTIVO";
+  allowCreate?: boolean;
 }
 
 function formatDate(date?: string | null): string {
@@ -66,14 +55,16 @@ function formatDate(date?: string | null): string {
 
 export default function SessionPsychologicalTests({
   session,
+  allowCreate = true,
 }: SessionPsychologicalTestsProps) {
-  const [editApplication, setEditingApplication] =
-    useState<SessionPsychologicalTest | null>(null);
   const [selectionOpen, setSelectionOpen] = useState(false);
   const [applicationOpen, setApplicationOpen] = useState(false);
-  const [selectedTest, setSelectedTest] = useState<PsychologicalTest | null>(
-    null,
-  );
+
+  const [selectedTest, setSelectedTest] =
+    useState<PsychologicalTest | null>(null);
+
+  const [editingApplication, setEditingApplication] =
+    useState<SessionPsychologicalTest | null>(null);
 
   const {
     data: applications = [],
@@ -87,20 +78,18 @@ export default function SessionPsychologicalTests({
     isError: isTestsError,
   } = usePsychologicalTests();
 
-  const testCatalog = useMemo<PsychologicalTest[]>(
-    () => psychologicalTests,
-    [psychologicalTests],
-  );
+  const { data: clinicalContext, isLoading: isLoadingHistory } =
+    useClinicalSessionContext(session.id);
 
   const testById = useMemo(() => {
     const map = new Map<number, PsychologicalTest>();
 
-    testCatalog.forEach((test) => {
+    psychologicalTests.forEach((test) => {
       map.set(test.id, test);
     });
 
     return map;
-  }, [testCatalog]);
+  }, [psychologicalTests]);
 
   const sortedApplications = useMemo(
     () =>
@@ -118,9 +107,40 @@ export default function SessionPsychologicalTests({
     [applications],
   );
 
-  const isLoading = isLoadingApplications || isLoadingTests;
+  const isLoading =
+    isLoadingApplications || isLoadingTests || isLoadingHistory;
+
+  const historicalApplications = useMemo(() => {
+    const sessions = new Map(
+      clinicalContext?.recentSessions.items.map((item) => [item.id, item]) ?? [],
+    );
+
+    if (clinicalContext?.currentSession) {
+      sessions.set(clinicalContext.currentSession.id, clinicalContext.currentSession);
+    }
+
+    return (clinicalContext?.psychologicalTests.items ?? [])
+      .filter((application) => application.sesionId !== session.id)
+      .sort((a, b) => {
+        const dateComparison = b.fechaAplicacion.localeCompare(a.fechaAplicacion);
+
+        if (dateComparison !== 0) {
+          return dateComparison;
+        }
+
+        return b.id - a.id;
+      })
+      .map((application) => ({
+        application,
+        encounter: application.sesionId ? sessions.get(application.sesionId) : undefined,
+      }));
+  }, [clinicalContext, session.id]);
+
+  const hasApplications = historicalApplications.length > 0 || sortedApplications.length > 0;
 
   const handleOpenSelection = () => {
+    setEditingApplication(null);
+    setSelectedTest(null);
     setSelectionOpen(true);
   };
 
@@ -128,21 +148,21 @@ export default function SessionPsychologicalTests({
     setSelectionOpen(false);
   };
 
-  const handleTestSelected = (test: PsychologicalTest) => {
-    setEditingApplication(null);
-    setSelectedTest(test);
+  const handleTestSelected = (
+    test: PsychologicalTest,
+  ) => {
     setSelectionOpen(false);
+    setSelectedTest(test);
+    setEditingApplication(null);
     setApplicationOpen(true);
   };
 
-  const handleApplicationClose = () => {
-    setApplicationOpen(false);
-    setSelectedTest(null);
-    setEditingApplication(null);
-  };
-
-  const handleEditApplication = (application: SessionPsychologicalTest) => {
-    const test = testById.get(application.pruebaPsicologicaId);
+  const handleEditApplication = (
+    application: SessionPsychologicalTest,
+  ) => {
+    const test = testById.get(
+      application.pruebaPsicologicaId,
+    );
 
     if (!test) {
       return;
@@ -151,6 +171,12 @@ export default function SessionPsychologicalTests({
     setEditingApplication(application);
     setSelectedTest(test);
     setApplicationOpen(true);
+  };
+
+  const handleCloseApplication = () => {
+    setApplicationOpen(false);
+    setSelectedTest(null);
+    setEditingApplication(null);
   };
 
   return (
@@ -172,10 +198,17 @@ export default function SessionPsychologicalTests({
           }}
         >
           <Box>
-            <Stack direction="row" spacing={1.25} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1.25}
+              alignItems="center"
+            >
               <AssignmentOutlinedIcon color="primary" />
 
-              <Typography variant="h5" fontWeight={700}>
+              <Typography
+                variant="h5"
+                fontWeight={700}
+              >
                 Pruebas psicológicas
               </Typography>
             </Stack>
@@ -185,30 +218,34 @@ export default function SessionPsychologicalTests({
               color="text.secondary"
               sx={{ mt: 0.75 }}
             >
-              Pruebas aplicadas durante la sesión y su información clínica.
+              Pruebas aplicadas durante esta sesión y su
+              información clínica.
             </Typography>
           </Box>
 
-          <Button
-            variant="contained"
-            startIcon={<AddOutlinedIcon />}
-            onClick={handleOpenSelection}
-            disabled={isLoading}
-          >
-            Aplicar prueba
-          </Button>
+          {allowCreate && (
+            <Button
+              variant="contained"
+              startIcon={<AddOutlinedIcon />}
+              onClick={handleOpenSelection}
+              disabled={isLoading}
+            >
+              Aplicar prueba
+            </Button>
+          )}
         </Box>
 
         {isApplicationsError && (
           <Alert severity="error">
-            No fue posible cargar las pruebas psicológicas de esta sesión.
+            No fue posible cargar las pruebas psicológicas de
+            esta sesión.
           </Alert>
         )}
 
         {isTestsError && (
           <Alert severity="warning">
-            No fue posible cargar la información del catálogo de pruebas.
-            Algunas pruebas podrían no mostrar su información descriptiva.
+            No fue posible cargar la información del catálogo
+            de pruebas.
           </Alert>
         )}
 
@@ -219,32 +256,47 @@ export default function SessionPsychologicalTests({
                 spacing={2}
                 alignItems="center"
                 justifyContent="center"
-                sx={{ minHeight: 260 }}
+                sx={{ minHeight: 240 }}
               >
                 <CircularProgress size={32} />
 
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                >
                   Cargando pruebas psicológicas...
                 </Typography>
               </Stack>
             </CardContent>
           </Card>
-        ) : sortedApplications.length === 0 ? (
-          <EmptyTestsState onApplyTest={handleOpenSelection} />
+        ) : !hasApplications ? (
+          <EmptyTestsState
+            onApplyTest={allowCreate ? handleOpenSelection : undefined}
+          />
         ) : (
-          <Stack spacing={2}>
-            {sortedApplications.map((application) => {
-              const test = testById.get(application.pruebaPsicologicaId);
-
-              return (
-                <PsychologicalTestApplicationCard
-                  key={application.id}
-                  application={application}
-                  test={test}
-                  onEdit={handleEditApplication}
-                />
-              );
-            })}
+          <Stack spacing={3}>
+            <TestHistorySection
+              applications={[
+                ...historicalApplications,
+                ...sortedApplications.map((application) => ({
+                  application: {
+                    id: application.id,
+                    pruebaPsicologicaId: application.pruebaPsicologicaId,
+                    pruebaNombre: testById.get(application.pruebaPsicologicaId)?.nombre ?? null,
+                    fechaAplicacion: application.fechaAplicacion,
+                    sesionId: application.sesionId,
+                  },
+                  encounter: undefined,
+                  currentApplication: application,
+                })),
+              ].sort((a, b) =>
+                b.application.fechaAplicacion.localeCompare(
+                  a.application.fechaAplicacion,
+                ),
+              )}
+              testById={testById}
+              onEdit={handleEditApplication}
+            />
           </Stack>
         )}
       </Stack>
@@ -258,40 +310,107 @@ export default function SessionPsychologicalTests({
 
       <SessionPsychologicalTestApplicationDialog
         key={
-          editApplication
-            ? `edit-${editApplication.id}`
+          editingApplication
+            ? `edit-${editingApplication.id}`
             : `create-${selectedTest?.id ?? "new"}`
         }
         open={applicationOpen}
         session={session}
         test={selectedTest}
-        application={editApplication}
-        onClose={handleApplicationClose}
+        application={editingApplication}
+        onClose={handleCloseApplication}
       />
     </>
   );
 }
 
 interface EmptyTestsStateProps {
-  onApplyTest: () => void;
+  onApplyTest?: () => void;
 }
 
-function EmptyTestsState({ onApplyTest }: EmptyTestsStateProps) {
+interface TestHistoryItem {
+  application: ClinicalContextPsychologicalTest;
+  encounter?: { fechaSesion: string; tipoSesion: string | null };
+  currentApplication?: SessionPsychologicalTest;
+}
+
+interface TestHistorySectionProps {
+  applications: TestHistoryItem[];
+  testById: Map<number, PsychologicalTest>;
+  onEdit?: (application: SessionPsychologicalTest) => void;
+}
+
+function TestHistorySection({
+  applications,
+  testById,
+  onEdit,
+}: TestHistorySectionProps) {
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        borderRadius: 2,
-      }}
-    >
-      <CardContent>
+    <Box>
+      <Stack divider={<Divider flexItem />} spacing={0}>
+        {applications.map((item) => {
+          const test = item.application.pruebaPsicologicaId
+            ? testById.get(item.application.pruebaPsicologicaId)
+            : undefined;
+
+          return (
+            <PsychologicalTestHistoryRow
+              key={item.application.id}
+              item={item}
+              testName={test?.nombre ?? item.application.pruebaNombre ?? "Prueba psicológica"}
+              onEdit={onEdit}
+            />
+          );
+        })}
+      </Stack>
+    </Box>
+  );
+}
+
+function PsychologicalTestHistoryRow({
+  item,
+  testName,
+  onEdit,
+}: {
+  item: TestHistoryItem;
+  testName: string;
+  onEdit?: (application: SessionPsychologicalTest) => void;
+}) {
+  return (
+    <Box sx={{ py: 1.5 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, alignItems: "flex-start" }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="body1" fontWeight={700}>{testName}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {formatDate(item.application.fechaAplicacion)}
+            {item.encounter?.tipoSesion ? ` · ${item.encounter.tipoSesion}` : ""}
+          </Typography>
+        </Box>
+        {item.currentApplication && onEdit && (
+          <Button size="small" variant="text" startIcon={<EditOutlinedIcon />} onClick={() => onEdit(item.currentApplication!)}>
+            Editar
+          </Button>
+        )}
+      </Box>
+      <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+        {item.currentApplication?.interpretacion?.trim() ? "Interpretación disponible" : "Aplicación registrada"}
+      </Typography>
+    </Box>
+  );
+}
+
+function EmptyTestsState({
+  onApplyTest,
+}: EmptyTestsStateProps) {
+  return (
+    <Box sx={{ py: 1.5, borderTop: 1, borderBottom: 1, borderColor: "divider" }}>
         <Stack
           spacing={2}
           alignItems="center"
           justifyContent="center"
           textAlign="center"
           sx={{
-            minHeight: 300,
+            minHeight: 280,
             px: 2,
           }}
         >
@@ -303,7 +422,10 @@ function EmptyTestsState({ onApplyTest }: EmptyTestsStateProps) {
           />
 
           <Box>
-            <Typography variant="h6" fontWeight={700}>
+            <Typography
+              variant="h6"
+              fontWeight={700}
+            >
               No hay pruebas aplicadas
             </Typography>
 
@@ -315,201 +437,21 @@ function EmptyTestsState({ onApplyTest }: EmptyTestsStateProps) {
                 maxWidth: 480,
               }}
             >
-              Todavía no se ha aplicado ninguna prueba psicológica durante esta
-              sesión.
+              Todavía no se ha registrado ninguna prueba
+              psicológica durante esta sesión.
             </Typography>
           </Box>
 
-          <Button
-            variant="outlined"
-            startIcon={<AddOutlinedIcon />}
-            onClick={onApplyTest}
-          >
-            Aplicar primera prueba
-          </Button>
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface PsychologicalTestApplicationCardProps {
-  application: SessionPsychologicalTest;
-  test?: PsychologicalTest;
-  onEdit: (application: SessionPsychologicalTest) => void;
-}
-
-function PsychologicalTestApplicationCard({
-  application,
-  test,
-  onEdit,
-}: PsychologicalTestApplicationCardProps) {
-  const hasInterpretation = Boolean(application.interpretacion?.trim());
-
-  return (
-    <Card
-      variant="outlined"
-      sx={{
-        borderRadius: 2,
-      }}
-    >
-      <CardContent>
-        <Stack spacing={2}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: {
-                xs: "column",
-                sm: "row",
-              },
-              justifyContent: "space-between",
-              alignItems: {
-                xs: "flex-start",
-                sm: "center",
-              },
-              gap: 1.5,
-            }}
-          >
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box
-                sx={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 1.5,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  bgcolor: "primary.50",
-                  color: "primary.main",
-                  flexShrink: 0,
-                }}
-              >
-                <PsychologyOutlinedIcon />
-              </Box>
-
-              <Box>
-                <Typography variant="subtitle1" fontWeight={700}>
-                  {test?.nombre ?? "Prueba psicológica"}
-                </Typography>
-
-                {!test && (
-                  <Typography variant="caption" color="text.secondary">
-                    Prueba #{application.pruebaPsicologicaId}
-                  </Typography>
-                )}
-              </Box>
-            </Stack>
-
-            <Chip
-              label={application.estado || "Activa"}
-              size="small"
-              color={isActiveStatus(application.estado) ? "success" : "default"}
-              variant="outlined"
-            />
-          </Box>
-
-          <Divider />
-
-          <Stack
-            direction={{
-              xs: "column",
-              sm: "row",
-            }}
-            spacing={{
-              xs: 1,
-              sm: 3,
-            }}
-          >
-            <Stack direction="row" spacing={1} alignItems="center">
-              <CalendarTodayOutlinedIcon fontSize="small" color="action" />
-
-              <Typography variant="body2" color="text.secondary">
-                Aplicación:
-              </Typography>
-
-              <Typography variant="body2" fontWeight={600}>
-                {formatDate(application.fechaAplicacion)}
-              </Typography>
-            </Stack>
-
-            <Stack direction="row" spacing={1} alignItems="center">
-              <DescriptionOutlinedIcon fontSize="small" color="action" />
-
-              <Typography variant="body2" color="text.secondary">
-                Interpretación:
-              </Typography>
-
-              <Typography variant="body2" fontWeight={600}>
-                {hasInterpretation ? "Disponible" : "Pendiente"}
-              </Typography>
-            </Stack>
-          </Stack>
-
-          {test?.objetivoPrueba && (
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={700}
-                sx={{
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Objetivo
-              </Typography>
-
-              <Typography variant="body2" sx={{ mt: 0.5 }}>
-                {test.objetivoPrueba}
-              </Typography>
-            </Box>
-          )}
-
-          <Divider />
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
+          {onApplyTest && (
             <Button
-              size="small"
               variant="outlined"
-              startIcon={<EditOutlinedIcon />}
-              onClick={() => onEdit(application)}
+              startIcon={<AddOutlinedIcon />}
+              onClick={onApplyTest}
             >
-              Ver / editar aplicación
+              Aplicar primera prueba
             </Button>
-          </Box>
-
-          {application.archivoAdjunto && (
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={700}
-                sx={{
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Archivo adjunto
-              </Typography>
-
-              <Typography
-                variant="body2"
-                sx={{
-                  mt: 0.5,
-                  wordBreak: "break-word",
-                }}
-              >
-                {application.archivoAdjunto}
-              </Typography>
-            </Box>
           )}
         </Stack>
-      </CardContent>
-    </Card>
+    </Box>
   );
 }

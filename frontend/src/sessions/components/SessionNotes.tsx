@@ -21,9 +21,10 @@ import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
 
 interface SessionNotesProps {
   session: Sesion;
+  allowCreate?: boolean;
 }
 
-export default function SessionNotes({ session }: SessionNotesProps) {
+export default function SessionNotes({ session, allowCreate = true }: SessionNotesProps) {
   const { data: notes = [], isLoading, isError } = useSessionNotes(session.id);
 
   const { data: currentUser } = useCurrentUser();
@@ -86,13 +87,15 @@ export default function SessionNotes({ session }: SessionNotesProps) {
                 </Typography>
               </Box>
 
-              <Button
-                variant="contained"
-                startIcon={<AddOutlinedIcon />}
-                onClick={handleCreate}
-              >
-                Nueva nota
-              </Button>
+              {allowCreate && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddOutlinedIcon />}
+                  onClick={handleCreate}
+                >
+                  Nueva nota
+                </Button>
+              )}
             </Box>
 
             {isError && (
@@ -117,7 +120,8 @@ export default function SessionNotes({ session }: SessionNotesProps) {
                   color="text.secondary"
                   sx={{ mt: 0.5 }}
                 >
-                  Puede registrar la primera nota utilizando "Nueva nota".
+                  Las notas se mostrarán aquí cuando existan registros para la
+                  sesión.
                 </Typography>
               </Box>
             )}

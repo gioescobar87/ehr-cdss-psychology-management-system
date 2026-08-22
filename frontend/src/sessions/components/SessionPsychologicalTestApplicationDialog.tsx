@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Alert,
@@ -8,14 +8,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import PsychologyOutlinedIcon from "@mui/icons-material/PsychologyOutlined";
 
 import type { Sesion } from "../types/session.types";
@@ -42,10 +40,6 @@ interface SessionPsychologicalTestApplicationDialogProps {
   onSuccess?: () => void;
 }
 
-function getToday(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
 export default function SessionPsychologicalTestApplicationDialog({
   open,
   session,
@@ -54,10 +48,6 @@ export default function SessionPsychologicalTestApplicationDialog({
   onClose,
   onSuccess,
 }: SessionPsychologicalTestApplicationDialogProps) {
-  const [applicationDate, setApplicationDate] = useState(
-    application?.fechaAplicacion ?? getToday(),
-  );
-
   const [attachment, setAttachment] = useState(
     application?.archivoAdjunto ?? "",
   );
@@ -72,10 +62,15 @@ export default function SessionPsychologicalTestApplicationDialog({
   const { showSuccess } = useNotification();
 
   const isEditMode = Boolean(application);
-
   const mutation = isEditMode ? updateMutation : createMutation;
-
   const isPending = mutation.isPending;
+
+  useEffect(() => {
+    if (open) {
+      setAttachment(application?.archivoAdjunto ?? "");
+      setInterpretation(application?.interpretacion ?? "");
+    }
+  }, [open, application]);
 
   const handleClose = () => {
     if (isPending) {
@@ -86,14 +81,13 @@ export default function SessionPsychologicalTestApplicationDialog({
   };
 
   const handleSave = () => {
-    if (!test || !applicationDate || isPending) {
+    if (!test || isPending) {
       return;
     }
 
     const request: SessionPsychologicalTestRequest = {
       sesionId: session.id,
       pruebaPsicologicaId: test.id,
-      fechaAplicacion: applicationDate,
       archivoAdjunto: attachment.trim() || undefined,
       interpretacion: interpretation.trim() || undefined,
     };
@@ -135,29 +129,36 @@ export default function SessionPsychologicalTestApplicationDialog({
     ? getApiErrorMessage(mutation.error)
     : null;
 
-  const isSaveDisabled = !test || !applicationDate || isPending;
-
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="md"
+    >
       <DialogTitle>
         <Stack spacing={0.5}>
           <Typography variant="h6" fontWeight={700}>
             {isEditMode
               ? "Editar aplicación de prueba"
-              : "Aplicar prueba psicológica"}
+              : "Registrar aplicación de prueba"}
           </Typography>
 
           <Typography variant="body2" color="text.secondary">
             {isEditMode
-              ? "Actualice la información clínica de esta aplicación."
-              : "Registre la aplicación de la prueba seleccionada."}
+              ? "Actualice la información clínica asociada a esta aplicación."
+              : "Registre la información correspondiente a la aplicación de la prueba."}
           </Typography>
         </Stack>
       </DialogTitle>
 
       <DialogContent dividers>
-        <Stack spacing={2.5} sx={{ pt: 1 }}>
-          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+        <Stack spacing={3} sx={{ pt: 1 }}>
+          {errorMessage && (
+            <Alert severity="error">
+              {errorMessage}
+            </Alert>
+          )}
 
           {test && (
             <Box
@@ -167,7 +168,11 @@ export default function SessionPsychologicalTestApplicationDialog({
                 bgcolor: "action.hover",
               }}
             >
-              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+              <Stack
+                direction="row"
+                spacing={1.5}
+                alignItems="flex-start"
+              >
                 <Box
                   sx={{
                     width: 42,
@@ -185,50 +190,24 @@ export default function SessionPsychologicalTestApplicationDialog({
                 </Box>
 
                 <Box sx={{ minWidth: 0 }}>
-                  <Typography variant="subtitle1" fontWeight={700}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={700}
+                  >
                     {test.nombre}
                   </Typography>
 
-                  {test.objetivoPrueba && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mt: 0.5 }}
-                    >
-                      {test.objetivoPrueba}
-                    </Typography>
-                  )}
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 0.5 }}
+                  >
+                    {test.objetivoPrueba}
+                  </Typography>
                 </Box>
               </Stack>
             </Box>
           )}
-
-          <Alert severity="info">
-            <Typography variant="body2">
-              Paciente: <strong>{session.pacienteNombre}</strong>
-            </Typography>
-          </Alert>
-
-          <Divider />
-
-          <TextField
-            fullWidth
-            required
-            type="date"
-            label="Fecha de aplicación"
-            value={applicationDate}
-            onChange={(event) => setApplicationDate(event.target.value)}
-            disabled={isPending}
-            slotProps={{
-              inputLabel: {
-                shrink: true,
-              },
-            }}
-            inputProps={{
-              max: getToday(),
-            }}
-            helperText="La fecha no puede ser posterior a hoy ni anterior a la fecha de la sesión."
-          />
 
           <TextField
             fullWidth
@@ -238,39 +217,24 @@ export default function SessionPsychologicalTestApplicationDialog({
             disabled={isPending}
             multiline
             minRows={2}
-            helperText="Opcional. Puede registrar la referencia al documento o archivo asociado."
+            placeholder="Referencia al documento o archivo asociado"
+            helperText="Opcional. Registre una referencia al documento o archivo relacionado con la aplicación."
           />
 
           <TextField
             fullWidth
             label="Interpretación clínica"
             value={interpretation}
-            onChange={(event) => setInterpretation(event.target.value)}
+            onChange={(event) =>
+              setInterpretation(event.target.value)
+            }
             disabled={isPending}
             multiline
-            minRows={6}
-            placeholder="Registre aquí los resultados y la interpretación clínica de la prueba."
-            helperText="Incluya los resultados relevantes, hallazgos e interpretación clínica."
+            minRows={7}
+            placeholder="Registre los resultados relevantes, hallazgos e interpretación clínica."
+            helperText="Opcional. Puede completar o actualizar esta información posteriormente."
           />
 
-          <Box
-            sx={{
-              display: "flex",
-              gap: 1.25,
-              alignItems: "flex-start",
-              p: 2,
-              border: 1,
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <DescriptionOutlinedIcon fontSize="small" color="action" />
-
-            <Typography variant="body2" color="text.secondary">
-              Los resultados detallados y la interpretación clínica forman parte
-              de la interpretación de esta aplicación.
-            </Typography>
-          </Box>
         </Stack>
       </DialogContent>
 
@@ -280,7 +244,10 @@ export default function SessionPsychologicalTestApplicationDialog({
           py: 2,
         }}
       >
-        <Button onClick={handleClose} disabled={isPending}>
+        <Button
+          onClick={handleClose}
+          disabled={isPending}
+        >
           Cancelar
         </Button>
 
@@ -288,7 +255,7 @@ export default function SessionPsychologicalTestApplicationDialog({
           variant="contained"
           startIcon={<CheckCircleOutlinedIcon />}
           onClick={handleSave}
-          disabled={isSaveDisabled}
+          disabled={!test || isPending}
         >
           {isPending
             ? "Guardando..."

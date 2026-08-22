@@ -29,10 +29,12 @@ import { useNotification } from "../../shared/hooks/useNotification";
 
 interface SessionInterventionsProps {
   session: Sesion;
+  allowCreate?: boolean;
 }
 
 export default function SessionInterventions({
   session,
+  allowCreate = true,
 }: SessionInterventionsProps) {
   const {
     data: interventions = [],
@@ -112,13 +114,15 @@ export default function SessionInterventions({
                 </Typography>
               </Box>
 
-              <Button
-                variant="contained"
-                startIcon={<AddOutlinedIcon />}
-                onClick={() => setDialogOpen(true)}
-              >
-                Registrar intervención
-              </Button>
+              {allowCreate && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddOutlinedIcon />}
+                  onClick={() => setDialogOpen(true)}
+                >
+                  Registrar intervención
+                </Button>
+              )}
             </Box>
 
             {isError && (
@@ -166,6 +170,7 @@ export default function SessionInterventions({
                   intervention={intervention}
                   onRemove={handleRemove}
                   disabled={deleteMutation.isPending}
+                  allowDelete={allowCreate}
                 />
               ))}
           </Stack>
@@ -188,12 +193,14 @@ interface InterventionCardProps {
   intervention: SessionIntervention;
   onRemove: (intervention: SessionIntervention) => void;
   disabled: boolean;
+  allowDelete: boolean;
 }
 
 function InterventionCard({
   intervention,
   onRemove,
   disabled,
+  allowDelete,
 }: InterventionCardProps) {
   return (
     <Card
@@ -231,14 +238,16 @@ function InterventionCard({
               </Box>
             </Stack>
 
-            <IconButton
-              aria-label="Quitar intervención"
-              color="error"
-              onClick={() => onRemove(intervention)}
-              disabled={disabled}
-            >
-              <DeleteOutlineOutlinedIcon />
-            </IconButton>
+            {allowDelete && (
+              <IconButton
+                aria-label="Quitar intervención"
+                color="error"
+                onClick={() => onRemove(intervention)}
+                disabled={disabled}
+              >
+                <DeleteOutlineOutlinedIcon />
+              </IconButton>
+            )}
           </Box>
 
           <Divider />

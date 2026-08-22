@@ -6,43 +6,52 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Divider,
-  IconButton,
   Stack,
   Typography,
 } from "@mui/material";
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
 import type { Sesion } from "../types/session.types";
 import type { SessionRiskEvaluation } from "../types/sessionRiskEvaluation.types";
 
 import { useSessionRiskEvaluations } from "../hooks/useSessionRiskEvaluation";
-import { useDeleteRiskEvaluation } from "../hooks/useSessionRiskEvaluationMutations";
-
 import SessionRiskEvaluationDialog from "./SessionRiskEvaluationDialog";
 
-import { getApiErrorMessage } from "../../shared/utils/apiError";
-import { useNotification } from "../../shared/hooks/useNotification";
+import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 
 interface SessionRiskEvaluationProps {
   session: Sesion;
+  allowCreate?: boolean;
 }
 
-const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("es-GT", {
-  day: "numeric",
-  month: "long",
+const DATE_FORMATTER = new Intl.DateTimeFormat("es-GT", {
+  day: "2-digit",
+  month: "short",
   year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
 });
+
+function formatDate(date?: string | null): string {
+  if (!date) {
+    return "Sin fecha";
+  }
+
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return date.substring(0, 10);
+  }
+
+  return DATE_FORMATTER.format(parsedDate);
+}
 
 export default function SessionRiskEvaluation({
   session,
+  allowCreate = true,
 }: SessionRiskEvaluationProps) {
   const {
     data: evaluations = [],
@@ -50,11 +59,9 @@ export default function SessionRiskEvaluation({
     isError,
   } = useSessionRiskEvaluations(session.id);
 
-  const deleteMutation = useDeleteRiskEvaluation();
-
-  const { showSuccess } = useNotification();
-
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEvaluation, setEditingEvaluation] =
+    useState<SessionRiskEvaluation | null>(null);
 
   const orderedEvaluations = useMemo(
     () =>
@@ -64,40 +71,47 @@ export default function SessionRiskEvaluation({
     [evaluations],
   );
 
-  const latestEvaluation = orderedEvaluations[0];
+  const { data: clinicalContext, isLoading: isLoadingHistory } =
+    useClinicalSessionContext(session.id);
 
-  const handleDelete = (evaluation: SessionRiskEvaluation) => {
-    if (deleteMutation.isPending) {
-      return;
-    }
+  const historicalEvaluations = useMemo(
+    () =>
+      (clinicalContext?.risks.items ?? [])
+        .filter((evaluation) => Number(evaluation.sesionId) !== session.id)
+        .map((evaluation) => ({
+          id: evaluation.id,
+          tipoRiesgo: evaluation.tipoRiesgo ?? "Riesgo no especificado",
+          nivelRiesgo: evaluation.nivelRiesgo ?? "No especificado",
+          observaciones: evaluation.observaciones,
+          fecha: evaluation.fecha,
+          editable: false,
+        })),
+    [clinicalContext, session.id],
+  );
 
-    const confirmed = window.confirm(
-      "¿Está seguro de que desea eliminar esta evaluación de riesgo?",
-    );
+  const allEvaluations = useMemo(
+    () => [...historicalEvaluations, ...orderedEvaluations.map((evaluation) => ({
+      ...evaluation,
+      editable: true,
+    }))]
+      .filter((evaluation, index, evaluations) =>
+        evaluations.findIndex((item) => item.id === evaluation.id) === index,
+      )
+      .sort((a, b) => {
+      const dateComparison = new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+      return dateComparison || b.id - a.id;
+      }),
+    [historicalEvaluations, orderedEvaluations],
+  );
 
-    if (!confirmed) {
-      return;
-    }
+  const isLoadingData = isLoading || isLoadingHistory;
 
-    deleteMutation.mutate(
-      {
-        id: evaluation.id,
-        sessionId: session.id,
-        patientId: session.pacienteId,
-      },
-      {
-        onSuccess: () => {
-          showSuccess("La evaluación de riesgo fue eliminada correctamente.");
-        },
-      },
-    );
+  const handleCreate = () => {
+    setEditingEvaluation(null);
+    setDialogOpen(true);
   };
 
-  const deleteError = deleteMutation.error
-    ? getApiErrorMessage(deleteMutation.error)
-    : null;
-
-  if (isLoading) {
+  if (isLoadingData) {
     return (
       <Card variant="outlined" sx={{ borderRadius: 2 }}>
         <CardContent
@@ -116,9 +130,8 @@ export default function SessionRiskEvaluation({
 
   return (
     <>
-      <Card variant="outlined" sx={{ borderRadius: 2 }}>
-        <CardContent>
-          <Stack spacing={3}>
+      <Box>
+        <Stack spacing={2}>
             <Box
               sx={{
                 display: "flex",
@@ -129,27 +142,32 @@ export default function SessionRiskEvaluation({
               }}
             >
               <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  Evaluación de riesgo
-                </Typography>
+                <Stack direction="row" spacing={1.25} alignItems="center">
+                  <WarningAmberOutlinedIcon color="primary" />
+
+                  <Typography variant="h5" fontWeight={700}>
+                    Riesgos identificados
+                  </Typography>
+                </Stack>
 
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ mt: 0.5 }}
+                  sx={{ mt: 0.75 }}
                 >
-                  Registre y consulte las evaluaciones de riesgo realizadas
-                  durante esta sesión.
+                  Registre y consulte los riesgos identificados durante esta sesión.
                 </Typography>
               </Box>
 
-              <Button
-                variant="contained"
-                startIcon={<AddOutlinedIcon />}
-                onClick={() => setDialogOpen(true)}
-              >
-                Riesgo
-              </Button>
+              {allowCreate && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddOutlinedIcon />}
+                  onClick={handleCreate}
+                >
+                  Riesgo
+                </Button>
+              )}
             </Box>
 
             {isError && (
@@ -158,65 +176,8 @@ export default function SessionRiskEvaluation({
               </Alert>
             )}
 
-            {deleteError && <Alert severity="error">{deleteError}</Alert>}
-
-            {!isError && latestEvaluation && (
-              <Card
-                variant="outlined"
-                sx={{
-                  borderRadius: 2,
-                }}
-              >
-                <CardContent>
-                  <Stack spacing={1.5}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <WarningAmberOutlinedIcon color="action" />
-
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Estado de riesgo registrado
-                        </Typography>
-
-                        <Typography variant="h6" fontWeight={700}>
-                          {latestEvaluation.nivelRiesgo}
-                        </Typography>
-                      </Box>
-                    </Stack>
-
-                    <Typography variant="body2">
-                      Tipo: <strong>{latestEvaluation.tipoRiesgo}</strong>
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary">
-                      Última evaluación:{" "}
-                      {DATE_TIME_FORMATTER.format(
-                        new Date(latestEvaluation.fecha),
-                      )}
-                    </Typography>
-
-                    {latestEvaluation.observaciones && (
-                      <>
-                        <Divider />
-
-                        <Typography variant="body2">
-                          {latestEvaluation.observaciones}
-                        </Typography>
-                      </>
-                    )}
-                  </Stack>
-                </CardContent>
-              </Card>
-            )}
-
-            {!isError && evaluations.length === 0 && (
-              <Card
-                variant="outlined"
-                sx={{
-                  borderRadius: 2,
-                  borderStyle: "dashed",
-                }}
-              >
-                <CardContent>
+            {!isError && allEvaluations.length === 0 && (
+              <Box sx={{ py: 4, borderTop: 1, borderBottom: 1, borderColor: "divider", textAlign: "center" }}>
                   <Stack
                     spacing={1}
                     alignItems="center"
@@ -243,40 +204,42 @@ export default function SessionRiskEvaluation({
                       sesión.
                     </Typography>
                   </Stack>
-                </CardContent>
-              </Card>
+              </Box>
             )}
 
-            {!isError && orderedEvaluations.length > 0 && (
+            {!isError && allEvaluations.length > 0 && (
               <Box>
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={700}
-                  sx={{ mb: 1.5 }}
-                >
-                  Riesgos identificados durante esta sesión
-                </Typography>
-
-                <Stack spacing={1.5}>
-                  {orderedEvaluations.map((evaluation) => (
+                <Stack divider={<Divider flexItem />} spacing={0}>
+                  {allEvaluations.map((evaluation) => (
                     <RiskEvaluationRow
                       key={evaluation.id}
                       evaluation={evaluation}
-                      onDelete={handleDelete}
-                      disabled={deleteMutation.isPending}
+                      onEdit={
+                        evaluation.editable
+                          ? () => {
+                              const current = evaluations.find(
+                                (item) => item.id === evaluation.id,
+                              );
+                              if (current) {
+                                setEditingEvaluation(current);
+                                setDialogOpen(true);
+                              }
+                            }
+                          : undefined
+                      }
                     />
                   ))}
                 </Stack>
               </Box>
             )}
-          </Stack>
-        </CardContent>
-      </Card>
+        </Stack>
+      </Box>
 
       <SessionRiskEvaluationDialog
         open={dialogOpen}
         sessionId={session.id}
         patientId={session.pacienteId}
+        evaluation={editingEvaluation}
         onClose={() => setDialogOpen(false)}
       />
     </>
@@ -284,19 +247,16 @@ export default function SessionRiskEvaluation({
 }
 
 interface RiskEvaluationRowProps {
-  evaluation: SessionRiskEvaluation;
-  onDelete: (evaluation: SessionRiskEvaluation) => void;
-  disabled: boolean;
+  evaluation: Pick<SessionRiskEvaluation, "id" | "tipoRiesgo" | "nivelRiesgo" | "observaciones" | "fecha"> & { editable?: boolean };
+  onEdit?: () => void;
 }
 
 function RiskEvaluationRow({
   evaluation,
-  onDelete,
-  disabled,
+  onEdit,
 }: RiskEvaluationRowProps) {
   return (
-    <Card variant="outlined" sx={{ borderRadius: 2 }}>
-      <CardContent>
+    <Box sx={{ py: 1.5 }}>
         <Stack spacing={1.25}>
           <Box
             sx={{
@@ -316,39 +276,53 @@ function RiskEvaluationRow({
                 color="text.secondary"
                 sx={{ mt: 0.5 }}
               >
-                {DATE_TIME_FORMATTER.format(new Date(evaluation.fecha))}
+                {formatDate(evaluation.fecha)}
               </Typography>
             </Box>
 
             <Stack direction="row" spacing={1} alignItems="center">
-              <Chip
-                label={evaluation.nivelRiesgo}
-                size="small"
-                variant="outlined"
-              />
+              <RiskLevelIndicator level={evaluation.nivelRiesgo} />
 
-              <IconButton
-                aria-label="Eliminar evaluación de riesgo"
-                color="error"
-                onClick={() => onDelete(evaluation)}
-                disabled={disabled}
-              >
-                <DeleteOutlineOutlinedIcon />
-              </IconButton>
+              {evaluation.editable && onEdit && (
+                <Button size="small" variant="text" startIcon={<EditOutlinedIcon />} onClick={onEdit}>
+                  Editar
+                </Button>
+              )}
             </Stack>
           </Box>
 
           {evaluation.observaciones && (
-            <>
-              <Divider />
-
-              <Typography variant="body2">
-                {evaluation.observaciones}
-              </Typography>
-            </>
+            <Typography variant="body2">{evaluation.observaciones}</Typography>
           )}
         </Stack>
-      </CardContent>
-    </Card>
+    </Box>
+  );
+}
+
+function RiskLevelIndicator({ level }: { level: string }) {
+  const normalizedLevel = level.trim().toUpperCase();
+  const isHigh = normalizedLevel.includes("ALTO") || normalizedLevel.includes("SEVER");
+  const isModerate = normalizedLevel.includes("MODER");
+
+  return (
+    <Box
+      aria-label={`Nivel de riesgo: ${level}`}
+      title={`Nivel de riesgo: ${level}`}
+      sx={{ display: "flex", gap: 0.5, alignItems: "center" }}
+    >
+      {[0, 1, 2].map((index) => (
+        <Box
+          key={index}
+          sx={{
+            width: 7,
+            height: 7,
+            borderRadius: "50%",
+            bgcolor: isHigh || (isModerate && index < 2) || (!isModerate && index === 0)
+              ? isHigh ? "error.main" : isModerate ? "warning.main" : "success.main"
+              : "action.disabledBackground",
+          }}
+        />
+      ))}
+    </Box>
   );
 }
