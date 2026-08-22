@@ -3,11 +3,14 @@ package com.clinica.psicologia.system.service.clinical;
 import java.util.List;
 
 import com.clinica.psicologia.system.dto.request.clinical.SesionCriterioClinicoRequestDTO;
+import com.clinica.psicologia.system.dto.request.clinical.SesionCriterioClinicoBatchRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionCriterioClinicoResponseDTO;
 
 public interface SesionCriterioClinicoService {
 
     SesionCriterioClinicoResponseDTO create(SesionCriterioClinicoRequestDTO request);
+
+    List<SesionCriterioClinicoResponseDTO> createBatch(SesionCriterioClinicoBatchRequestDTO request);
 
     List<SesionCriterioClinicoResponseDTO> findAll();
 

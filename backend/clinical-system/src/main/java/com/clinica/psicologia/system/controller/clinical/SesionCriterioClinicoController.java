@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.request.clinical.SesionCriterioClinicoRequestDTO;
+import com.clinica.psicologia.system.dto.request.clinical.SesionCriterioClinicoBatchRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionCriterioClinicoResponseDTO;
 import com.clinica.psicologia.system.service.clinical.SesionCriterioClinicoService;
 
@@ -47,6 +48,13 @@ public class SesionCriterioClinicoController {
     public SesionCriterioClinicoResponseDTO create(
             @Valid @RequestBody SesionCriterioClinicoRequestDTO request) {
         return service.create(request);
+    }
+
+    @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<SesionCriterioClinicoResponseDTO> createBatch(
+            @Valid @RequestBody SesionCriterioClinicoBatchRequestDTO request) {
+        return service.createBatch(request);
     }
 
     @PutMapping("/{id}")

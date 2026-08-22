@@ -1,6 +1,7 @@
 package com.clinica.psicologia.system.repository.clinical;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,4 +14,7 @@ public interface SesionCriterioClinicoRepository extends JpaRepository<SesionCri
     List<SesionCriterioClinico> findBySesionPacienteIdOrderByIdAsc(Integer pacienteId);
 
     boolean existsBySesionIdAndCriterioClinicoId(Integer sesionId, Integer criterioClinicoId);
+
+    Optional<SesionCriterioClinico> findBySesionIdAndCriterioClinicoId(
+            Integer sesionId, Integer criterioClinicoId);
 }

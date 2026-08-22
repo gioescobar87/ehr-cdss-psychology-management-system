@@ -1,10 +1,13 @@
 package com.clinica.psicologia.system.serv_implementation.clinical;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
 import com.clinica.psicologia.system.dto.request.clinical.SesionCriterioClinicoRequestDTO;
+import com.clinica.psicologia.system.dto.request.clinical.SesionCriterioClinicoBatchRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionCriterioClinicoResponseDTO;
 import com.clinica.psicologia.system.mapper.clinical.SesionCriterioClinicoMapper;
 import com.clinica.psicologia.system.model.catalog.CriterioClinico;
@@ -48,6 +51,41 @@ public class SesionCriterioClinicoServiceImpl implements SesionCriterioClinicoSe
         mapper.updateEntity(entity, request);
 
         return mapper.toResponseDTO(repository.save(entity));
+    }
+
+    @Override
+    public List<SesionCriterioClinicoResponseDTO> createBatch(SesionCriterioClinicoBatchRequestDTO request) {
+        Sesion sesion = getAuthorizedSession(request.getSesionId());
+        Set<Integer> uniqueCriterionIds = new HashSet<>(request.getCriterioClinicoIds());
+
+        if (uniqueCriterionIds.size() != request.getCriterioClinicoIds().size()) {
+            throw new DuplicateResourceException("La selección contiene criterios clínicos duplicados.");
+        }
+
+        List<CriterioClinico> criteria = uniqueCriterionIds.stream()
+                .map(this::getCriterio)
+                .toList();
+
+        List<SesionCriterioClinico> entities = criteria.stream()
+                .map(criterio -> repository
+                        .findBySesionIdAndCriterioClinicoId(sesion.getId(), criterio.getId())
+                        .map(entity -> {
+                            if (Boolean.TRUE.equals(entity.getPresente())) {
+                                throw new DuplicateResourceException("Uno de los criterios clínicos ya está presente en la sesión.");
+                            }
+                            entity.setPresente(true);
+                            return entity;
+                        })
+                        .orElseGet(() -> {
+                            SesionCriterioClinico entity = new SesionCriterioClinico();
+                            entity.setSesion(sesion);
+                            entity.setCriterioClinico(criterio);
+                            entity.setPresente(true);
+                            return entity;
+                        }))
+                .toList();
+
+        return mapper.toResponseDTOList(repository.saveAll(entities));
     }
 
     @Override
