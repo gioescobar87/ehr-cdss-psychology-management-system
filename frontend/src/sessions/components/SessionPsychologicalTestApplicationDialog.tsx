@@ -130,12 +130,7 @@ export default function SessionPsychologicalTestApplicationDialog({
     : null;
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
       <DialogTitle>
         <Stack spacing={0.5}>
           <Typography variant="h6" fontWeight={700}>
@@ -154,11 +149,7 @@ export default function SessionPsychologicalTestApplicationDialog({
 
       <DialogContent dividers>
         <Stack spacing={3} sx={{ pt: 1 }}>
-          {errorMessage && (
-            <Alert severity="error">
-              {errorMessage}
-            </Alert>
-          )}
+          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
 
           {test && (
             <Box
@@ -168,11 +159,7 @@ export default function SessionPsychologicalTestApplicationDialog({
                 bgcolor: "action.hover",
               }}
             >
-              <Stack
-                direction="row"
-                spacing={1.5}
-                alignItems="flex-start"
-              >
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
                 <Box
                   sx={{
                     width: 42,
@@ -190,10 +177,7 @@ export default function SessionPsychologicalTestApplicationDialog({
                 </Box>
 
                 <Box sx={{ minWidth: 0 }}>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                  >
+                  <Typography variant="subtitle1" fontWeight={700}>
                     {test.nombre}
                   </Typography>
 
@@ -225,16 +209,13 @@ export default function SessionPsychologicalTestApplicationDialog({
             fullWidth
             label="Interpretación clínica"
             value={interpretation}
-            onChange={(event) =>
-              setInterpretation(event.target.value)
-            }
+            onChange={(event) => setInterpretation(event.target.value)}
             disabled={isPending}
             multiline
             minRows={7}
             placeholder="Registre los resultados relevantes, hallazgos e interpretación clínica."
             helperText="Opcional. Puede completar o actualizar esta información posteriormente."
           />
-
         </Stack>
       </DialogContent>
 
@@ -244,10 +225,7 @@ export default function SessionPsychologicalTestApplicationDialog({
           py: 2,
         }}
       >
-        <Button
-          onClick={handleClose}
-          disabled={isPending}
-        >
+        <Button onClick={handleClose} disabled={isPending}>
           Cancelar
         </Button>
 

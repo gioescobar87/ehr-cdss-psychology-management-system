@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import {
-  getPsychologicalTestApplicationsBySession,
-} from "../api/sessionPsychologicalTestApi";
+import { getPsychologicalTestApplicationsBySession } from "../api/sessionPsychologicalTestApi";
 
 import { getPsychologicalTests } from "../../catalog/api/psychologicalTestApi";
 

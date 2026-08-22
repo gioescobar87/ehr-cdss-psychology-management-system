@@ -1,14 +1,7 @@
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, CircularProgress, Typography } from "@mui/material";
 
 import type { Sesion } from "../types/session.types";
-import type {
-  SessionStage,
-} from "../types/sessionWorkspace.types";
+import type { SessionStage } from "../types/sessionWorkspace.types";
 
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 
@@ -26,18 +19,13 @@ function calculateAge(dateOfBirth: string): number {
   const birthDate = new Date(dateOfBirth);
   const today = new Date();
 
-  let age =
-    today.getFullYear() -
-    birthDate.getFullYear();
+  let age = today.getFullYear() - birthDate.getFullYear();
 
-  const monthDifference =
-    today.getMonth() -
-    birthDate.getMonth();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
 
   if (
     monthDifference < 0 ||
-    (monthDifference === 0 &&
-      today.getDate() < birthDate.getDate())
+    (monthDifference === 0 && today.getDate() < birthDate.getDate())
   ) {
     age--;
   }
@@ -138,9 +126,7 @@ export default function ClinicalSessionWorkspace({
           }}
         >
           {[
-            age !== null
-              ? `${age} años`
-              : null,
+            age !== null ? `${age} años` : null,
             formattedSex,
             patient.ocupacion,
           ]
@@ -188,10 +174,7 @@ export default function ClinicalSessionWorkspace({
             flex: 1,
           }}
         >
-          <ClinicalStageWorkspace
-            session={session}
-            stage={activeStage}
-          />
+          <ClinicalStageWorkspace session={session} stage={activeStage} />
         </Box>
       </Box>
     </Box>

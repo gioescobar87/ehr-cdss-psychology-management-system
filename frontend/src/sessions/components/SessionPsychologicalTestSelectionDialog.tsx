@@ -54,11 +54,7 @@ export default function SessionPsychologicalTestSelectionDialog({
   const [search, setSearch] = useState("");
   const [selectedTestId, setSelectedTestId] = useState<number | null>(null);
 
-  const {
-    data: tests = [],
-    isLoading,
-    isError,
-  } = usePsychologicalTests(open);
+  const { data: tests = [], isLoading, isError } = usePsychologicalTests(open);
 
   useEffect(() => {
     if (!open) {
@@ -96,8 +92,7 @@ export default function SessionPsychologicalTestSelectionDialog({
   }, [availableTests, search]);
 
   const selectedTest = useMemo(
-    () =>
-      availableTests.find((test) => test.id === selectedTestId) ?? null,
+    () => availableTests.find((test) => test.id === selectedTestId) ?? null,
     [availableTests, selectedTestId],
   );
 
@@ -142,8 +137,7 @@ export default function SessionPsychologicalTestSelectionDialog({
           </Typography>
 
           <Typography variant="body2" color="text.secondary">
-            Seleccione una prueba disponible para aplicarla durante esta
-            sesión.
+            Seleccione una prueba disponible para aplicarla durante esta sesión.
           </Typography>
         </Stack>
       </DialogTitle>
@@ -297,9 +291,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                           sx={{
                             mr: 1.5,
                             mt: 0.25,
-                            color: selected
-                              ? "primary.main"
-                              : "text.secondary",
+                            color: selected ? "primary.main" : "text.secondary",
                           }}
                         />
 
@@ -312,9 +304,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                               {test.nombre}
                             </Typography>
                           }
-                          secondary={
-                            test.descripcion || "Sin descripción."
-                          }
+                          secondary={test.descripcion || "Sin descripción."}
                           slotProps={{
                             secondary: {
                               sx: {
@@ -369,17 +359,13 @@ export default function SessionPsychologicalTestSelectionDialog({
                   </Typography>
 
                   <Typography variant="body2" color="text.secondary">
-                    Consulte la información de la prueba antes de registrarla
-                    en la sesión.
+                    Consulte la información de la prueba antes de registrarla en
+                    la sesión.
                   </Typography>
                 </Stack>
               ) : (
                 <Stack spacing={3}>
-                  <Stack
-                    direction="row"
-                    spacing={1.5}
-                    alignItems="flex-start"
-                  >
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
                     <PsychologyOutlinedIcon
                       sx={{
                         color: "primary.main",
@@ -399,10 +385,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                         {selectedTest.nombre}
                       </Typography>
 
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                      >
+                      <Typography variant="caption" color="text.secondary">
                         Prueba disponible para aplicación
                       </Typography>
                     </Box>
@@ -434,8 +417,7 @@ export default function SessionPsychologicalTestSelectionDialog({
 
                   <Alert severity="info">
                     <Typography variant="body2">
-                      Paciente:{" "}
-                      <strong>{session.pacienteNombre}</strong>
+                      Paciente: <strong>{session.pacienteNombre}</strong>
                     </Typography>
                   </Alert>
                 </Stack>
@@ -472,10 +454,7 @@ interface TestInformationSectionProps {
   value?: string | null;
 }
 
-function TestInformationSection({
-  title,
-  value,
-}: TestInformationSectionProps) {
+function TestInformationSection({ title, value }: TestInformationSectionProps) {
   if (!value?.trim()) {
     return null;
   }

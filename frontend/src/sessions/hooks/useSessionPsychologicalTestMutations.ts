@@ -1,20 +1,13 @@
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   createPsychologicalTestApplication,
   updatePsychologicalTestApplication,
 } from "../api/sessionPsychologicalTestApi";
 
-import {
-  sessionPsychologicalTestQueryKeys,
-} from "./useSessionPsychologicalTests";
+import { sessionPsychologicalTestQueryKeys } from "./useSessionPsychologicalTests";
 
-import type {
-  SessionPsychologicalTestRequest,
-} from "../types/sessionPsychologicalTest.types";
+import type { SessionPsychologicalTestRequest } from "../types/sessionPsychologicalTest.types";
 
 interface UpdatePsychologicalTestApplicationVariables {
   id: number;

@@ -4,9 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useSession } from "../hooks/useSession";
 
-import type {
-  SessionStage,
-} from "../types/sessionWorkspace.types";
+import type { SessionStage } from "../types/sessionWorkspace.types";
 
 import ClinicalSessionWorkspace from "../components/ClinicalSessionWorkspace";
 
@@ -16,18 +14,13 @@ export default function ClinicalSessionPage() {
 
   const sessionId = id ? Number(id) : undefined;
 
-  const [activeStage, setActiveStage] =
-    useState<SessionStage>("context");
+  const [activeStage, setActiveStage] = useState<SessionStage>("context");
 
-  const handleStageChange = useCallback(
-    (stage: SessionStage) => {
-      setActiveStage(stage);
-    },
-    [],
-  );
+  const handleStageChange = useCallback((stage: SessionStage) => {
+    setActiveStage(stage);
+  }, []);
 
-  const { data: session, isLoading, isError } =
-    useSession(sessionId);
+  const { data: session, isLoading, isError } = useSession(sessionId);
 
   if (isLoading) {
     return (
@@ -45,9 +38,7 @@ export default function ClinicalSessionPage() {
 
   if (isError || !session) {
     return (
-      <Alert severity="error">
-        No fue posible cargar la sesión clínica.
-      </Alert>
+      <Alert severity="error">No fue posible cargar la sesión clínica.</Alert>
     );
   }
 

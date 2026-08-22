@@ -16,7 +16,11 @@ import {
   Typography,
 } from "@mui/material";
 
-import type { RiskLevel, RiskType, SessionRiskEvaluation } from "../types/sessionRiskEvaluation.types";
+import type {
+  RiskLevel,
+  RiskType,
+  SessionRiskEvaluation,
+} from "../types/sessionRiskEvaluation.types";
 
 import { useRiskLevels, useRiskTypes } from "../hooks/useSessionRiskEvaluation";
 import {
@@ -72,9 +76,15 @@ export default function SessionRiskEvaluationDialog({
   evaluation = null,
   onClose,
 }: SessionRiskEvaluationDialogProps) {
-  const [riskTypeId, setRiskTypeId] = useState<number | "">(evaluation?.tipoRiesgoId ?? "");
-  const [riskLevelId, setRiskLevelId] = useState<number | "">(evaluation?.nivelRiesgoId ?? "");
-  const [observations, setObservations] = useState(evaluation?.observaciones ?? "");
+  const [riskTypeId, setRiskTypeId] = useState<number | "">(
+    evaluation?.tipoRiesgoId ?? "",
+  );
+  const [riskLevelId, setRiskLevelId] = useState<number | "">(
+    evaluation?.nivelRiesgoId ?? "",
+  );
+  const [observations, setObservations] = useState(
+    evaluation?.observaciones ?? "",
+  );
 
   const {
     data: riskTypes = [],
@@ -131,21 +141,25 @@ export default function SessionRiskEvaluationDialog({
     }
 
     const request = {
-        pacienteId: patientId,
-        sesionId: sessionId,
-        tipoRiesgoId: riskTypeId,
-        nivelRiesgoId: riskLevelId,
-        observaciones: observations.trim() || undefined,
-        fecha: evaluation?.fecha ?? getCurrentLocalDateTime(),
-      };
+      pacienteId: patientId,
+      sesionId: sessionId,
+      tipoRiesgoId: riskTypeId,
+      nivelRiesgoId: riskLevelId,
+      observaciones: observations.trim() || undefined,
+      fecha: evaluation?.fecha ?? getCurrentLocalDateTime(),
+    };
 
     const options = {
-        onSuccess: () => {
-          showSuccess(isEditMode ? "El riesgo fue actualizado correctamente." : "El riesgo fue registrado correctamente.");
+      onSuccess: () => {
+        showSuccess(
+          isEditMode
+            ? "El riesgo fue actualizado correctamente."
+            : "El riesgo fue registrado correctamente.",
+        );
 
-          handleClose();
-        },
-      };
+        handleClose();
+      },
+    };
 
     if (isEditMode && evaluation) {
       updateMutation.mutate({ id: evaluation.id, request }, options);
@@ -165,7 +179,11 @@ export default function SessionRiskEvaluationDialog({
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>{isEditMode ? "Editar riesgo identificado" : "Registrar riesgo identificado"}</DialogTitle>
+      <DialogTitle>
+        {isEditMode
+          ? "Editar riesgo identificado"
+          : "Registrar riesgo identificado"}
+      </DialogTitle>
 
       <DialogContent dividers>
         <Stack spacing={2.5} sx={{ pt: 1 }}>
@@ -182,10 +200,7 @@ export default function SessionRiskEvaluationDialog({
 
           {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
 
-          <FormControl
-            fullWidth
-            disabled={isLoading || mutation.isPending}
-          >
+          <FormControl fullWidth disabled={isLoading || mutation.isPending}>
             <InputLabel id="risk-type-label">Tipo de riesgo</InputLabel>
 
             <Select<number | "">
@@ -210,10 +225,7 @@ export default function SessionRiskEvaluationDialog({
             </Select>
           </FormControl>
 
-          <FormControl
-            fullWidth
-            disabled={isLoading || mutation.isPending}
-          >
+          <FormControl fullWidth disabled={isLoading || mutation.isPending}>
             <InputLabel id="risk-level-label">Nivel de riesgo</InputLabel>
 
             <Select<number | "">
@@ -261,7 +273,11 @@ export default function SessionRiskEvaluationDialog({
           onClick={handleSave}
           disabled={isSaveDisabled}
         >
-          {mutation.isPending ? "Guardando..." : isEditMode ? "Guardar cambios" : "Registrar riesgo"}
+          {mutation.isPending
+            ? "Guardando..."
+            : isEditMode
+              ? "Guardar cambios"
+              : "Registrar riesgo"}
         </Button>
       </DialogActions>
     </Dialog>

@@ -24,7 +24,10 @@ interface SessionNotesProps {
   allowCreate?: boolean;
 }
 
-export default function SessionNotes({ session, allowCreate = true }: SessionNotesProps) {
+export default function SessionNotes({
+  session,
+  allowCreate = true,
+}: SessionNotesProps) {
   const { data: notes = [], isLoading, isError } = useSessionNotes(session.id);
 
   const { data: currentUser } = useCurrentUser();

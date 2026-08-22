@@ -10,9 +10,7 @@ interface InterventionStageProps {
   session: Sesion;
 }
 
-export default function InterventionStage({
-  session,
-}: InterventionStageProps) {
+export default function InterventionStage({ session }: InterventionStageProps) {
   const [selectedId, setSelectedId] = useState("objectives");
 
   return (
@@ -34,12 +32,28 @@ export default function InterventionStage({
         bgcolor: "background.paper",
       }}
     >
-      <StageNavigator title="Intervención" selectedId={selectedId} onSelect={setSelectedId} items={[
-        { id: "objectives", label: "Objetivos terapéuticos" },
-        { id: "interventions", label: "Intervenciones realizadas" },
-      ]} />
-      <Box sx={{ minWidth: 0, minHeight: 0, overflowY: "auto", p: { xs: 2, md: 3 } }}>
-        {selectedId === "objectives" ? <SessionObjectives session={session} /> : <SessionInterventions session={session} allowCreate={false} />}
+      <StageNavigator
+        title="Intervención"
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        items={[
+          { id: "objectives", label: "Objetivos terapéuticos" },
+          { id: "interventions", label: "Intervenciones realizadas" },
+        ]}
+      />
+      <Box
+        sx={{
+          minWidth: 0,
+          minHeight: 0,
+          overflowY: "auto",
+          p: { xs: 2, md: 3 },
+        }}
+      >
+        {selectedId === "objectives" ? (
+          <SessionObjectives session={session} />
+        ) : (
+          <SessionInterventions session={session} allowCreate={false} />
+        )}
       </Box>
     </Box>
   );

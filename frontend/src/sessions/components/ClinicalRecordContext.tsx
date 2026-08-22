@@ -15,7 +15,11 @@ interface ClinicalRecordProps {
 }
 
 export default function ClinicalRecord({ session }: ClinicalRecordProps) {
-  const { data: context, isLoading, isError } = useClinicalSessionContext(session.id);
+  const {
+    data: context,
+    isLoading,
+    isError,
+  } = useClinicalSessionContext(session.id);
 
   const activity = useMemo(() => {
     if (!context) {
@@ -49,14 +53,25 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
 
   if (isLoading) {
     return (
-      <Box sx={{ minHeight: 420, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Box
+        sx={{
+          minHeight: 420,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <CircularProgress size={28} />
       </Box>
     );
   }
 
   if (isError || !context) {
-    return <Alert severity="warning">No fue posible cargar el contexto clínico del paciente.</Alert>;
+    return (
+      <Alert severity="warning">
+        No fue posible cargar el contexto clínico del paciente.
+      </Alert>
+    );
   }
 
   return (
@@ -69,7 +84,10 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "minmax(250px, 34%) minmax(0, 1fr)" },
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "minmax(250px, 34%) minmax(0, 1fr)",
+          },
           height: { xs: "auto", md: "min(700px, calc(100vh - 280px))" },
           minHeight: 420,
           border: 1,
@@ -78,7 +96,15 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
           overflow: "hidden",
         }}
       >
-        <Box sx={{ minWidth: 0, minHeight: 0, overflowY: "auto", borderRight: { md: 1 }, borderColor: "divider" }}>
+        <Box
+          sx={{
+            minWidth: 0,
+            minHeight: 0,
+            overflowY: "auto",
+            borderRight: { md: 1 },
+            borderColor: "divider",
+          }}
+        >
           {encounters.length > 0 ? (
             <ClinicalRecordTimeline
               encounters={encounters}
@@ -94,8 +120,19 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
           )}
         </Box>
 
-        <Box sx={{ minWidth: 0, minHeight: 0, overflowY: "auto", p: { xs: 2, md: 3 } }}>
-          <Typography variant="overline" color="text.secondary" fontWeight={700}>
+        <Box
+          sx={{
+            minWidth: 0,
+            minHeight: 0,
+            overflowY: "auto",
+            p: { xs: 2, md: 3 },
+          }}
+        >
+          <Typography
+            variant="overline"
+            color="text.secondary"
+            fontWeight={700}
+          >
             Documentación
           </Typography>
           <Box sx={{ mt: 1.5 }}>

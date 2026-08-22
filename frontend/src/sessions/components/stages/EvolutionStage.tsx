@@ -10,9 +10,7 @@ interface EvolutionStageProps {
   session: Sesion;
 }
 
-export default function EvolutionStage({
-  session,
-}: EvolutionStageProps) {
+export default function EvolutionStage({ session }: EvolutionStageProps) {
   const [selectedId, setSelectedId] = useState("notes");
 
   return (
@@ -34,12 +32,28 @@ export default function EvolutionStage({
         bgcolor: "background.paper",
       }}
     >
-      <StageNavigator title="Evolución y plan" selectedId={selectedId} onSelect={setSelectedId} items={[
-        { id: "notes", label: "Evolución de la sesión" },
-        { id: "observations", label: "Observaciones generales" },
-      ]} />
-      <Box sx={{ minWidth: 0, minHeight: 0, overflowY: "auto", p: { xs: 2, md: 3 } }}>
-        {selectedId === "notes" ? <SessionNotes session={session} allowCreate={false} /> : <SessionObservations session={session} />}
+      <StageNavigator
+        title="Evolución y plan"
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        items={[
+          { id: "notes", label: "Evolución de la sesión" },
+          { id: "observations", label: "Observaciones generales" },
+        ]}
+      />
+      <Box
+        sx={{
+          minWidth: 0,
+          minHeight: 0,
+          overflowY: "auto",
+          p: { xs: 2, md: 3 },
+        }}
+      >
+        {selectedId === "notes" ? (
+          <SessionNotes session={session} allowCreate={false} />
+        ) : (
+          <SessionObservations session={session} />
+        )}
       </Box>
     </Box>
   );

@@ -8,9 +8,7 @@ interface ContextStageProps {
   session: Sesion;
 }
 
-export default function ContextStage({
-  session,
-}: ContextStageProps) {
+export default function ContextStage({ session }: ContextStageProps) {
   return (
     <Box
       sx={{
@@ -22,7 +20,14 @@ export default function ContextStage({
         bgcolor: "background.paper",
       }}
     >
-      <Box sx={{ minWidth: 0, minHeight: 0, overflowY: "auto", p: { xs: 2, md: 3 } }}>
+      <Box
+        sx={{
+          minWidth: 0,
+          minHeight: 0,
+          overflowY: "auto",
+          p: { xs: 2, md: 3 },
+        }}
+      >
         <ClinicalRecord session={session} />
       </Box>
     </Box>
