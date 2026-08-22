@@ -20,16 +20,14 @@ import com.clinica.psicologia.system.dto.response.catalog.CategoriaCriterioClini
 import com.clinica.psicologia.system.service.catalog.CategoriaCriterioClinicoService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/catalogos/categoria-criterio-clinico")
 public class CategoriaCriterioClinicoController {
 
     private final CategoriaCriterioClinicoService service;
-
-    public CategoriaCriterioClinicoController(CategoriaCriterioClinicoService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<CategoriaCriterioClinicoResponseDTO> findAll() {

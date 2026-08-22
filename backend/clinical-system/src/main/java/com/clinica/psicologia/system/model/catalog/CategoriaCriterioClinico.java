@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "categoria_diagnostica")
+@Table(name = "categoria_criterio_clinico")
 public class CategoriaCriterioClinico extends BaseCatalog{
     
 }
