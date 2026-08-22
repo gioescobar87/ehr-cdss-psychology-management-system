@@ -49,9 +49,7 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Psychological test not found"));
 
         validateAuthorization(sesion);
-
-        validateApplicationDate(sesion.getFechaSesion().toLocalDate(), sesion);
-
+        
         AplicacionPrueba entity = new AplicacionPrueba();
 
         entity.setSesion(sesion);
@@ -165,20 +163,6 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
         if (!sesion.getUsuario().getId().equals(usuario.getId())) {
             throw new BusinessRuleException(
                     "Only the psychologist who conducted the session may manage its psychological test applications.");
-        }
-    }
-
-    private void validateApplicationDate(LocalDate fechaAplicacion, Sesion sesion) {
-        LocalDate today = LocalDate.now();
-
-        if (fechaAplicacion.isAfter(today)) {
-            throw new BusinessRuleException("Application date cannot be in the future.");
-        }
-
-        LocalDate sessionDate = sesion.getFechaSesion().toLocalDate();
-
-        if (fechaAplicacion.isBefore(sessionDate)) {
-            throw new BusinessRuleException("Application date cannot be before the session date.");
         }
     }
 }

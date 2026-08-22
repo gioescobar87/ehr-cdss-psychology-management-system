@@ -16,11 +16,13 @@ import com.clinica.psicologia.system.dto.request.clinical.SesionRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.NotaSesionResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.SesionCriterioClinicoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionIntervencionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.service.clinical.AplicacionPruebaService;
 import com.clinica.psicologia.system.service.clinical.EvaluacionRiesgoService;
 import com.clinica.psicologia.system.service.clinical.NotaSesionService;
+import com.clinica.psicologia.system.service.clinical.SesionCriterioClinicoService;
 import com.clinica.psicologia.system.service.clinical.SesionIntervencionService;
 import com.clinica.psicologia.system.service.clinical.SesionService;
 
@@ -37,6 +39,7 @@ public class SesionController {
     private final SesionIntervencionService sesionIntervencionService;
     private final EvaluacionRiesgoService evaluacionRiesgoService;
     private final AplicacionPruebaService pruebaService;
+    private final SesionCriterioClinicoService criterioClinicoService;
 
     @PostMapping
     public SesionResponseDTO create(
@@ -89,5 +92,10 @@ public class SesionController {
     @GetMapping("/{id}/pruebas")
     public ResponseEntity<List<AplicacionPruebaResponseDTO>> obtenerPruebas(@PathVariable Integer id){
         return ResponseEntity.ok(pruebaService.getBySesion(id));
+    }
+
+    @GetMapping("/{id}/sintomas")
+    public ResponseEntity<List<SesionCriterioClinicoResponseDTO>> obtenerSintomas(@PathVariable Integer id){
+        return ResponseEntity.ok(criterioClinicoService.getBySesion(id));
     }
 }

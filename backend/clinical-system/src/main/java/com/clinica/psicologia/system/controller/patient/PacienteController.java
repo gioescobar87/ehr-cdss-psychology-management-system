@@ -23,6 +23,7 @@ import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.ObjetivoTerapiaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.PacienteDiagnosticoResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.SesionCriterioClinicoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionIntervencionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
@@ -34,6 +35,7 @@ import com.clinica.psicologia.system.service.clinical.CitaService;
 import com.clinica.psicologia.system.service.clinical.EvaluacionRiesgoService;
 import com.clinica.psicologia.system.service.clinical.ObjetivoTerapiaService;
 import com.clinica.psicologia.system.service.clinical.PacienteDiagnosticoService;
+import com.clinica.psicologia.system.service.clinical.SesionCriterioClinicoService;
 import com.clinica.psicologia.system.service.clinical.SesionIntervencionService;
 import com.clinica.psicologia.system.service.clinical.SesionService;
 import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
@@ -60,6 +62,7 @@ public class PacienteController {
     private final ObjetivoTerapiaService objetivoTerapiaService;
     private final SesionIntervencionService sesionIntervencionService;
     private final AplicacionPruebaService pruebaService;
+    private final SesionCriterioClinicoService criterioClinicoService;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
@@ -156,5 +159,10 @@ public class PacienteController {
     @GetMapping("/{id}/pruebas")
     public ResponseEntity<List<AplicacionPruebaResponseDTO>> obtenerPruebas(@PathVariable Integer id) {
         return ResponseEntity.ok(pruebaService.getByPaciente(id));
+    }
+
+    @GetMapping("/{id}/sintomas")
+    public ResponseEntity<List<SesionCriterioClinicoResponseDTO>> obtenerSintomas(@PathVariable Integer id) {
+        return ResponseEntity.ok(criterioClinicoService.getByPaciente(id));
     }
 }
