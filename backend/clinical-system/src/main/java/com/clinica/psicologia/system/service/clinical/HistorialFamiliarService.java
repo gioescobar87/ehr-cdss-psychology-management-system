@@ -11,4 +11,8 @@ public interface HistorialFamiliarService {
 
     List<HistorialFamiliarResponseDTO>
             obtenerPorPaciente(Integer pacienteId);
+
+        HistorialFamiliarResponseDTO actualizar(Integer id, HistorialFamiliarRequestDTO dto);
+
+        void desactivar(Integer id);
 }

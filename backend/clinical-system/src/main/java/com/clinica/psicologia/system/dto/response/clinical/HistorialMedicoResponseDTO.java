@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public record HistorialMedicoResponseDTO(
     Integer id,
+    Integer condicionMedicaId,
     String condicionMedica,
     LocalDate fechaDiagnostico,
     String tratamientoActual,

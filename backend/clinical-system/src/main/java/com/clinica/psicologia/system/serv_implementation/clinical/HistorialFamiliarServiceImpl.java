@@ -100,4 +100,27 @@ public class HistorialFamiliarServiceImpl
                 .map(historialFamiliarMapper::toResponse)
                 .toList();
     }
+
+    @Override
+    public HistorialFamiliarResponseDTO actualizar(Integer id, HistorialFamiliarRequestDTO dto) {
+        HistorialFamiliar historial = historialFamiliarRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Historial familiar no encontrado: " + id));
+
+        historial.setCondicionMedica(condicionMedicaRepository.findById(dto.condicionMedicaId())
+                .orElseThrow(() -> new RuntimeException("Condición médica no encontrada")));
+        historial.setParentesco(parentescoRepository.findById(dto.parentescoId())
+                .orElseThrow(() -> new RuntimeException("Parentesco no encontrado")));
+        historial.setObservaciones(dto.observaciones());
+
+        return historialFamiliarMapper.toResponse(historialFamiliarRepository.save(historial));
+    }
+
+    @Override
+    public void desactivar(Integer id) {
+        HistorialFamiliar historial = historialFamiliarRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Historial familiar no encontrado: " + id));
+        historial.setEstado(estadoRepository.findById(2)
+                .orElseThrow(() -> new RuntimeException("Estado INACTIVO no encontrado")));
+        historialFamiliarRepository.save(historial);
+    }
 }

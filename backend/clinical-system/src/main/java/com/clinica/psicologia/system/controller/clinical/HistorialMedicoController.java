@@ -26,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/historial-medico")
+@RequestMapping("/api/historial-medico")
 @RequiredArgsConstructor
 public class HistorialMedicoController {
     private final HistorialMedicoService historialMedicoService;

@@ -20,6 +20,9 @@ public class PacienteMapper {
         paciente.setApellido(dto.apellido());
         paciente.setFechaNacimiento(dto.fechaNacimiento());
         paciente.setSexo(dto.sexo());
+        paciente.setDpi(dto.dpi());
+        paciente.setDireccion(dto.direccion());
+        paciente.setTelefono(dto.telefono());
         paciente.setOcupacion(dto.ocupacion());
 
         return paciente;
@@ -33,9 +36,22 @@ public class PacienteMapper {
 
         return new PacienteResponseDTO(
                 paciente.getId(),
-                paciente.getNombre() + " " + paciente.getApellido(),
+            paciente.getNombre(),
+            paciente.getApellido(),
+            paciente.getDpi(),
+            paciente.getFechaNacimiento(),
                 paciente.getSexo(),
-                edad
+            paciente.getDireccion(),
+            paciente.getTelefono(),
+            paciente.getOcupacion(),
+            paciente.getFechaRegistro(),
+            paciente.getEstadoCivil() != null ? paciente.getEstadoCivil().getId() : null,
+            paciente.getEstadoCivil() != null ? paciente.getEstadoCivil().getNombre() : null,
+            paciente.getNivelEscolaridad() != null ? paciente.getNivelEscolaridad().getId() : null,
+            paciente.getNivelEscolaridad() != null ? paciente.getNivelEscolaridad().getNombre() : null,
+            paciente.getEstado() != null ? paciente.getEstado().getId() : null,
+            paciente.getEstado() != null ? paciente.getEstado().getNombre() : null,
+            edad
         );
     }
 
@@ -44,6 +60,9 @@ public class PacienteMapper {
         paciente.setApellido(dto.apellido());
         paciente.setFechaNacimiento(dto.fechaNacimiento());
         paciente.setSexo(dto.sexo());
+        paciente.setDpi(dto.dpi());
+        paciente.setDireccion(dto.direccion());
+        paciente.setTelefono(dto.telefono());
         paciente.setOcupacion(dto.ocupacion());
     }
 }

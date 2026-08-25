@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
+import com.clinica.psicologia.system.dto.request.patient.PacienteHistorialRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
@@ -42,6 +44,7 @@ import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
 import com.clinica.psicologia.system.service.patient.PacienteAlergiaService;
 import com.clinica.psicologia.system.service.patient.PacienteMedicamentoService;
 import com.clinica.psicologia.system.service.patient.PacienteService;
+import com.clinica.psicologia.system.service.patient.PacienteHistorialService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +66,7 @@ public class PacienteController {
     private final SesionIntervencionService sesionIntervencionService;
     private final AplicacionPruebaService pruebaService;
     private final SesionCriterioClinicoService criterioClinicoService;
+    private final PacienteHistorialService pacienteHistorialService;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
@@ -90,6 +94,14 @@ public class PacienteController {
 
         return ResponseEntity.ok(
                 service.actualizarPaciente(id, dto));
+    }
+
+    @PutMapping("/{id}/historial")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void actualizarHistorial(
+            @PathVariable Integer id,
+            @RequestBody PacienteHistorialRequestDTO request) {
+        pacienteHistorialService.actualizar(id, request);
     }
 
     @RestControllerAdvice

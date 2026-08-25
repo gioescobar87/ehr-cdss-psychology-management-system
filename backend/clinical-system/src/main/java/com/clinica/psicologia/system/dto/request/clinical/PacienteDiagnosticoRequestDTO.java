@@ -1,8 +1,5 @@
 package com.clinica.psicologia.system.dto.request.clinical;
 
-import com.clinica.psicologia.system.model.catalog.Diagnostico;
-import com.clinica.psicologia.system.model.clinical.Sesion;
-
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;

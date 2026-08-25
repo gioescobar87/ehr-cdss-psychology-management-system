@@ -23,6 +23,12 @@ public record PacienteRequestDTO(
     @Size(min = 1, max = 1, message = "El sexo debe tener un solo carácter")
     String sexo,
 
+    String dpi,
+
+    String direccion,
+
+    String telefono,
+
     String ocupacion,
 
     Integer estadoCivilId,

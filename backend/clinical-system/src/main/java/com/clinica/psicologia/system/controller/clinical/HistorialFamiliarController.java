@@ -40,4 +40,17 @@ public class HistorialFamiliarController {
                         .obtenerPorPaciente(pacienteId)
         );
     }
+
+        @PutMapping("/{id}")
+        public ResponseEntity<HistorialFamiliarResponseDTO> actualizar(
+                        @PathVariable Integer id,
+                        @RequestBody HistorialFamiliarRequestDTO dto) {
+                return ResponseEntity.ok(historialFamiliarService.actualizar(id, dto));
+        }
+
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> desactivar(@PathVariable Integer id) {
+                historialFamiliarService.desactivar(id);
+                return ResponseEntity.noContent().build();
+        }
 }

@@ -22,6 +22,7 @@ public class HistorialMedicoMapper {
     public HistorialMedicoResponseDTO toResponse(HistorialMedico historialMedico){
         return new HistorialMedicoResponseDTO(
             historialMedico.getId(),
+            historialMedico.getCondicionMedica().getId(),
             historialMedico.getCondicionMedica().getNombre(),
             historialMedico.getFechaDiagnostico(),
             historialMedico.getTratamientoActual(),

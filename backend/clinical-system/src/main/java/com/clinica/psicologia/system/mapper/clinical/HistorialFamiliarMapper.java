@@ -23,7 +23,9 @@ public class HistorialFamiliarMapper {
 
         return new HistorialFamiliarResponseDTO(
                 historial.getId(),
+                historial.getCondicionMedica().getId(),
                 historial.getCondicionMedica().getNombre(),
+                historial.getParentesco().getId(),
                 historial.getParentesco().getNombre(),
                 historial.getObservaciones()
         );

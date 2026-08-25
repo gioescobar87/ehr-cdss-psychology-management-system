@@ -1,6 +1,6 @@
 package com.clinica.psicologia.system.serv_implementation.clinical;
 
-import com.clinica.psicologia.system.repository.expert_system.EvaluacionDiagnosticaRepository;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +28,7 @@ import com.clinica.psicologia.system.repository.clinical.SesionCriterioClinicoRe
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
 import com.clinica.psicologia.system.repository.expert_system.ArbolDiagnosticoRepository;
 import com.clinica.psicologia.system.repository.expert_system.EvaluacionCriterioClinicoRepository;
+import com.clinica.psicologia.system.repository.expert_system.EvaluacionDiagnosticaRepository;
 import com.clinica.psicologia.system.repository.expert_system.NodoArbolRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
@@ -77,7 +78,8 @@ public class PacienteDiagnosticoServiceImpl implements PacienteDiagnosticoServic
                 Estado estado = estadoRepository
                                 .findById(supportService.getActiveState().getId())
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Estado no encontrado: " + supportService.getActiveState()));
+                                                "Estado no encontrado: "
+                                                                + supportService.getActiveState().getId()));
 
                 PacienteDiagnostico entity = new PacienteDiagnostico();
 
@@ -85,14 +87,13 @@ public class PacienteDiagnosticoServiceImpl implements PacienteDiagnosticoServic
                 entity.setDiagnostico(diagnostico);
                 entity.setSesion(sesion);
                 entity.setEstado(estado);
-                entity.setFechaDiagnostico(sesion.getFechaSesion().toLocalDate());
+                entity.setFechaDiagnostico(
+                                sesion.getFechaSesion().toLocalDate());
                 entity.setDiagnosticoInicial(dto.getDiagnosticoInicial());
 
                 entity = repository.save(entity);
 
-                if (dto.getDiagnosticoInicial()) {
-                        ejecutaMotorInferencia(sesion);
-                }
+                ejecutaMotorInferencia(sesion);
 
                 return mapper.toResponseDTO(entity);
         }
@@ -108,7 +109,8 @@ public class PacienteDiagnosticoServiceImpl implements PacienteDiagnosticoServic
         public PacienteDiagnosticoResponseDTO findById(Integer id) {
 
                 PacienteDiagnostico entity = repository.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Patient diagnosis not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Patient diagnosis not found"));
 
                 return mapper.toResponseDTO(entity);
         }
@@ -116,14 +118,16 @@ public class PacienteDiagnosticoServiceImpl implements PacienteDiagnosticoServic
         @Override
         @Transactional(Transactional.TxType.SUPPORTS)
         public List<PacienteDiagnosticoResponseDTO> getByPatient(Integer pacienteId) {
-                return mapper.toResponseDTOList(repository.findByPacienteId(pacienteId));
+                return mapper.toResponseDTOList(
+                                repository.findByPacienteId(pacienteId));
         }
 
         @Override
         public void changeStatus(Integer id) {
 
                 PacienteDiagnostico entity = repository.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Patient diagnosis not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Patient diagnosis not found"));
 
                 Estado estado = entity.getEstado().getId() == supportService.getActiveState().getId()
                                 ? supportService.getInactiveState()
@@ -136,77 +140,116 @@ public class PacienteDiagnosticoServiceImpl implements PacienteDiagnosticoServic
 
         private Diagnostico ejecutaMotorInferencia(Sesion sesion) {
 
-                // 1. Load the symptoms/criteria recorded during the session
                 List<SesionCriterioClinico> sintomas = criterioRepository.findBySesionIdOrderByIdAsc(sesion.getId());
 
                 Set<Integer> criteriosSesion = sintomas.stream()
                                 .map(s -> s.getCriterioClinico().getId())
                                 .collect(Collectors.toSet());
 
-                // 2. Load only active diagnostic trees
-                List<ArbolDiagnostico> arboles = arbolRepository
-                                .findAllByEstadoId(supportService.getActiveState().getId());
+                List<ArbolDiagnostico> arboles = arbolRepository.findAllByEstadoId(
+                                supportService.getActiveState().getId());
+
+                Diagnostico diagnosticoSugerido = null;
+                ArbolDiagnostico arbolSeleccionado = null;
+
+                Set<CriterioClinico> criteriosEvaluados = new HashSet<>();
+
+                for (ArbolDiagnostico arbol : arboles) {
+
+                        NodoArbol raiz = nodoRepository
+                                        .findRootNode(arbol.getId())
+                                        .orElse(null);
+
+                        if (raiz == null) {
+                                continue;
+                        }
+
+                        criteriosEvaluados.clear();
+
+                        Diagnostico resultado = evaluarNodo(
+                                        raiz,
+                                        criteriosSesion,
+                                        criteriosEvaluados);
+
+                        if (resultado != null) {
+                                diagnosticoSugerido = resultado;
+                                arbolSeleccionado = arbol;
+                                break;
+                        }
+                }
+
+                if (arbolSeleccionado == null) {
+                        return null;
+                }
 
                 EvaluacionDiagnostica evaluacion = new EvaluacionDiagnostica();
 
                 evaluacion.setSesion(sesion);
                 evaluacion.setUsuario(authService.getAuthenticatedUser());
-                evaluacion.setFechaEvaluacion(sesion.getFechaSesion());
-                evaluacion.setDiagnosticoConfirmado(false);
-
-                // 3. Execute every active tree
-                Diagnostico diagnosticoSugerido = null;
-
-                for (ArbolDiagnostico arbol : arboles) {
-
-                        NodoArbol raiz = nodoRepository.findRootNode(arbol.getId()).orElse(null);
-
-                        Diagnostico resultado = evaluarNodo(raiz, criteriosSesion, evaluacion);
-
-                        if (resultado != null) {
-                                diagnosticoSugerido = resultado;
-                                break;
-                        }
-                }
-
+                evaluacion.setArbolDiagnostico(arbolSeleccionado);
                 evaluacion.setDiagnosticoSugerido(diagnosticoSugerido);
                 evaluacion.setDiagnosticoConfirmado(false);
+                evaluacion.setFechaEvaluacion(sesion.getFechaSesion());
                 evaluacion.setFechaInferencia(sesion.getFechaSesion());
 
-                evaluacionDiagnosticaRepository.save(evaluacion);
+                evaluacion = evaluacionDiagnosticaRepository.save(evaluacion);
+
+                for (CriterioClinico criterio : criteriosEvaluados) {
+                        registrarCriterioEvaluado(
+                                        evaluacion,
+                                        criterio);
+                }
 
                 return diagnosticoSugerido;
         }
 
-        private Diagnostico evaluarNodo(NodoArbol nodo, Set<Integer> criteriosSesion,
-                        EvaluacionDiagnostica evaluacion) {
+        private Diagnostico evaluarNodo(
+                        NodoArbol nodo,
+                        Set<Integer> criteriosSesion,
+                        Set<CriterioClinico> criteriosEvaluados) {
 
                 if (nodo == null) {
                         return null;
                 }
+
+                /*
+                 * Leaf node containing a diagnosis.
+                 */
                 if (nodo.getDiagnostico() != null) {
                         return nodo.getDiagnostico();
                 }
 
                 CriterioClinico criterio = nodo.getCriterioClinico();
+
                 if (criterio == null) {
                         return null;
                 }
 
-                boolean presente = criteriosSesion.contains(criterio.getId());
+                boolean presente = criteriosSesion.contains(
+                                criterio.getId());
+
+                /*
+                 * Record the criterion that was actually evaluated.
+                 */
+                criteriosEvaluados.add(criterio);
+
                 NodoArbol siguiente;
 
                 if (presente) {
-                        registrarCriterioEvaluado(evaluacion, criterio);
                         siguiente = nodo.getNodoPresente();
                 } else {
                         siguiente = nodo.getNodoAusente();
                 }
 
-                return evaluarNodo(siguiente, criteriosSesion, evaluacion);
+                return evaluarNodo(
+                                siguiente,
+                                criteriosSesion,
+                                criteriosEvaluados);
         }
 
-        private void registrarCriterioEvaluado(EvaluacionDiagnostica evaluacion, CriterioClinico criterio) {
+        private void registrarCriterioEvaluado(
+                        EvaluacionDiagnostica evaluacion,
+                        CriterioClinico criterio) {
 
                 EvaluacionCriterioClinico registro = new EvaluacionCriterioClinico();
 
@@ -215,5 +258,4 @@ public class PacienteDiagnosticoServiceImpl implements PacienteDiagnosticoServic
 
                 bitacoraRepository.save(registro);
         }
-
 }
