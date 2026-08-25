@@ -5,16 +5,40 @@ import java.util.List;
 
 import com.clinica.psicologia.system.dto.request.clinical.HistorialFamiliarRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.HistorialMedicoRequestDTO;
+import com.clinica.psicologia.system.dto.request.patient.ContactoEmergenciaRequestDTO;
 
 public record PacienteHistorialRequestDTO(
         List<HistorialMedicoItem> antecedentesMedicos,
         List<HistorialFamiliarItem> antecedentesFamiliares,
         List<PacienteAlergiaItem> alergias,
         List<PacienteMedicamentoItem> medicamentos,
+        List<ContactoEmergenciaItem> contactosEmergencia,
         List<Integer> eliminarAntecedentesMedicos,
         List<Integer> eliminarAntecedentesFamiliares,
         List<Integer> eliminarAlergias,
-        List<Integer> eliminarMedicamentos) {
+        List<Integer> eliminarMedicamentos,
+        List<Integer> eliminarContactosEmergencia) {
+
+    public record ContactoEmergenciaItem(
+            Integer id,
+            String nombre,
+            Integer parentescoId,
+            String telefono,
+            String direccion,
+            String observaciones,
+            Integer estadoId) {
+        public ContactoEmergenciaRequestDTO toRequest(Integer pacienteId) {
+            ContactoEmergenciaRequestDTO request = new ContactoEmergenciaRequestDTO();
+            request.setPacienteId(pacienteId);
+            request.setNombre(nombre);
+            request.setParentescoId(parentescoId);
+            request.setTelefono(telefono);
+            request.setDireccion(direccion);
+            request.setObservaciones(observaciones);
+            request.setEstadoId(estadoId);
+            return request;
+        }
+    }
 
     public record HistorialMedicoItem(
             Integer id,

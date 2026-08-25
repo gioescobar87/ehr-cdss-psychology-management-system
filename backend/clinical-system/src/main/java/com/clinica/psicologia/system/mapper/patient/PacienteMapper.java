@@ -24,6 +24,7 @@ public class PacienteMapper {
         paciente.setDireccion(dto.direccion());
         paciente.setTelefono(dto.telefono());
         paciente.setOcupacion(dto.ocupacion());
+        paciente.setRefiere(dto.refiere());
 
         return paciente;
     }
@@ -51,7 +52,8 @@ public class PacienteMapper {
             paciente.getNivelEscolaridad() != null ? paciente.getNivelEscolaridad().getNombre() : null,
             paciente.getEstado() != null ? paciente.getEstado().getId() : null,
             paciente.getEstado() != null ? paciente.getEstado().getNombre() : null,
-            edad
+            edad,
+            paciente.getRefiere()
         );
     }
 
@@ -64,5 +66,6 @@ public class PacienteMapper {
         paciente.setDireccion(dto.direccion());
         paciente.setTelefono(dto.telefono());
         paciente.setOcupacion(dto.ocupacion());
+        paciente.setRefiere(dto.refiere());
     }
 }

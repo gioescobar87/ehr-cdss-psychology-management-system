@@ -33,6 +33,8 @@ public record PacienteRequestDTO(
 
     Integer estadoCivilId,
 
-    Integer nivelEscolaridadId
+    Integer nivelEscolaridadId,
+
+    String refiere
 ) {
 }

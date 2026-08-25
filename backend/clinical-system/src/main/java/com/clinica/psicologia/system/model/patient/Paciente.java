@@ -63,6 +63,9 @@ public class Paciente extends BaseEntity {
     @JoinColumn(name = "estado_id")
     private Estado estado;
 
+    @Convert(converter = StringEncryptConverter.class)
+    private String refiere;
+
     @PrePersist
     public void prePersist() {
 

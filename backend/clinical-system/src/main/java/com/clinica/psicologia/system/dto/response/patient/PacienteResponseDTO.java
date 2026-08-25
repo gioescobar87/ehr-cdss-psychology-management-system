@@ -17,7 +17,8 @@ public record PacienteResponseDTO(
     String nivelEscolaridad,
     Integer estadoId,
     String estado,
-    Integer edad
+    Integer edad,
+    String refiere
 ) {
     
 }

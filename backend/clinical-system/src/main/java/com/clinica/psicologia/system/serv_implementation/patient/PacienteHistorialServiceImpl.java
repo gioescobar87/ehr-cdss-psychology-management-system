@@ -16,6 +16,7 @@ import com.clinica.psicologia.system.service.clinical.HistorialMedicoService;
 import com.clinica.psicologia.system.service.patient.PacienteAlergiaService;
 import com.clinica.psicologia.system.service.patient.PacienteMedicamentoService;
 import com.clinica.psicologia.system.service.patient.PacienteHistorialService;
+import com.clinica.psicologia.system.service.patient.ContactoEmergenciaService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class PacienteHistorialServiceImpl implements PacienteHistorialService {
     private final HistorialFamiliarService historialFamiliarService;
     private final PacienteAlergiaService pacienteAlergiaService;
     private final PacienteMedicamentoService pacienteMedicamentoService;
+    private final ContactoEmergenciaService contactoEmergenciaService;
 
     @Override
     public void actualizar(Integer pacienteId, PacienteHistorialRequestDTO request) {
@@ -52,11 +54,16 @@ public class PacienteHistorialServiceImpl implements PacienteHistorialService {
             if (item.id() == null) pacienteMedicamentoService.create(item.toRequest(pacienteId));
             else pacienteMedicamentoService.update(item.id(), item.toRequest(pacienteId));
         }
+        for (var item : safe(request.contactosEmergencia())) {
+            if (item.id() == null) contactoEmergenciaService.create(item.toRequest(pacienteId));
+            else contactoEmergenciaService.update(item.id(), item.toRequest(pacienteId));
+        }
 
         for (Integer id : safe(request.eliminarAntecedentesMedicos())) historialMedicoService.desactivar(id);
         for (Integer id : safe(request.eliminarAntecedentesFamiliares())) historialFamiliarService.desactivar(id);
         for (Integer id : safe(request.eliminarAlergias())) pacienteAlergiaService.delete(id);
         for (Integer id : safe(request.eliminarMedicamentos())) pacienteMedicamentoService.delete(id);
+        for (Integer id : safe(request.eliminarContactosEmergencia())) contactoEmergenciaService.delete(id);
     }
 
     private <T> List<T> safe(List<T> values) {
