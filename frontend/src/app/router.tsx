@@ -62,6 +62,7 @@ import AppointmentEditPage from "../appointments/pages/AppointmentEditPage";
 import AgendaPage from "../appointments/pages/AgendaPage";
 import AppointmentDetailsPage from "../appointments/pages/AppointmentDetailsPage";
 import ClinicalSessionPage from "../sessions/pages/ClinicalSessionPage";
+import PatientsPage from "../patients/pages/PatientsPage";
 
 export const router = createBrowserRouter([
   {
@@ -101,6 +102,10 @@ export const router = createBrowserRouter([
           {
             path: "/dashboard",
             element: <DashboardPage />,
+          },
+          {
+            path: "/pacientes",
+            element: <PatientsPage />,
           },
           {
             path: "/profile",
