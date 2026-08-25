@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import type { Sesion } from "../../types/session.types";
 import SessionNotes from "../SessionNotes";
 import SessionObservations from "../SessionObservations";
+import NextAppointment from "../NextAppointment";
 import StageNavigator from "./StageNavigator";
 
 interface EvolutionStageProps {
@@ -39,6 +40,7 @@ export default function EvolutionStage({ session }: EvolutionStageProps) {
         items={[
           { id: "notes", label: "Evolución de la sesión" },
           { id: "observations", label: "Observaciones generales" },
+          { id: "next-appointment", label: "Próxima cita" },
         ]}
       />
       <Box
@@ -51,8 +53,10 @@ export default function EvolutionStage({ session }: EvolutionStageProps) {
       >
         {selectedId === "notes" ? (
           <SessionNotes session={session} allowCreate={false} />
-        ) : (
+        ) : selectedId === "observations" ? (
           <SessionObservations session={session} />
+        ) : (
+          <NextAppointment session={session} />
         )}
       </Box>
     </Box>
