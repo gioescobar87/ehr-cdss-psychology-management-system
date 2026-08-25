@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
+import com.clinica.psicologia.system.dto.request.patient.AsignarPacienteRequestDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 import com.clinica.psicologia.system.mapper.patient.PacienteMapper;
 import com.clinica.psicologia.system.model.catalog.EstadoCivil;
@@ -15,6 +16,7 @@ import com.clinica.psicologia.system.repository.catalog.NivelEscolaridadReposito
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.patient.PacienteService;
+import com.clinica.psicologia.system.service.patient.PacienteAsignacionService;
 import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
@@ -30,6 +32,8 @@ public class PacienteServiceImpl implements PacienteService {
     private final EstadoCivilRepository estadoCivilRepository;
     private final NivelEscolaridadRepository nivelEscolaridadRepository;
     private final ApplicationSupportService supportService;
+    private final PacienteAsignacionService pacienteAsignacionService;
+    private final com.clinica.psicologia.system.support_services.authorization.ClinicalAuthorizationService clinicalAuthorizationService;
 
     @Override
     public PacienteResponseDTO crearPaciente(PacienteRequestDTO dto) {
@@ -40,6 +44,11 @@ public class PacienteServiceImpl implements PacienteService {
         paciente.setEstadoCivil(obtenerEstadoCivil(dto.estadoCivilId()));
         paciente.setNivelEscolaridad(obtenerNivelEscolaridad(dto.nivelEscolaridadId()));
         paciente = pacienteRepository.save(paciente);
+
+        AsignarPacienteRequestDTO asignacion = new AsignarPacienteRequestDTO();
+        asignacion.setPsicologoId(clinicalAuthorizationService.getAuthenticatedUser().getId());
+        asignacion.setMotivoAsignacion("Asignación inicial al crear paciente");
+        pacienteAsignacionService.asignarPaciente(paciente.getId(), asignacion);
 
         return pacienteMapper.toResponse(paciente);
     }

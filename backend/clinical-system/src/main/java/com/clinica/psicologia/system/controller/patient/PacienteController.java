@@ -30,6 +30,7 @@ import com.clinica.psicologia.system.dto.response.clinical.SesionIntervencionRes
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.ContactoEmergenciaResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteAlergiaResponseDTO;
+import com.clinica.psicologia.system.dto.response.patient.PacienteAsignacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteMedicamentoResponseDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
 import com.clinica.psicologia.system.service.clinical.AplicacionPruebaService;
@@ -45,6 +46,10 @@ import com.clinica.psicologia.system.service.patient.PacienteAlergiaService;
 import com.clinica.psicologia.system.service.patient.PacienteMedicamentoService;
 import com.clinica.psicologia.system.service.patient.PacienteService;
 import com.clinica.psicologia.system.service.patient.PacienteHistorialService;
+import com.clinica.psicologia.system.service.patient.PacienteAsignacionService;
+import com.clinica.psicologia.system.support_services.authorization.ClinicalAuthorizationService;
+import com.clinica.psicologia.system.mapper.patient.PacienteMapper;
+import com.clinica.psicologia.system.repository.patient.PacienteRepository;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +72,10 @@ public class PacienteController {
     private final AplicacionPruebaService pruebaService;
     private final SesionCriterioClinicoService criterioClinicoService;
     private final PacienteHistorialService pacienteHistorialService;
+    private final PacienteAsignacionService pacienteAsignacionService;
+    private final ClinicalAuthorizationService clinicalAuthorizationService;
+    private final PacienteRepository pacienteRepository;
+    private final PacienteMapper pacienteMapper;
 
     @PostMapping
     public ResponseEntity<PacienteResponseDTO> crear(
@@ -81,6 +90,21 @@ public class PacienteController {
     public List<PacienteResponseDTO> listar() {
         return service.obtenerPacientes();
     }
+
+        @GetMapping("/asignados")
+        public List<PacienteResponseDTO> listarAsignados() {
+        Integer usuarioId = clinicalAuthorizationService.getAuthenticatedUser().getId();
+        List<Integer> patientIds = pacienteAsignacionService
+            .getPacientesActualesByUsuario(usuarioId)
+            .stream()
+            .map(PacienteAsignacionResponseDTO::getPacienteId)
+            .toList();
+
+        return pacienteRepository.findByIdInAndEstadoId(patientIds, 1)
+            .stream()
+            .map(pacienteMapper::toResponse)
+            .toList();
+        }
 
     @GetMapping("/{id}")
     public PacienteResponseDTO obtener(@PathVariable Integer id) {
