@@ -5,6 +5,7 @@ import type { Sesion } from "../../types/session.types";
 import SessionPsychologicalTests from "../SessionPsychologicalTests";
 import SessionRiskEvaluation from "../SessionRiskEvaluation";
 import SessionSymptoms from "../SessionSymptoms";
+import SessionDiagnoses from "../SessionDiagnoses";
 import StageNavigator from "./StageNavigator";
 
 interface EvaluationStageProps {
@@ -22,6 +23,7 @@ export default function EvaluationStage({ session }: EvaluationStageProps) {
           xs: "1fr",
           md: "minmax(220px, 30%) minmax(0, 1fr)",
         },
+        height: { xs: "auto", md: 560 },
         minHeight: {
           xs: 400,
           md: 560,
@@ -40,7 +42,8 @@ export default function EvaluationStage({ session }: EvaluationStageProps) {
         items={[
           { id: "symptoms", label: "Síntomas" },
           { id: "tests", label: "Pruebas psicológicas" },
-          { id: "risk", label: "Evaluación de riesgo" },
+          { id: "risk", label: "Riesgos" },
+          { id: "diagnoses", label: "Diagnósticos" },
         ]}
       />
       <Box
@@ -53,6 +56,8 @@ export default function EvaluationStage({ session }: EvaluationStageProps) {
       >
         {selectedId === "symptoms" ? (
           <SessionSymptoms session={session} />
+        ) : selectedId === "diagnoses" ? (
+          <SessionDiagnoses session={session} />
         ) : selectedId === "tests" ? (
           <SessionPsychologicalTests session={session} allowCreate />
         ) : (
