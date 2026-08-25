@@ -33,13 +33,25 @@ export interface PatientMedicationItem {
   prescritoPor?: string;
 }
 
+export interface PatientEmergencyContactItem {
+  id?: number;
+  nombre: string;
+  parentescoId: number;
+  telefono: string;
+  direccion: string;
+  observaciones?: string;
+  estadoId: number;
+}
+
 export interface PatientHistoryRequest {
   antecedentesMedicos: PatientMedicalHistoryItem[];
   antecedentesFamiliares: PatientFamilyHistoryItem[];
   alergias: PatientAllergyItem[];
   medicamentos: PatientMedicationItem[];
+  contactosEmergencia: PatientEmergencyContactItem[];
   eliminarAntecedentesMedicos: number[];
   eliminarAntecedentesFamiliares: number[];
   eliminarAlergias: number[];
   eliminarMedicamentos: number[];
+  eliminarContactosEmergencia: number[];
 }

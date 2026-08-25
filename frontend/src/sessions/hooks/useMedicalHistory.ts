@@ -5,6 +5,7 @@ import {
   getFamilyHistory,
   getMedicalHistory,
   getMedications,
+  getEmergencyContacts,
 } from "../api/medicalHistoryApi";
 
 export function useMedicalHistory(patientId: number, enabled: boolean) {
@@ -29,6 +30,11 @@ export function useMedicalHistory(patientId: number, enabled: boolean) {
     medications: useQuery({
       queryKey: ["medication-history", patientId],
       queryFn: () => getMedications(patientId),
+      ...options,
+    }),
+    emergencyContacts: useQuery({
+      queryKey: ["emergency-contacts", patientId],
+      queryFn: () => getEmergencyContacts(patientId),
       ...options,
     }),
   };

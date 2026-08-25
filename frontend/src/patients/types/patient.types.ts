@@ -16,6 +16,7 @@ export interface Patient {
   estadoId: number | null;
   estado: string | null;
   edad: number;
+  refiere: string | null;
 }
 
 export interface PatientRequest {
@@ -29,4 +30,5 @@ export interface PatientRequest {
   ocupacion?: string;
   estadoCivilId?: number | null;
   nivelEscolaridadId?: number | null;
+  refiere?: string;
 }

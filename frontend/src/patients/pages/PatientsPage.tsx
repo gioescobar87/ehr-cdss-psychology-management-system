@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -18,6 +18,7 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import { useQuery } from "@tanstack/react-query";
 
 import PageHeader from "../../shared/components/common/PageHeader";
 import { getApiErrorMessage } from "../../shared/utils/apiError";
@@ -30,13 +31,19 @@ import {
   useUpdatePatient,
 } from "../hooks/usePatients";
 import { usePatientCatalogs } from "../hooks/usePatientCatalogs";
-import {
-  useCreateAllergy,
-  useCreateFamilyHistory,
-  useCreateMedicalHistory,
-  useCreateMedication,
-} from "../hooks/usePatientRecords";
+import { useMedicalHistory } from "../../sessions/hooks/useMedicalHistory";
+import type {
+  AllergyHistoryItem,
+  EmergencyContactItem,
+  FamilyHistoryItem,
+  MedicalHistoryItem,
+  MedicationHistoryItem,
+} from "../../sessions/types/medicalHistory.types";
+import { useUpdatePatientHistory } from "../hooks/usePatientRecords";
 import type { Patient, PatientRequest } from "../types/patient.types";
+import type { PatientHistoryRequest } from "../types/patientHistory.types";
+import { getPatientAppointments } from "../../appointments/api/appointmentApi";
+import { APPOINTMENT_STATUS } from "../../appointments/constants/appointmentStatus";
 
 export default function PatientsPage() {
   const { data: patients = [], isLoading, isError } = usePatients();
@@ -56,6 +63,7 @@ export default function PatientsPage() {
         <LoadingState />
       ) : (
         <PatientWorkspace
+          key={`${selectedId ?? "none"}-${isCreating ? "new" : "existing"}`}
           patient={selectedPatient ?? null}
           patients={patients}
           isCreating={isCreating}
@@ -93,14 +101,20 @@ function PatientWorkspace({
   onCancel: () => void;
 }) {
   const currentPatient = patient;
+  const history = useMedicalHistory(
+    currentPatient?.id ?? 0,
+    Boolean(currentPatient),
+  );
+  const appointments = useQuery({
+    queryKey: ["patient-appointments", currentPatient?.id],
+    queryFn: () => getPatientAppointments(currentPatient!.id),
+    enabled: Boolean(currentPatient),
+  });
   const { data: civilStatuses = [] } = useEstadoCivil();
   const { data: educationLevels = [] } = useNivelEscolaridad();
   const updateMutation = useUpdatePatient();
   const createMutation = useCreatePatient();
-  const createMedicalMutation = useCreateMedicalHistory();
-  const createFamilyMutation = useCreateFamilyHistory();
-  const createAllergyMutation = useCreateAllergy();
-  const createMedicationMutation = useCreateMedication();
+  const historyMutation = useUpdatePatientHistory();
   const { showSuccess } = useNotification();
   const [form, setForm] = useState<PatientRequest>(() =>
     currentPatient ? toRequest(currentPatient) : emptyPatientRequest(),
@@ -112,7 +126,12 @@ function PatientWorkspace({
     familyHistory: [],
     allergies: [],
     medications: [],
+    emergencyContacts: [],
   });
+  const [removedRecordIds, setRemovedRecordIds] = useState<string[]>([]);
+  const [recordEdits, setRecordEdits] = useState<
+    Record<string, Partial<OptionalRecord>>
+  >({});
 
   const updateField = (
     field: keyof PatientRequest,
@@ -120,13 +139,53 @@ function PatientWorkspace({
   ) => setForm((current) => ({ ...current, [field]: value }));
   const isNewPatient = isCreating;
   const catalogs = usePatientCatalogs(true);
+  const existingRecords = useMemo(
+    () =>
+      currentPatient
+        ? {
+            personalHistory: (history.medical.data ?? []).map(toMedicalRecord),
+            familyHistory: (history.family.data ?? []).map(toFamilyRecord),
+            allergies: (history.allergies.data ?? []).map(toAllergyRecord),
+            medications: (history.medications.data ?? []).map(
+              toMedicationRecord,
+            ),
+            emergencyContacts: (history.emergencyContacts.data ?? []).map(
+              toEmergencyContactRecord,
+            ),
+          }
+        : emptyOptionalRecords(),
+    [
+      currentPatient,
+      history.allergies.data,
+      history.family.data,
+      history.medical.data,
+      history.medications.data,
+      history.emergencyContacts.data,
+    ],
+  );
+  const allRecords = useMemo(
+    () =>
+      Object.fromEntries(
+        (Object.keys(optionalRecords) as OptionalSection[]).map((section) => [
+          section,
+          [...existingRecords[section], ...optionalRecords[section]]
+            .filter((record) => !removedRecordIds.includes(record.id))
+            .map((record) => ({ ...record, ...recordEdits[record.id] })),
+        ]),
+      ) as Record<OptionalSection, OptionalRecord[]>,
+    [existingRecords, optionalRecords, recordEdits, removedRecordIds],
+  );
+  const totalAppointments = appointments.data?.length ?? 0;
+  const cancelledAppointments =
+    appointments.data?.filter(
+      (appointment) =>
+        appointment.estadoId === APPOINTMENT_STATUS.CANCELLED ||
+        appointment.estado?.trim().toLowerCase() === "cancelada",
+    ).length ?? 0;
   const isSaving =
     updateMutation.isPending ||
     createMutation.isPending ||
-    createMedicalMutation.isPending ||
-    createFamilyMutation.isPending ||
-    createAllergyMutation.isPending ||
-    createMedicationMutation.isPending;
+    historyMutation.isPending;
   const save = async () => {
     let patientId = currentPatient?.id;
     if (isNewPatient) {
@@ -140,47 +199,10 @@ function PatientWorkspace({
       await updateMutation.mutateAsync({ id: patientId, request: form });
     }
 
-    await Promise.all([
-      ...optionalRecords.personalHistory.map((record) =>
-        createMedicalMutation.mutateAsync({
-          pacienteId: patientId!,
-          condicionMedicaId: record.condicionMedicaId!,
-          fechaDiagnostico: record.fechaDiagnostico!,
-          tratamientoActual: record.tratamientoActual!,
-          observaciones: record.observaciones,
-        }),
-      ),
-      ...optionalRecords.familyHistory.map((record) =>
-        createFamilyMutation.mutateAsync({
-          pacienteId: patientId!,
-          condicionMedicaId: record.condicionMedicaId!,
-          parentescoId: record.parentescoId!,
-          observaciones: record.observaciones,
-        }),
-      ),
-      ...optionalRecords.allergies.map((record) =>
-        createAllergyMutation.mutateAsync({
-          pacienteId: patientId!,
-          sustanciaAlergenaId: record.sustanciaAlergenaId!,
-          nivelSeveridadAlergiaId: record.nivelSeveridadAlergiaId,
-          tipoReaccion: record.tipoReaccion,
-          observaciones: record.observaciones,
-          estadoId: 1,
-        }),
-      ),
-      ...optionalRecords.medications.map((record) =>
-        createMedicationMutation.mutateAsync({
-          pacienteId: patientId!,
-          medicamentoId: record.medicamentoId!,
-          dosis: record.dosis,
-          frecuencia: record.frecuencia,
-          viaAdministracion: record.viaAdministracion,
-          fechaInicio: record.fechaInicio,
-          fechaFin: record.fechaFin,
-          prescritoPor: record.prescritoPor,
-        }),
-      ),
-    ]);
+    await historyMutation.mutateAsync({
+      patientId,
+      request: toPatientHistoryRequest(allRecords, removedRecordIds),
+    });
 
     showSuccess(
       isNewPatient
@@ -209,9 +231,12 @@ function PatientWorkspace({
     >
       <Box
         sx={{
+          display: "grid",
+          gridTemplateRows: "auto minmax(0, 1fr)",
           minWidth: 0,
           minHeight: 0,
-          overflowY: "auto",
+          height: "100%",
+          overflow: "hidden",
           borderRight: { xs: 0, md: 1 },
           borderBottom: { xs: 1, md: 0 },
           borderColor: "divider",
@@ -223,45 +248,58 @@ function PatientWorkspace({
             color="text.secondary"
             fontWeight={700}
           >
-            Pacientes
+            Pacientes2
           </Typography>
         </Box>
         <Divider />
-        <Stack spacing={0.5} sx={{ p: 1.25 }}>
-          {patients.map((item) => (
-            <Button
-              key={item.id}
-              onClick={() => {
-                onSelectPatient(item);
-                setForm(toRequest(item));
-              }}
-              sx={{
-                display: "block",
-                width: "100%",
-                p: 1.25,
-                borderRadius: 1.5,
-                textAlign: "left",
-                color:
-                  item.id === currentPatient?.id
-                    ? "primary.main"
-                    : "text.primary",
-                bgcolor:
-                  item.id === currentPatient?.id
-                    ? "action.selected"
-                    : "transparent",
-              }}
-            >
-              {getPatientInitials(item)}
-              <Typography
-                variant="caption"
-                display="block"
-                color="text.secondary"
+        <Box
+          sx={{
+            minHeight: 0,
+            overflowY: "auto",
+          }}
+        >
+          <Stack spacing={0.5} sx={{ p: 1.25 }}>
+            {patients.map((item) => (
+              <Button
+                key={item.id}
+                onClick={() => {
+                  onSelectPatient(item);
+                  setForm(toRequest(item));
+                }}
+                sx={{
+                  display: "block",
+                  width: "100%",
+                  p: 1.25,
+                  borderRadius: 1.5,
+                  textAlign: "left",
+                  color:
+                    item.id === currentPatient?.id
+                      ? "primary.main"
+                      : "text.primary",
+                  bgcolor:
+                    item.id === currentPatient?.id
+                      ? "action.selected"
+                      : "transparent",
+                  "&:hover": { bgcolor: "action.hover" },
+                  "&:focus-visible": {
+                    outline: 2,
+                    outlineOffset: 1,
+                    outlineColor: "primary.main",
+                  },
+                }}
               >
-                {formatSex(item.sexo)} · {item.edad} años
-              </Typography>
-            </Button>
-          ))}
-        </Stack>
+                {getPatientInitials(item)}
+                <Typography
+                  variant="caption"
+                  display="block"
+                  color="text.secondary"
+                >
+                  {formatSex(item.sexo)} · {item.edad} años
+                </Typography>
+              </Button>
+            ))}
+          </Stack>
+        </Box>
       </Box>
       <Box
         sx={{
@@ -306,6 +344,12 @@ function PatientWorkspace({
                   Información personal
                 </Typography>
               </Box>
+              {!isNewPatient && (
+                <Typography variant="body2" color="text.secondary">
+                  Citas: {totalAppointments} · Canceladas:{" "}
+                  {cancelledAppointments}
+                </Typography>
+              )}
               <Button
                 variant="contained"
                 startIcon={<SaveOutlinedIcon />}
@@ -333,35 +377,51 @@ function PatientWorkspace({
                   updateField={updateField}
                   civilStatuses={civilStatuses}
                   educationLevels={educationLevels}
-                  status={currentPatient?.estado ?? "Pendiente"}
+                  refiere={form.refiere ?? ""}
+                  onRefiereChange={(value) => updateField("refiere", value)}
+                  //   status={currentPatient?.estado ?? "Pendiente"}
                 />
                 {(isNewPatient || currentPatient) && (
                   <OptionalSectionsSelector
-                    records={optionalRecords}
+                    records={allRecords}
                     onAdd={(section) =>
                       setOptionalRecords((current) => ({
                         ...current,
                         [section]: [...current[section], createEmptyRecord()],
                       }))
                     }
-                    onRemove={(section, recordId) =>
-                      setOptionalRecords((current) => ({
-                        ...current,
-                        [section]: current[section].filter(
-                          (record) => record.id !== recordId,
-                        ),
-                      }))
-                    }
-                    onChangeRecord={(section, recordId, changes) =>
-                      setOptionalRecords((current) => ({
-                        ...current,
-                        [section]: current[section].map((record) =>
-                          record.id === recordId
-                            ? { ...record, ...changes }
-                            : record,
-                        ),
-                      }))
-                    }
+                    onRemoveRecord={(section, recordId) => {
+                      if (recordId.startsWith("existing-")) {
+                        setRemovedRecordIds((current) => [
+                          ...current,
+                          recordId,
+                        ]);
+                      } else {
+                        setOptionalRecords((current) => ({
+                          ...current,
+                          [section]: current[section].filter(
+                            (record) => record.id !== recordId,
+                          ),
+                        }));
+                      }
+                    }}
+                    onChangeRecord={(section, recordId, changes) => {
+                      if (recordId.startsWith("existing-")) {
+                        setRecordEdits((current) => ({
+                          ...current,
+                          [recordId]: { ...current[recordId], ...changes },
+                        }));
+                      } else {
+                        setOptionalRecords((current) => ({
+                          ...current,
+                          [section]: current[section].map((record) =>
+                            record.id === recordId
+                              ? { ...record, ...changes }
+                              : record,
+                          ),
+                        }));
+                      }
+                    }}
                     catalogs={catalogs}
                   />
                 )}
@@ -379,6 +439,7 @@ type OptionalSection = keyof {
   familyHistory: boolean;
   allergies: boolean;
   medications: boolean;
+  emergencyContacts: boolean;
 };
 
 interface OptionalRecord {
@@ -398,23 +459,182 @@ interface OptionalRecord {
   fechaFin?: string;
   prescritoPor?: string;
   observaciones?: string;
+  nombre?: string;
+  telefono?: string;
+  direccion?: string;
 }
 
 function createEmptyRecord(): OptionalRecord {
   return { id: `${Date.now()}-${Math.random()}` };
 }
 
+function getExistingId(recordId: string): number | undefined {
+  if (!recordId.startsWith("existing-")) return undefined;
+  const value = Number(recordId.split("-").at(-1));
+  return Number.isInteger(value) ? value : undefined;
+}
+
+function toPatientHistoryRequest(
+  records: Record<OptionalSection, OptionalRecord[]>,
+  removedRecordIds: string[],
+): PatientHistoryRequest {
+  const prefixes: Record<OptionalSection, string> = {
+    personalHistory: "existing-medical-",
+    familyHistory: "existing-family-",
+    allergies: "existing-allergy-",
+    medications: "existing-medication-",
+    emergencyContacts: "existing-emergency-",
+  };
+  const existingIds = (section: OptionalSection) =>
+    removedRecordIds
+      .filter((id) => id.startsWith(prefixes[section]))
+      .map(getExistingId)
+      .filter((id): id is number => id !== undefined);
+
+  return {
+    antecedentesMedicos: records.personalHistory
+      .filter(
+        (record) =>
+          record.condicionMedicaId &&
+          record.fechaDiagnostico &&
+          record.tratamientoActual,
+      )
+      .map((record) => ({
+        id: getExistingId(record.id),
+        condicionMedicaId: record.condicionMedicaId!,
+        fechaDiagnostico: record.fechaDiagnostico!,
+        tratamientoActual: record.tratamientoActual!,
+        observaciones: record.observaciones,
+      })),
+    antecedentesFamiliares: records.familyHistory
+      .filter((record) => record.condicionMedicaId && record.parentescoId)
+      .map((record) => ({
+        id: getExistingId(record.id),
+        condicionMedicaId: record.condicionMedicaId!,
+        parentescoId: record.parentescoId!,
+        observaciones: record.observaciones,
+      })),
+    alergias: records.allergies
+      .filter((record) => record.sustanciaAlergenaId)
+      .map((record) => ({
+        id: getExistingId(record.id),
+        sustanciaAlergenaId: record.sustanciaAlergenaId!,
+        nivelSeveridadAlergiaId: record.nivelSeveridadAlergiaId,
+        tipoReaccion: record.tipoReaccion,
+        observaciones: record.observaciones,
+        estadoId: 1,
+      })),
+    medicamentos: records.medications
+      .filter((record) => record.medicamentoId)
+      .map((record) => ({
+        id: getExistingId(record.id),
+        medicamentoId: record.medicamentoId!,
+        dosis: record.dosis,
+        frecuencia: record.frecuencia,
+        viaAdministracion: record.viaAdministracion,
+        fechaInicio: record.fechaInicio,
+        fechaFin: record.fechaFin,
+        prescritoPor: record.prescritoPor,
+      })),
+    contactosEmergencia: records.emergencyContacts
+      .filter(
+        (record) =>
+          record.nombre &&
+          record.parentescoId &&
+          record.telefono &&
+          record.direccion,
+      )
+      .map((record) => ({
+        id: getExistingId(record.id),
+        nombre: record.nombre!,
+        parentescoId: record.parentescoId!,
+        telefono: record.telefono!,
+        direccion: record.direccion!,
+        observaciones: record.observaciones,
+        estadoId: 1,
+      })),
+    eliminarAntecedentesMedicos: existingIds("personalHistory"),
+    eliminarAntecedentesFamiliares: existingIds("familyHistory"),
+    eliminarAlergias: existingIds("allergies"),
+    eliminarMedicamentos: existingIds("medications"),
+    eliminarContactosEmergencia: existingIds("emergencyContacts"),
+  };
+}
+
+function emptyOptionalRecords(): Record<OptionalSection, OptionalRecord[]> {
+  return {
+    personalHistory: [],
+    familyHistory: [],
+    allergies: [],
+    medications: [],
+    emergencyContacts: [],
+  };
+}
+
+function toMedicalRecord(item: MedicalHistoryItem): OptionalRecord {
+  return {
+    id: `existing-medical-${item.id}`,
+    condicionMedicaId: item.condicionMedicaId,
+    fechaDiagnostico: item.fechaDiagnostico,
+    tratamientoActual: item.tratamientoActual ?? "",
+    observaciones: item.observaciones ?? "",
+  };
+}
+
+function toFamilyRecord(item: FamilyHistoryItem): OptionalRecord {
+  return {
+    id: `existing-family-${item.id}`,
+    condicionMedicaId: item.condicionMedicaId,
+    parentescoId: item.parentescoId,
+    observaciones: item.observaciones ?? "",
+  };
+}
+
+function toAllergyRecord(item: AllergyHistoryItem): OptionalRecord {
+  return {
+    id: `existing-allergy-${item.id}`,
+    sustanciaAlergenaId: item.sustanciaAlergenaId ?? undefined,
+    nivelSeveridadAlergiaId: item.nivelSeveridadAlergiaId ?? undefined,
+    tipoReaccion: item.tipoReaccion ?? "",
+    observaciones: item.observaciones ?? "",
+  };
+}
+
+function toMedicationRecord(item: MedicationHistoryItem): OptionalRecord {
+  return {
+    id: `existing-medication-${item.id}`,
+    medicamentoId: item.medicamentoId,
+    dosis: item.dosis ?? "",
+    frecuencia: item.frecuencia ?? "",
+    viaAdministracion: item.viaAdministracion ?? "",
+    fechaInicio: item.fechaInicio ?? "",
+    fechaFin: item.fechaFin ?? "",
+    prescritoPor: item.prescritoPor ?? "",
+  };
+}
+
+function toEmergencyContactRecord(item: EmergencyContactItem): OptionalRecord {
+  return {
+    id: `existing-emergency-${item.id}`,
+    nombre: item.nombre,
+    parentescoId: item.parentescoId ?? undefined,
+    telefono: item.telefono,
+    direccion: item.direccion,
+    observaciones: item.observaciones ?? "",
+  };
+}
+
 function OptionalSectionsSelector({
   records,
   catalogs,
   onAdd,
-  onRemove,
+  onRemoveRecord,
   onChangeRecord,
 }: {
   records: Record<OptionalSection, OptionalRecord[]>;
   catalogs: ReturnType<typeof usePatientCatalogs>;
   onAdd: (section: OptionalSection) => void;
-  onRemove: (section: OptionalSection, recordId: string) => void;
+  onRemoveRecord: (section: OptionalSection, recordId: string) => void;
   onChangeRecord: (
     section: OptionalSection,
     recordId: string,
@@ -422,6 +642,7 @@ function OptionalSectionsSelector({
   ) => void;
 }) {
   const sections: { id: OptionalSection; label: string }[] = [
+    { id: "emergencyContacts", label: "Contactos de emergencia" },
     { id: "personalHistory", label: "Antecedentes médicos personales" },
     { id: "familyHistory", label: "Antecedentes familiares" },
     { id: "allergies", label: "Alergias" },
@@ -431,10 +652,10 @@ function OptionalSectionsSelector({
   return (
     <Box>
       <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-        Secciones opcionales
+        Información adicional
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-        Seleccione las secciones que desea completar para este paciente.
+        Ingrese los datos que considere necesarios.
       </Typography>
       <Stack spacing={1}>
         {sections.map((section) => (
@@ -465,7 +686,7 @@ function OptionalSectionsSelector({
                       size="small"
                       color="error"
                       startIcon={<DeleteOutlineOutlinedIcon />}
-                      onClick={() => onRemove(section.id, record.id)}
+                      onClick={() => onRemoveRecord(section.id, record.id)}
                     >
                       Quitar
                     </Button>
@@ -658,6 +879,59 @@ function OptionalSectionForm({
     );
   }
 
+  if (section === "emergencyContacts") {
+    return (
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+          gap: 2,
+          pl: 2,
+          pb: 1,
+        }}
+      >
+        <TextField
+          label="Nombre"
+          value={record.nombre ?? ""}
+          onChange={(event) => onChange({ nombre: event.target.value })}
+          required
+        />
+        <TextField
+          select
+          label="Parentesco"
+          value={record.parentescoId ?? ""}
+          onChange={(event) =>
+            onChange({ parentescoId: Number(event.target.value) })
+          }
+          required
+        >
+          <MenuItem value="">Seleccione un parentesco</MenuItem>
+          {selectOptions(catalogs.relationships.data ?? [])}
+        </TextField>
+        <TextField
+          label="Teléfono"
+          value={record.telefono ?? ""}
+          onChange={(event) => onChange({ telefono: event.target.value })}
+          required
+        />
+        <TextField
+          label="Dirección"
+          value={record.direccion ?? ""}
+          onChange={(event) => onChange({ direccion: event.target.value })}
+          required
+        />
+        <TextField
+          label="Observaciones"
+          value={record.observaciones ?? ""}
+          onChange={(event) => onChange({ observaciones: event.target.value })}
+          multiline
+          minRows={2}
+          sx={{ gridColumn: { sm: "1 / -1" } }}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -725,7 +999,9 @@ function PersonalForm({
   updateField,
   civilStatuses,
   educationLevels,
-  status,
+  refiere,
+  onRefiereChange,
+  //   status,
 }: {
   form: PatientRequest;
   updateField: (
@@ -734,13 +1010,22 @@ function PersonalForm({
   ) => void;
   civilStatuses: { id: number; nombre: string }[];
   educationLevels: { id: number; nombre: string }[];
-  status: string | null;
+  refiere: string;
+  onRefiereChange: (value: string) => void;
+  //   status: string | null;
 }) {
   return (
     <Box>
       <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
         Datos generales
       </Typography>
+      <TextField
+        label="Entidad que lo refiere"
+        value={refiere}
+        onChange={(event) => onRefiereChange(event.target.value)}
+        fullWidth
+        sx={{ mb: 2 }}
+      />
       <Box
         sx={{
           display: "grid",
@@ -837,7 +1122,7 @@ function PersonalForm({
             </MenuItem>
           ))}
         </Select>
-        <TextField label="Estado del paciente" value={status ?? "-"} disabled />
+        {/* <TextField label="Estado del paciente" value={status ?? "-"} disabled /> */}
       </Box>
     </Box>
   );
@@ -900,7 +1185,7 @@ function getPatientInitials(patient: Patient): string {
   return [patient.nombre, patient.apellido]
     .flatMap((value) => value.trim().split(/\s+/))
     .filter(Boolean)
-    .map((value) => value.charAt(0).toUpperCase())
+    .map((value) => value.charAt(0).toUpperCase() + ". ")
     .join("");
 }
 
@@ -924,6 +1209,7 @@ function emptyPatientRequest(): PatientRequest {
     ocupacion: "",
     estadoCivilId: null,
     nivelEscolaridadId: null,
+    refiere: "",
   };
 }
 function toRequest(patient: Patient): PatientRequest {
@@ -938,5 +1224,6 @@ function toRequest(patient: Patient): PatientRequest {
     ocupacion: patient.ocupacion ?? "",
     estadoCivilId: patient.estadoCivilId,
     nivelEscolaridadId: patient.nivelEscolaridadId,
+    refiere: patient.refiere ?? "",
   };
 }

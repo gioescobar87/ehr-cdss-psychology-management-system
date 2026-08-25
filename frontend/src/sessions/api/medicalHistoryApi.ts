@@ -4,6 +4,7 @@ import type {
   FamilyHistoryItem,
   MedicalHistoryItem,
   MedicationHistoryItem,
+  EmergencyContactItem,
 } from "../types/medicalHistory.types";
 
 export async function getMedicalHistory(
@@ -11,6 +12,15 @@ export async function getMedicalHistory(
 ): Promise<MedicalHistoryItem[]> {
   const response = await apiClient.get<MedicalHistoryItem[]>(
     `/historial-medico/paciente/${patientId}`,
+  );
+  return response.data;
+}
+
+export async function getEmergencyContacts(
+  patientId: number,
+): Promise<EmergencyContactItem[]> {
+  const response = await apiClient.get<EmergencyContactItem[]>(
+    `/paciente/${patientId}/contacto-emergencia`,
   );
   return response.data;
 }
