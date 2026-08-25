@@ -1,5 +1,14 @@
 import { useMemo, useState } from "react";
-import { Alert, Box, CircularProgress, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  Typography,
+} from "@mui/material";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import MedicalHistoryDialog from "./MedicalHistoryDialog";
 
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 import type { Sesion } from "../types/session.types";
@@ -7,6 +16,7 @@ import {
   buildClinicalEncounters,
   getDefaultClinicalActivity,
 } from "../utils/clinicalRecord.utils";
+import type { ClinicalActivity } from "../types/clinicalRecord.types";
 import ClinicalRecordDetail from "./ClinicalRecordDetail";
 import ClinicalRecordTimeline from "./ClinicalRecordTimeline";
 
@@ -21,35 +31,32 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
     isError,
   } = useClinicalSessionContext(session.id);
 
-  const activity = useMemo(() => {
-    if (!context) {
-      return null;
-    }
-
-    const encounters = buildClinicalEncounters(context);
-    return getDefaultClinicalActivity(encounters, context.currentSession.id);
-  }, [context]);
-
   const encounters = useMemo(
     () => (context ? buildClinicalEncounters(context) : []),
     [context],
   );
 
+  const defaultActivity = useMemo(
+    () =>
+      context
+        ? getDefaultClinicalActivity(encounters, context.currentSession.id)
+        : null,
+    [context, encounters],
+  );
+
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(
     null,
   );
+  const [medicalHistoryOpen, setMedicalHistoryOpen] = useState(false);
 
-  const selectedActivity = useMemo(() => {
-    if (!selectedActivityId) {
-      return activity;
-    }
-
-    return (
+  const selectedActivity = useMemo(
+    () =>
       encounters
         .flatMap((encounter) => encounter.activities)
-        .find((item) => item.id === selectedActivityId) ?? activity
-    );
-  }, [activity, encounters, selectedActivityId]);
+        .find((activity) => activity.id === selectedActivityId) ??
+      defaultActivity,
+    [defaultActivity, encounters, selectedActivityId],
+  );
 
   if (isLoading) {
     return (
@@ -75,71 +82,111 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
   }
 
   return (
-    <Box sx={{ minHeight: 420 }}>
-      <Box sx={{ pb: 1.5, mb: 2, borderBottom: 1, borderColor: "divider" }}>
-        <Typography variant="overline" color="text.secondary" fontWeight={700}>
-          Historia clínica
-        </Typography>
-      </Box>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          md: "minmax(220px, 30%) minmax(0, 1fr)",
+        },
+        height: { xs: "auto", md: 560 },
+        minHeight: { xs: 400, md: 560 },
+        border: 1,
+        borderColor: "divider",
+        borderRadius: 2,
+        overflow: "hidden",
+        bgcolor: "background.paper",
+      }}
+    >
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            md: "minmax(250px, 34%) minmax(0, 1fr)",
-          },
-          height: { xs: "auto", md: "min(700px, calc(100vh - 280px))" },
-          minHeight: 420,
-          border: 1,
+          gridTemplateRows: "auto minmax(0, 1fr)",
+          minWidth: 0,
+          minHeight: 0,
+          height: "100%",
+          overflowY: "auto",
+          borderRight: { xs: 0, md: 1 },
+          borderBottom: { xs: 1, md: 0 },
           borderColor: "divider",
-          borderRadius: 1.5,
-          overflow: "hidden",
         }}
       >
-        <Box
-          sx={{
-            minWidth: 0,
-            minHeight: 0,
-            overflowY: "auto",
-            borderRight: { md: 1 },
-            borderColor: "divider",
-          }}
-        >
-          {encounters.length > 0 ? (
-            <ClinicalRecordTimeline
-              encounters={encounters}
-              selectedActivity={selectedActivity}
-              onSelectActivity={(item) => setSelectedActivityId(item.id)}
-            />
-          ) : (
-            <Box sx={{ p: 3 }}>
-              <Typography variant="body2" color="text.secondary">
-                No hay sesiones clínicas históricas disponibles.
-              </Typography>
-            </Box>
-          )}
-        </Box>
-
-        <Box
-          sx={{
-            minWidth: 0,
-            minHeight: 0,
-            overflowY: "auto",
-            p: { xs: 2, md: 3 },
-          }}
-        >
+        <Box sx={{ px: 2, py: 1.5 }}>
           <Typography
             variant="overline"
             color="text.secondary"
             fontWeight={700}
           >
-            Documentación
+            Historial clínico
           </Typography>
-          <Box sx={{ mt: 1.5 }}>
-            <ClinicalRecordDetail activity={selectedActivity} />
-          </Box>
+        </Box>
+        <Divider />
+        <Box sx={{ minHeight: 0, overflowY: "auto" }}>
+          {encounters.length > 0 ? (
+            <ClinicalRecordTimeline
+              encounters={encounters}
+              selectedActivity={selectedActivity}
+              onSelectActivity={(activity: ClinicalActivity) =>
+                setSelectedActivityId(activity.id)
+              }
+            />
+          ) : (
+            <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+              No hay sesiones clínicas históricas disponibles.
+            </Typography>
+          )}
         </Box>
       </Box>
+
+      <Box
+        sx={{
+          minWidth: 0,
+          minHeight: 0,
+          overflowY: "auto",
+          p: { xs: 2, md: 3 },
+        }}
+      >
+        {encounters.length > 0 ? (
+          <>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+                flexWrap: "wrap",
+                pb: 1.5,
+                borderBottom: 1,
+                borderColor: "divider",
+              }}
+            >
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                fontWeight={700}
+              >
+                Documentación
+              </Typography>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<VisibilityOutlinedIcon />}
+                onClick={() => setMedicalHistoryOpen(true)}
+              >
+                Ver historial médico
+              </Button>
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <ClinicalRecordDetail activity={selectedActivity} />
+            </Box>
+          </>
+        ) : null}
+      </Box>
+      <MedicalHistoryDialog
+        open={medicalHistoryOpen}
+        patientId={session.pacienteId}
+        onClose={() => setMedicalHistoryOpen(false)}
+      />
     </Box>
   );
 }
