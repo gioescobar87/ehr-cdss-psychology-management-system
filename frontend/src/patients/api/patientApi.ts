@@ -2,7 +2,7 @@ import apiClient from "../../shared/api/apiClient";
 import type { Patient, PatientRequest } from "../types/patient.types";
 
 export async function getPatients(): Promise<Patient[]> {
-  const response = await apiClient.get<Patient[]>("/paciente");
+  const response = await apiClient.get<Patient[]>("/paciente/asignados");
   return response.data;
 }
 

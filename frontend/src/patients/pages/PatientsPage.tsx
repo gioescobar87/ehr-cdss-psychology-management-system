@@ -18,7 +18,8 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import { useQuery } from "@tanstack/react-query";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import { useQueries } from "@tanstack/react-query";
 
 import PageHeader from "../../shared/components/common/PageHeader";
 import { getApiErrorMessage } from "../../shared/utils/apiError";
@@ -42,6 +43,7 @@ import type {
 import { useUpdatePatientHistory } from "../hooks/usePatientRecords";
 import type { Patient, PatientRequest } from "../types/patient.types";
 import type { PatientHistoryRequest } from "../types/patientHistory.types";
+import ConfirmationDialog from "../../shared/components/dialogs/ConfirmationDialog";
 import { getPatientAppointments } from "../../appointments/api/appointmentApi";
 import { APPOINTMENT_STATUS } from "../../appointments/constants/appointmentStatus";
 
@@ -105,10 +107,11 @@ function PatientWorkspace({
     currentPatient?.id ?? 0,
     Boolean(currentPatient),
   );
-  const appointments = useQuery({
-    queryKey: ["patient-appointments", currentPatient?.id],
-    queryFn: () => getPatientAppointments(currentPatient!.id),
-    enabled: Boolean(currentPatient),
+  const appointmentQueries = useQueries({
+    queries: patients.map((item) => ({
+      queryKey: ["patient-appointments", item.id],
+      queryFn: () => getPatientAppointments(item.id),
+    })),
   });
   const { data: civilStatuses = [] } = useEstadoCivil();
   const { data: educationLevels = [] } = useNivelEscolaridad();
@@ -132,6 +135,8 @@ function PatientWorkspace({
   const [recordEdits, setRecordEdits] = useState<
     Record<string, Partial<OptionalRecord>>
   >({});
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   const updateField = (
     field: keyof PatientRequest,
@@ -175,13 +180,26 @@ function PatientWorkspace({
       ) as Record<OptionalSection, OptionalRecord[]>,
     [existingRecords, optionalRecords, recordEdits, removedRecordIds],
   );
-  const totalAppointments = appointments.data?.length ?? 0;
-  const cancelledAppointments =
-    appointments.data?.filter(
-      (appointment) =>
-        appointment.estadoId === APPOINTMENT_STATUS.CANCELLED ||
-        appointment.estado?.trim().toLowerCase() === "cancelada",
-    ).length ?? 0;
+  const appointmentCounts = useMemo(
+    () =>
+      new Map(
+        patients.map((item, index) => {
+          const appointments = appointmentQueries[index]?.data ?? [];
+          return [
+            item.id,
+            {
+              total: appointments.length,
+              cancelled: appointments.filter(
+                (appointment) =>
+                  appointment.estadoId === APPOINTMENT_STATUS.CANCELLED ||
+                  appointment.estado?.trim().toLowerCase() === "cancelada",
+              ).length,
+            },
+          ];
+        }),
+      ),
+    [appointmentQueries, patients],
+  );
   const isSaving =
     updateMutation.isPending ||
     createMutation.isPending ||
@@ -210,6 +228,15 @@ function PatientWorkspace({
         : "El paciente y su información fueron actualizados correctamente.",
     );
     if (isNewPatient) onCancel();
+    setHasPendingChanges(false);
+  };
+
+  const handleCancel = () => {
+    if (hasPendingChanges) {
+      setCancelDialogOpen(true);
+      return;
+    }
+    onCancel();
   };
 
   return (
@@ -248,10 +275,10 @@ function PatientWorkspace({
             color="text.secondary"
             fontWeight={700}
           >
-            Pacientes2
+            Pacientes
           </Typography>
+          <Divider />
         </Box>
-        <Divider />
         <Box
           sx={{
             minHeight: 0,
@@ -294,7 +321,9 @@ function PatientWorkspace({
                   display="block"
                   color="text.secondary"
                 >
-                  {formatSex(item.sexo)} · {item.edad} años
+                  {formatSex(item.sexo)} | {item.edad} años |{" "}
+                  {appointmentCounts.get(item.id)?.total ?? 0} citas |{" "}
+                  {appointmentCounts.get(item.id)?.cancelled ?? 0} cancelaciones
                 </Typography>
               </Button>
             ))}
@@ -344,24 +373,28 @@ function PatientWorkspace({
                   Información personal
                 </Typography>
               </Box>
-              {!isNewPatient && (
-                <Typography variant="body2" color="text.secondary">
-                  Citas: {totalAppointments} · Canceladas:{" "}
-                  {cancelledAppointments}
-                </Typography>
-              )}
-              <Button
-                variant="contained"
-                startIcon={<SaveOutlinedIcon />}
-                onClick={save}
-                disabled={isSaving}
-              >
-                {isSaving
-                  ? "Guardando..."
-                  : isNewPatient
-                    ? "Crear paciente"
-                    : "Guardar cambios"}
-              </Button>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="outlined"
+                  startIcon={<CloseOutlinedIcon />}
+                  onClick={handleCancel}
+                  disabled={isSaving}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveOutlinedIcon />}
+                  onClick={save}
+                  disabled={isSaving}
+                >
+                  {isSaving
+                    ? "Guardando..."
+                    : isNewPatient
+                      ? "Crear paciente"
+                      : "Guardar cambios"}
+                </Button>
+              </Stack>
             </Box>
             <Box sx={{ minHeight: 0, overflowY: "auto", pt: 3 }}>
               <Stack spacing={3}>
@@ -374,7 +407,10 @@ function PatientWorkspace({
                 )}
                 <PersonalForm
                   form={form}
-                  updateField={updateField}
+                  updateField={(field, value) => {
+                    setHasPendingChanges(true);
+                    updateField(field, value);
+                  }}
                   civilStatuses={civilStatuses}
                   educationLevels={educationLevels}
                   refiere={form.refiere ?? ""}
@@ -384,13 +420,15 @@ function PatientWorkspace({
                 {(isNewPatient || currentPatient) && (
                   <OptionalSectionsSelector
                     records={allRecords}
-                    onAdd={(section) =>
+                    onAdd={(section) => {
+                      setHasPendingChanges(true);
                       setOptionalRecords((current) => ({
                         ...current,
                         [section]: [...current[section], createEmptyRecord()],
-                      }))
-                    }
+                      }));
+                    }}
                     onRemoveRecord={(section, recordId) => {
+                      setHasPendingChanges(true);
                       if (recordId.startsWith("existing-")) {
                         setRemovedRecordIds((current) => [
                           ...current,
@@ -406,6 +444,7 @@ function PatientWorkspace({
                       }
                     }}
                     onChangeRecord={(section, recordId, changes) => {
+                      setHasPendingChanges(true);
                       if (recordId.startsWith("existing-")) {
                         setRecordEdits((current) => ({
                           ...current,
@@ -430,6 +469,18 @@ function PatientWorkspace({
           </>
         )}
       </Box>
+      <ConfirmationDialog
+        open={cancelDialogOpen}
+        title="Descartar cambios pendientes"
+        message="Hay cambios pendientes de aplicar. Si cancela ahora, se perderán y el formulario volverá a su estado anterior. ¿Desea continuar?"
+        confirmText="Descartar cambios"
+        cancelText="Seguir editando"
+        onCancel={() => setCancelDialogOpen(false)}
+        onConfirm={() => {
+          setCancelDialogOpen(false);
+          onCancel();
+        }}
+      />
     </Box>
   );
 }
