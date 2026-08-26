@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clinica.psicologia.system.dto.request.clinical.ProximaCitaRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.SesionRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
@@ -72,6 +74,14 @@ public class SesionController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
         service.delete(id);
+    }
+
+    @PatchMapping("/{id}/proxima-cita")
+    public SesionResponseDTO asignarProximaCita(
+            @PathVariable Integer id,
+            @Valid @RequestBody ProximaCitaRequestDTO request) {
+
+        return service.asignarProximaCita(id, request.getCitaId());
     }
 
     @GetMapping("/{id}/notas-sesion")

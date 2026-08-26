@@ -23,4 +23,6 @@ public interface SesionService {
 
     List<SesionResponseDTO> getByCita(Integer citaId);
 
+    SesionResponseDTO asignarProximaCita(Integer id, Integer citaId);
+
 }

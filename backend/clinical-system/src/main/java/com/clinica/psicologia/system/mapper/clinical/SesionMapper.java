@@ -32,6 +32,8 @@ public class SesionMapper {
 
         dto.setCitaId(entity.getCita().getId());
 
+        dto.setProximaCitaId(entity.getProximaCita() != null ? entity.getProximaCita().getId() : null);
+
         return dto;
     }
 

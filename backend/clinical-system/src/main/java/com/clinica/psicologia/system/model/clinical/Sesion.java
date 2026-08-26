@@ -49,4 +49,8 @@ public class Sesion extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cita_id")
     private Cita cita;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "proxima_cita_id")
+    private Cita proximaCita;
 }

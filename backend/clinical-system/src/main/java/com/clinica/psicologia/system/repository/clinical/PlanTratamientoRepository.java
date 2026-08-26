@@ -10,5 +10,7 @@ public interface PlanTratamientoRepository extends JpaRepository<PlanTratamiento
 
     List<PlanTratamiento> findByPacienteDiagnosticoId(Integer pacienteDiagnosticoId);
 
+    List<PlanTratamiento> findByPacienteDiagnostico_Paciente_IdOrderByFechaInicioDesc(Integer pacienteId);
+
     boolean existsByPacienteDiagnosticoIdAndEstadoId(Integer pacienteDiagnosticoId, Integer estadoId);
 }

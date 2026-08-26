@@ -14,6 +14,9 @@ public interface PlanTratamientoService {
     List<PlanTratamientoResponseDTO> getByPacienteDiagnostico(
             Integer pacienteDiagnosticoId);
 
+    List<PlanTratamientoResponseDTO> getByPaciente(
+            Integer pacienteId);
+
     PlanTratamientoResponseDTO create(
             PlanTratamientoRequestDTO dto);
 

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.clinica.psicologia.system.dto.request.clinical.HistorialFamiliarRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.HistorialMedicoRequestDTO;
-import com.clinica.psicologia.system.dto.request.patient.ContactoEmergenciaRequestDTO;
 
 public record PacienteHistorialRequestDTO(
         List<HistorialMedicoItem> antecedentesMedicos,

@@ -87,6 +87,14 @@ public class PlanTratamientoServiceImpl implements PlanTratamientoService {
     }
 
     @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<PlanTratamientoResponseDTO> getByPaciente(Integer pacienteId) {
+
+        return mapper.toResponseDTOList(
+                repository.findByPacienteDiagnostico_Paciente_IdOrderByFechaInicioDesc(pacienteId));
+    }
+
+    @Override
     public PlanTratamientoResponseDTO update(Integer id, PlanTratamientoRequestDTO dto) {
 
         PlanTratamiento entity = repository.findById(id)

@@ -169,4 +169,18 @@ public class SesionServiceImpl implements SesionService {
         public List<SesionResponseDTO> getByCita(Integer citaId) {
                 return mapper.toResponseDTOList(repository.findByCitaId(citaId));
         }
+
+        @Override
+        public SesionResponseDTO asignarProximaCita(Integer id, Integer citaId) {
+
+                Sesion entity = repository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Sesión no encontrada."));
+
+                Cita proximaCita = citaRepository.findById(citaId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada."));
+
+                entity.setProximaCita(proximaCita);
+
+                return mapper.toResponseDTO(repository.save(entity));
+        }
 }
