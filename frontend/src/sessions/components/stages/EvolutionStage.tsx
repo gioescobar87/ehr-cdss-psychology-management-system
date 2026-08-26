@@ -12,7 +12,7 @@ interface EvolutionStageProps {
 }
 
 export default function EvolutionStage({ session }: EvolutionStageProps) {
-  const [selectedId, setSelectedId] = useState("notes");
+  const [selectedId, setSelectedId] = useState("observations");
 
   return (
     <Box
@@ -38,8 +38,8 @@ export default function EvolutionStage({ session }: EvolutionStageProps) {
         selectedId={selectedId}
         onSelect={setSelectedId}
         items={[
-          { id: "notes", label: "Evolución de la sesión" },
           { id: "observations", label: "Observaciones generales" },
+          { id: "notes", label: "Anotaciones adicionales" },
           { id: "next-appointment", label: "Próxima cita" },
         ]}
       />
@@ -52,7 +52,7 @@ export default function EvolutionStage({ session }: EvolutionStageProps) {
         }}
       >
         {selectedId === "notes" ? (
-          <SessionNotes session={session} allowCreate={false} />
+          <SessionNotes session={session} allowCreate />
         ) : selectedId === "observations" ? (
           <SessionObservations session={session} />
         ) : (

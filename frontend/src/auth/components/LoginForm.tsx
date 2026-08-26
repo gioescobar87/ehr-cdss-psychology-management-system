@@ -29,7 +29,7 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await loginMutation.mutateAsync(data);
-      navigate("/dashboard");
+      navigate("/citas");
     } catch {
       // The mutation error is already exposed
       // through loginMutation.isError.
@@ -46,7 +46,7 @@ export default function LoginForm() {
       }}
     >
       <Typography variant="h4" mb={4} align="center">
-        Sign In
+        Iniciar sesión
       </Typography>
 
       <Box
@@ -75,7 +75,7 @@ export default function LoginForm() {
               textDecoration: "none",
             }}
           >
-            Forgot Password
+            Olvidé mi contraseña
           </Link>
 
           <Button
@@ -84,10 +84,10 @@ export default function LoginForm() {
             size="large"
             disabled={loginMutation.isPending}
           >
-            {loginMutation.isPending ? "Signing in..." : "Login"}
+            {loginMutation.isPending ? "Iniciando sesión..." : "Iniciar sesión"}
           </Button>
           {loginMutation.isError && (
-            <Typography color="error">Invalid username or password</Typography>
+            <Typography color="error">Credenciales inválidas</Typography>
           )}
         </Stack>
       </Box>

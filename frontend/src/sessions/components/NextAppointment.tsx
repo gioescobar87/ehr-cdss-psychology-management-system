@@ -14,6 +14,8 @@ import {
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 
 import { useCreateAppointment } from "../../appointments/hooks/useCreateAppointment";
+import { useUpdateAppointment } from "../../appointments/hooks/useUpdateAppointment";
+import { useAppointment } from "../../appointments/hooks/useAppointment";
 import { APPOINTMENT_STATUS } from "../../appointments/constants/appointmentStatus";
 import {
   combineDateAndTime,
@@ -22,6 +24,10 @@ import {
 import { getApiErrorMessage } from "../../shared/utils/apiError";
 import { useAuth } from "../../auth/hooks/useAuth";
 import type { Sesion } from "../types/session.types";
+import type {
+  Appointment,
+  AppointmentRequest,
+} from "../../appointments/types/appointment.types";
 
 interface NextAppointmentProps {
   session: Sesion;
@@ -34,31 +40,51 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
   const [endTime, setEndTime] = useState("09:00");
   const [objective, setObjective] = useState("");
   const mutation = useCreateAppointment();
+  const updateMutation = useUpdateAppointment();
+  const { data: linkedAppointment } = useAppointment(session.citaId);
+  const [scheduledAppointment, setScheduledAppointment] =
+    useState<Appointment | null>(null);
   const { user } = useAuth();
 
+  const appointment = scheduledAppointment ?? linkedAppointment ?? null;
+  const isEditing = appointment !== null;
+  const isPending = mutation.isPending || updateMutation.isPending;
   const timeError = Boolean(startTime && endTime && endTime <= startTime);
   const canSave =
     Boolean(date && startTime && endTime && objective.trim()) &&
     !timeError &&
-    !mutation.isPending &&
+    !isPending &&
     Boolean(user?.id);
 
+  const openDialog = () => {
+    if (appointment) {
+      setDate(appointment.fechaHoraInicio.slice(0, 10));
+      setStartTime(appointment.fechaHoraInicio.slice(11, 16));
+      setEndTime(appointment.fechaHoraFin.slice(11, 16));
+      setObjective(appointment.motivo ?? "");
+    }
+    setOpen(true);
+  };
+
   const handleClose = () => {
-    if (!mutation.isPending) setOpen(false);
+    if (!isPending) setOpen(false);
   };
 
   const handleSave = async () => {
     if (!canSave || !user?.id) return;
     try {
-      await mutation.mutateAsync({
+      const request: AppointmentRequest = {
         pacienteId: session.pacienteId,
         usuarioId: user.id,
         fechaHoraInicio: combineDateAndTime(date, startTime),
         fechaHoraFin: combineDateAndTime(date, endTime),
         motivo: objective.trim(),
         estadoId: APPOINTMENT_STATUS.SCHEDULED,
-      });
-      setObjective("");
+      };
+      const saved = appointment
+        ? await updateMutation.mutateAsync({ id: appointment.id, request })
+        : await mutation.mutateAsync(request);
+      setScheduledAppointment(saved);
       setOpen(false);
     } catch {
       // The mutation error is displayed in the dialog.
@@ -98,15 +124,29 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
           <Button
             variant="contained"
             startIcon={<EventOutlinedIcon />}
-            onClick={() => setOpen(true)}
+            onClick={openDialog}
+            disabled={isPending}
           >
-            Programar cita
+            {appointment ? "Editar cita" : "Programar cita"}
           </Button>
         </Box>
+        {appointment && (
+          <Box sx={{ py: 1.5, borderBottom: 1, borderColor: "divider" }}>
+            <Typography variant="body1" fontWeight={700}>
+              {appointment.motivo || "Cita programada"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {appointment.fechaHoraInicio.replace("T", " ")} -{" "}
+              {appointment.fechaHoraFin.slice(11, 16)}
+            </Typography>
+          </Box>
+        )}
       </Stack>
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Programar próxima cita</DialogTitle>
+        <DialogTitle>
+          {isEditing ? "Editar próxima cita" : "Programar próxima cita"}
+        </DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2.5} sx={{ pt: 1 }}>
             {mutation.isError && (
@@ -124,7 +164,7 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
               type="date"
               value={date}
               onChange={(event) => setDate(event.target.value)}
-              disabled={mutation.isPending}
+              disabled={isPending}
               fullWidth
               slotProps={{ inputLabel: { shrink: true } }}
             />
@@ -134,7 +174,7 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
                 type="time"
                 value={startTime}
                 onChange={(event) => setStartTime(event.target.value)}
-                disabled={mutation.isPending}
+                disabled={isPending}
                 fullWidth
                 slotProps={{ inputLabel: { shrink: true } }}
               />
@@ -143,7 +183,7 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
                 type="time"
                 value={endTime}
                 onChange={(event) => setEndTime(event.target.value)}
-                disabled={mutation.isPending}
+                disabled={isPending}
                 error={timeError}
                 helperText={
                   timeError
@@ -158,7 +198,7 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
               label="Objetivo de la próxima cita"
               value={objective}
               onChange={(event) => setObjective(event.target.value)}
-              disabled={mutation.isPending}
+              disabled={isPending}
               required
               fullWidth
               multiline
@@ -168,11 +208,15 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={mutation.isPending}>
+          <Button onClick={handleClose} disabled={isPending}>
             Cancelar
           </Button>
           <Button variant="contained" onClick={handleSave} disabled={!canSave}>
-            {mutation.isPending ? "Guardando..." : "Guardar cita"}
+            {isPending
+              ? "Guardando..."
+              : isEditing
+                ? "Guardar cambios"
+                : "Guardar cita"}
           </Button>
         </DialogActions>
       </Dialog>
