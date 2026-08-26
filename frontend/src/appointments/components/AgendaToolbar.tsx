@@ -1,29 +1,42 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import AddIcon from "@mui/icons-material/Add";
 import TodayIcon from "@mui/icons-material/Today";
-
-import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
+import CalendarViewMonthOutlinedIcon from "@mui/icons-material/CalendarViewMonthOutlined";
+import ViewDayOutlinedIcon from "@mui/icons-material/ViewDayOutlined";
 
 import {
-  addDays,
-  formatAppointmentDate,
-  isToday,
-} from "../../shared/utils/dateUtils";
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
+
+export type AgendaViewMode = "day" | "calendar";
 
 interface AgendaToolbarProps {
-  selectedDate: string;
-  onDateChange: (date: string) => void;
-  onCreateAppointment: () => void;
+  viewMode: AgendaViewMode;
+  onViewModeChange: (mode: AgendaViewMode) => void;
+  title: string;
+  subtitle: string;
+  showTodayButton: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
+  onToday: () => void;
 }
 
 export default function AgendaToolbar({
-  selectedDate,
-  onDateChange,
-  onCreateAppointment,
+  viewMode,
+  onViewModeChange,
+  title,
+  subtitle,
+  showTodayButton,
+  onPrevious,
+  onNext,
+  onToday,
 }: AgendaToolbarProps) {
-  const today = isToday(selectedDate);
-
   return (
     <Box
       sx={{
@@ -40,8 +53,8 @@ export default function AgendaToolbar({
     >
       <Stack direction="row" alignItems="center" spacing={1}>
         <IconButton
-          aria-label="Día anterior"
-          onClick={() => onDateChange(addDays(selectedDate, -1))}
+          aria-label={viewMode === "day" ? "Día anterior" : "Mes anterior"}
+          onClick={onPrevious}
         >
           <ChevronLeftIcon />
         </IconButton>
@@ -55,7 +68,7 @@ export default function AgendaToolbar({
           }}
         >
           <Typography variant="h5" fontWeight={600}>
-            {today ? "Hoy" : "Agenda"}
+            {title}
           </Typography>
 
           <Typography
@@ -65,36 +78,48 @@ export default function AgendaToolbar({
               textTransform: "capitalize",
             }}
           >
-            {formatAppointmentDate(`${selectedDate}T00:00:00`)}
+            {subtitle}
           </Typography>
         </Box>
 
         <IconButton
-          aria-label="Día siguiente"
-          onClick={() => onDateChange(addDays(selectedDate, 1))}
+          aria-label={viewMode === "day" ? "Día siguiente" : "Mes siguiente"}
+          onClick={onNext}
         >
           <ChevronRightIcon />
         </IconButton>
 
-        {!today && (
+        {showTodayButton && (
           <Button
             variant="outlined"
             size="small"
             startIcon={<TodayIcon />}
-            onClick={() => onDateChange(new Date().toLocaleDateString("en-CA"))}
+            onClick={onToday}
           >
             Hoy
           </Button>
         )}
       </Stack>
 
-      <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={onCreateAppointment}
+      <ToggleButtonGroup
+        value={viewMode}
+        exclusive
+        size="small"
+        onChange={(_event, value: AgendaViewMode | null) => {
+          if (value) {
+            onViewModeChange(value);
+          }
+        }}
       >
-        Nueva cita
-      </Button>
+        <ToggleButton value="calendar" aria-label="Vista de calendario">
+          <CalendarViewMonthOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+          Calendario
+        </ToggleButton>
+        <ToggleButton value="day" aria-label="Vista diaria">
+          <ViewDayOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+          Diario
+        </ToggleButton>
+      </ToggleButtonGroup>
     </Box>
   );
 }

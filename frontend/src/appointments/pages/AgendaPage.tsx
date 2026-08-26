@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
 import { Alert, Box, CircularProgress } from "@mui/material";
 
-import AgendaToolbar from "../components/AgendaToolbar";
+import AgendaToolbar, {
+  type AgendaViewMode,
+} from "../components/AgendaToolbar";
 import AgendaSummary from "../components/AgendaSummary";
 import DayAgenda from "../components/DayAgenda";
+import CalendarMonthView from "../components/CalendarMonthView";
 import AppointmentDialog from "../components/AppointmentDialog";
 import { useAgenda } from "../hooks/useAgenda";
+import { useAppointments } from "../hooks/useAppointments";
 
 import type { Appointment } from "../types/appointment.types";
 import { APPOINTMENT_STATUS } from "../constants/appointmentStatus";
@@ -17,16 +21,28 @@ import StartSessionDialog from "../../sessions/components/StartSessionDialog";
 import { useSessionTypes } from "../../sessions/hooks/useSessionTypes";
 import type { SessionRequest } from "../../sessions/types/session.types";
 import {
+  addDays,
+  addMonths,
+  formatAppointmentDate,
+  formatMonthYear,
+  isToday,
   toDateInputValue,
   toLocalDateTimeString,
+  toMonthStart,
 } from "../../shared/utils/dateUtils";
 import { getApiErrorMessage } from "../../shared/utils/apiError";
 
 export default function AgendaPage() {
   const navigate = useNavigate();
 
+  const [viewMode, setViewMode] = useState<AgendaViewMode>("day");
+
   const [selectedDate, setSelectedDate] = useState(
     toDateInputValue(new Date()),
+  );
+
+  const [calendarMonth, setCalendarMonth] = useState(
+    toMonthStart(toDateInputValue(new Date())),
   );
 
   const [appointmentDialogOpen, setAppointmentDialogOpen] = useState(false);
@@ -38,24 +54,30 @@ export default function AgendaPage() {
     useState<Appointment | null>(null);
 
   const {
-    data: appointments = [],
-    isLoading,
-    isError,
+    data: dayAppointments = [],
+    isLoading: dayLoading,
+    isError: dayError,
   } = useAgenda(selectedDate);
+
+  const {
+    data: monthAppointments = [],
+    isLoading: monthLoading,
+    isError: monthError,
+  } = useAppointments(viewMode === "calendar");
 
   const sortedAppointments = useMemo(
     () =>
-      [...appointments].sort(
+      [...dayAppointments].sort(
         (a, b) =>
           new Date(a.fechaHoraInicio).getTime() -
           new Date(b.fechaHoraInicio).getTime(),
       ),
-    [appointments],
+    [dayAppointments],
   );
 
   const agendaAppointments = useMemo(
     () =>
-      appointments
+      dayAppointments
         .filter(
           (appointment) =>
             appointment.estadoId !== APPOINTMENT_STATUS.CANCELLED,
@@ -65,17 +87,40 @@ export default function AgendaPage() {
             new Date(a.fechaHoraInicio).getTime() -
             new Date(b.fechaHoraInicio).getTime(),
         ),
-    [appointments],
+    [dayAppointments],
   );
 
   const handleAppointmentClick = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
   };
 
-  const handleCreateAppointment = () => {
-    setAppointmentInitialStartTime(undefined);
-    setAppointmentDialogKey((current) => current + 1);
-    setAppointmentDialogOpen(true);
+  const handleSelectDay = (date: string) => {
+    setSelectedDate(date);
+    setViewMode("day");
+  };
+
+  const handlePrevious = () => {
+    if (viewMode === "day") {
+      setSelectedDate((current) => addDays(current, -1));
+    } else {
+      setCalendarMonth((current) => addMonths(current, -1));
+    }
+  };
+
+  const handleNext = () => {
+    if (viewMode === "day") {
+      setSelectedDate((current) => addDays(current, 1));
+    } else {
+      setCalendarMonth((current) => addMonths(current, 1));
+    }
+  };
+
+  const handleToday = () => {
+    if (viewMode === "day") {
+      setSelectedDate(toDateInputValue(new Date()));
+    } else {
+      setCalendarMonth(toMonthStart(toDateInputValue(new Date())));
+    }
   };
 
   const handleOpenStartSession = (appointment: Appointment) => {
@@ -140,42 +185,95 @@ export default function AgendaPage() {
     });
   };
 
+  const toolbarTitle =
+    viewMode === "day"
+      ? isToday(selectedDate)
+        ? "Hoy"
+        : "Agenda"
+      : "Calendario";
+
+  const toolbarSubtitle =
+    viewMode === "day"
+      ? formatAppointmentDate(`${selectedDate}T00:00:00`)
+      : formatMonthYear(calendarMonth);
+
+  const showTodayButton =
+    viewMode === "day"
+      ? !isToday(selectedDate)
+      : calendarMonth !== toMonthStart(toDateInputValue(new Date()));
+
   return (
     <Box>
       <AgendaToolbar
-        selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
-        onCreateAppointment={handleCreateAppointment}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        title={toolbarTitle}
+        subtitle={toolbarSubtitle}
+        showTodayButton={showTodayButton}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+        onToday={handleToday}
       />
 
-      {isError && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          No fue posible cargar la agenda.
-        </Alert>
-      )}
+      {viewMode === "day" ? (
+        <>
+          {dayError && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              No fue posible cargar la agenda.
+            </Alert>
+          )}
 
-      {isLoading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            py: 8,
-          }}
-        >
-          <CircularProgress />
-        </Box>
+          {dayLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                py: 8,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              <AgendaSummary
+                appointments={sortedAppointments}
+                selectedDate={selectedDate}
+              />
+              <DayAgenda
+                appointments={agendaAppointments}
+                selectedDate={selectedDate}
+                onAppointmentClick={handleAppointmentClick}
+                onEmptySlotClick={handleEmptySlotClick}
+              />
+            </>
+          )}
+        </>
       ) : (
         <>
-          <AgendaSummary
-            appointments={sortedAppointments}
-            selectedDate={selectedDate}
-          />
-          <DayAgenda
-            appointments={agendaAppointments}
-            selectedDate={selectedDate}
-            onAppointmentClick={handleAppointmentClick}
-            onEmptySlotClick={handleEmptySlotClick}
-          />
+          {monthError && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              No fue posible cargar el calendario.
+            </Alert>
+          )}
+
+          {monthLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                py: 8,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : (
+            <CalendarMonthView
+              month={calendarMonth}
+              appointments={monthAppointments}
+              selectedDate={selectedDate}
+              onSelectDay={handleSelectDay}
+            />
+          )}
         </>
       )}
 

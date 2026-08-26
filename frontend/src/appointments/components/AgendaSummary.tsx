@@ -1,7 +1,4 @@
 import EventIcon from "@mui/icons-material/Event";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import type { ReactNode } from "react";
 import { APPOINTMENT_STATUS } from "../constants/appointmentStatus";
 import { isToday, formatAppointmentTime } from "../../shared/utils/dateUtils";
@@ -22,20 +19,6 @@ export default function AgendaSummary({
 }: AgendaSummaryProps) {
   const total = appointments.length;
 
-  const confirmed = appointments.filter(
-    (appointment) => appointment.estado?.trim().toLowerCase() === "confirmada",
-  ).length;
-
-  const pending = appointments.filter(
-    (appointment) => appointment.estado?.trim().toLowerCase() === "pendiente",
-  ).length;
-
-  const cancelled = appointments.filter(
-    (appointment) =>
-      appointment.estadoId === APPOINTMENT_STATUS.CANCELLED ||
-      appointment.estado?.trim().toLowerCase() === "cancelada",
-  ).length;
-
   const currentTime = useCurrentTime();
 
   const sortedAppointments = [...appointments].sort(
@@ -55,36 +38,14 @@ export default function AgendaSummary({
     : undefined;
 
   return (
-    <Stack spacing={2} sx={{ mb: 3 }}>
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "repeat(2, 1fr)",
-            md: "repeat(4, 1fr)",
-          },
-          gap: 2,
-        }}
-      >
-        <SummaryCard icon={<EventIcon />} value={total} label="Citas" />
-
-        <SummaryCard
-          icon={<CheckCircleOutlineIcon />}
-          value={confirmed}
-          label="Confirmadas"
-        />
-
-        <SummaryCard
-          icon={<ScheduleIcon />}
-          value={pending}
-          label="Pendientes"
-        />
-
-        <SummaryCard
-          icon={<CancelOutlinedIcon />}
-          value={cancelled}
-          label="Canceladas"
-        />
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={2}
+      sx={{ mb: 3 }}
+      alignItems={{ md: "stretch" }}
+    >
+      <Box sx={{ flex: { md: nextAppointment ? "0 0 260px" : 1 } }}>
+        <SummaryCard icon={<EventIcon />} value={total} label="Citas hoy" />
       </Box>
 
       {nextAppointment && (
@@ -92,6 +53,7 @@ export default function AgendaSummary({
           variant="outlined"
           sx={{
             p: 2,
+            flex: 1,
             borderColor: "primary.main",
             backgroundColor: "primary.50",
             borderLeft: "4px solid",
@@ -131,6 +93,7 @@ function SummaryCard({ icon, value, label }: SummaryCardProps) {
       variant="outlined"
       sx={{
         p: 2,
+        height: "100%",
       }}
     >
       <Stack direction="row" alignItems="center" spacing={2}>
