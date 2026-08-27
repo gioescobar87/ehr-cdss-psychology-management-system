@@ -31,6 +31,8 @@ public class CancelacionMapper {
 
         dto.setFechaCancelacion(entity.getFechaCancelacion());
 
+        dto.setSolicitudPaciente(entity.getSolicitudPaciente());
+
         return dto;
     }
 

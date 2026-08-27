@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.clinica.psicologia.system.dto.request.clinical.CancelarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.CitaRequestDTO;
+import com.clinica.psicologia.system.dto.request.clinical.ReagendarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.mapper.clinical.CancelacionMapper;
@@ -218,6 +219,69 @@ public class CitaServiceImpl implements CitaService {
         }
 
         @Override
+        public CitaResponseDTO reagendarCita(Integer citaId, ReagendarCitaRequestDTO dto) {
+
+                Cita citaOriginal = repository.findById(citaId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Cita no encontrada: " + citaId));
+
+                LocalDateTime newDate = dto.getNuevaFechaHoraInicio();
+
+                if (!newDate.isAfter(LocalDateTime.now())) {
+                        throw new BusinessRuleException("La nueva fecha debe ser posterior a la fecha actual.");
+                }
+
+                long duracionMinutos = java.time.Duration.between(
+                                citaOriginal.getFechaHoraInicio(),
+                                citaOriginal.getFechaHoraFin()).toMinutes();
+
+                LocalDateTime newEndDate = newDate.plusMinutes(duracionMinutos);
+
+                CitaRequestDTO nuevaCitaDTO = new CitaRequestDTO();
+
+                nuevaCitaDTO.setPacienteId(citaOriginal.getPaciente().getId());
+                nuevaCitaDTO.setUsuarioId(citaOriginal.getUsuario().getId());
+                nuevaCitaDTO.setEstadoId(supportService.getEstado("PROGRAMADA").getId());
+                nuevaCitaDTO.setFechaHoraInicio(newDate);
+                nuevaCitaDTO.setFechaHoraFin(newEndDate);
+
+                validarFechas(nuevaCitaDTO);
+                validarTraslapes(nuevaCitaDTO);
+
+                Usuario usuario = getAuthenticatedUser();
+                Cancelacion cancelacion = new Cancelacion();
+
+                cancelacion.setCita(citaOriginal);
+                cancelacion.setUsuario(usuario);
+                cancelacion.setMotivoCancelacion(dto.getMotivoCancelacion());
+                cancelacion.setFechaCancelacion(LocalDateTime.now());
+                cancelacion.setSolicitudPaciente(dto.getSolicitudPaciente());
+
+                cancelacionRepository.save(cancelacion);
+
+                Estado estadoCancelado = supportService.getEstado("CANCELADA");
+
+                citaOriginal.setEstado(estadoCancelado);
+
+                repository.save(citaOriginal);
+
+                Estado estadoProgramada = supportService.getEstado("PROGRAMADA");
+
+                Cita nuevaCita = new Cita();
+
+                nuevaCita.setPaciente(citaOriginal.getPaciente());
+                nuevaCita.setUsuario(citaOriginal.getUsuario());
+                nuevaCita.setEstado(estadoProgramada);
+
+                nuevaCita.setFechaHoraInicio(newDate);
+                nuevaCita.setFechaHoraFin(newEndDate);
+
+                nuevaCita = repository.save(nuevaCita);
+
+                return toResponseDTOWithSession(nuevaCita);
+        }
+
+        @Override
         public CitaResponseDTO cancelar(Integer citaId, CancelarCitaRequestDTO request) {
 
                 Cita cita = repository.findById(citaId)
@@ -235,11 +299,12 @@ public class CitaServiceImpl implements CitaService {
                 cancelacion.setUsuario(usuario);
                 cancelacion.setMotivoCancelacion(request.getMotivoCancelacion());
                 cancelacion.setFechaCancelacion(LocalDateTime.now());
+                cancelacion.setSolicitudPaciente(request.getSolicitudPaciente());
 
                 cancelacionRepository.save(cancelacion);
 
                 Estado estadoCancelado = estadoRepository
-                                .findById(7)
+                                .findById(supportService.getEstado("Cancelada").getId())
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Estado CANCELADO no encontrado."));
 

@@ -21,4 +21,6 @@ public class CancelacionResponseDTO {
 
     private LocalDateTime fechaCancelacion;
 
+    private Boolean solicitudPaciente;
+
 }

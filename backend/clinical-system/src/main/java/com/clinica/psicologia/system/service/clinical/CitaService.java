@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.clinica.psicologia.system.dto.request.clinical.CancelarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.CitaRequestDTO;
+import com.clinica.psicologia.system.dto.request.clinical.ReagendarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 
@@ -34,4 +35,6 @@ public interface CitaService {
     CitaResponseDTO cancelar(Integer citaId, CancelarCitaRequestDTO request);
 
     CancelacionResponseDTO getCancelacion(Integer citaId);
+
+    CitaResponseDTO reagendarCita(Integer citaId, ReagendarCitaRequestDTO request);
 }

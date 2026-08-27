@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.clinica.psicologia.system.dto.request.clinical.CancelarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.request.clinical.CitaRequestDTO;
+import com.clinica.psicologia.system.dto.request.clinical.ReagendarCitaRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.SesionResponseDTO;
@@ -70,6 +71,11 @@ public class CitaController {
     @PostMapping("/{id}/cancelar")
     public CitaResponseDTO cancelar(@PathVariable Integer id, @Valid @RequestBody CancelarCitaRequestDTO request) {
         return service.cancelar(id, request);
+    }
+
+    @PostMapping("/{id}/reagendar")
+    public CitaResponseDTO reagendar(@PathVariable Integer id, @Valid @RequestBody ReagendarCitaRequestDTO request) {
+        return service.reagendarCita(id, request);
     }
 
     @GetMapping("/{id}/cancelacion")
