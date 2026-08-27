@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,5 +32,8 @@ public class Cancelacion extends BaseEntity {
     private String motivoCancelacion;
 
     private LocalDateTime fechaCancelacion;
+
+    @NotNull(message = "Indique quién canceló la cita")
+    private Boolean solicitudPaciente;
 
 }
