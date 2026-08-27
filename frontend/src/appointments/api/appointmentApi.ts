@@ -7,6 +7,7 @@ import type {
   Cancellation,
   CancellationRequest,
   PatientAssignment,
+  RescheduleRequest,
 } from "../types/appointment.types";
 
 export async function getAppointments(): Promise<Appointment[]> {
@@ -73,6 +74,16 @@ export async function getPatientAppointments(
   return response.data;
 }
 
+export async function getPatientCancellations(
+  pacienteId: number,
+): Promise<Cancellation[]> {
+  const response = await apiClient.get<Cancellation[]>(
+    `/paciente/${pacienteId}/cancelaciones`,
+  );
+
+  return response.data;
+}
+
 export async function getUserAppointments(
   usuarioId: number,
 ): Promise<Appointment[]> {
@@ -97,6 +108,18 @@ export async function cancelAppointment(
 
 export async function getCancellation(id: number): Promise<Cancellation> {
   const response = await apiClient.get<Cancellation>(`/cita/${id}/cancelacion`);
+
+  return response.data;
+}
+
+export async function rescheduleAppointment(
+  id: number,
+  request: RescheduleRequest,
+): Promise<Appointment> {
+  const response = await apiClient.post<Appointment>(
+    `/cita/${id}/reagendar`,
+    request,
+  );
 
   return response.data;
 }

@@ -8,6 +8,9 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
 } from "@mui/material";
 
 interface CancellationDialogProps {
@@ -15,7 +18,10 @@ interface CancellationDialogProps {
   loading?: boolean;
   error?: string | null;
   onClose: () => void;
-  onConfirm: (reason: string) => void | Promise<void>;
+  onConfirm: (
+    reason: string,
+    solicitudPaciente: boolean,
+  ) => void | Promise<void>;
 }
 
 export default function CancellationDialog({
@@ -26,6 +32,9 @@ export default function CancellationDialog({
   onConfirm,
 }: CancellationDialogProps) {
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
+  const [solicitudPaciente, setSolicitudPaciente] = useState<boolean | null>(
+    null,
+  );
 
   const handleClose = () => {
     if (loading) {
@@ -33,6 +42,7 @@ export default function CancellationDialog({
     }
 
     setMotivoCancelacion("");
+    setSolicitudPaciente(null);
 
     onClose();
   };
@@ -40,17 +50,21 @@ export default function CancellationDialog({
   const handleSubmit = async () => {
     const motivo = motivoCancelacion.trim();
 
-    if (!motivo || loading) {
+    if (!motivo || solicitudPaciente === null || loading) {
       return;
     }
 
-    await onConfirm(motivo);
+    await onConfirm(motivo, solicitudPaciente);
 
     setMotivoCancelacion("");
+    setSolicitudPaciente(null);
   };
 
   const hasInvalidReason =
     motivoCancelacion.length > 0 && !motivoCancelacion.trim();
+
+  const canSubmit =
+    Boolean(motivoCancelacion.trim()) && solicitudPaciente !== null && !loading;
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
@@ -72,6 +86,26 @@ export default function CancellationDialog({
             {error}
           </Alert>
         )}
+
+        <Typography variant="body2" fontWeight={600} gutterBottom>
+          ¿Quién solicita la cancelación?
+        </Typography>
+
+        <ToggleButtonGroup
+          value={solicitudPaciente}
+          exclusive
+          size="small"
+          disabled={loading}
+          onChange={(_event, value: boolean | null) => {
+            if (value !== null) {
+              setSolicitudPaciente(value);
+            }
+          }}
+          sx={{ mb: 2 }}
+        >
+          <ToggleButton value={true}>Paciente</ToggleButton>
+          <ToggleButton value={false}>Psicólogo</ToggleButton>
+        </ToggleButtonGroup>
 
         <TextField
           fullWidth
@@ -101,7 +135,7 @@ export default function CancellationDialog({
           variant="contained"
           color="error"
           onClick={handleSubmit}
-          disabled={!motivoCancelacion.trim() || loading}
+          disabled={!canSubmit}
         >
           {loading ? "Cancelando..." : "Confirmar cancelación"}
         </Button>

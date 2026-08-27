@@ -17,8 +17,7 @@ import AppointmentDetailsDrawer from "../components/AppointmentDetailsDrawer";
 import { useStartSession } from "../../sessions/hooks/useStartSession";
 
 import { useNavigate } from "react-router-dom";
-import StartSessionDialog from "../../sessions/components/StartSessionDialog";
-import { useSessionTypes } from "../../sessions/hooks/useSessionTypes";
+import { getPatientSessions } from "../../sessions/api/sessionContextApi";
 import type { SessionRequest } from "../../sessions/types/session.types";
 import {
   addDays,
@@ -30,7 +29,6 @@ import {
   toLocalDateTimeString,
   toMonthStart,
 } from "../../shared/utils/dateUtils";
-import { getApiErrorMessage } from "../../shared/utils/apiError";
 
 export default function AgendaPage() {
   const navigate = useNavigate();
@@ -64,16 +62,6 @@ export default function AgendaPage() {
     isLoading: monthLoading,
     isError: monthError,
   } = useAppointments(viewMode === "calendar");
-
-  const sortedAppointments = useMemo(
-    () =>
-      [...dayAppointments].sort(
-        (a, b) =>
-          new Date(a.fechaHoraInicio).getTime() -
-          new Date(b.fechaHoraInicio).getTime(),
-      ),
-    [dayAppointments],
-  );
 
   const agendaAppointments = useMemo(
     () =>
@@ -123,10 +111,28 @@ export default function AgendaPage() {
     }
   };
 
-  const handleOpenStartSession = (appointment: Appointment) => {
-    setSelectedSessionTypeId(null);
-    setStartSessionAppointment(appointment);
+  const handleOpenStartSession = async (appointment: Appointment) => {
     setSelectedAppointment(null);
+
+    const previousSessions = await getPatientSessions(appointment.pacienteId);
+
+    const hasPreviousSessionWithUser = previousSessions.some(
+      (previousSession) => previousSession.usuarioId === appointment.usuarioId,
+    );
+
+    const request: SessionRequest = {
+      pacienteId: appointment.pacienteId,
+      usuarioId: appointment.usuarioId,
+      tipoSesionId: hasPreviousSessionWithUser ? 2 : 1,
+      fechaSesion: toLocalDateTimeString(new Date()),
+      citaId: appointment.id,
+    };
+
+    startSessionMutation.mutate(request, {
+      onSuccess: (session) => {
+        navigate(`/sesion/${session.id}`);
+      },
+    });
   };
 
   const handleOpenSession = (sessionId: number) => {
@@ -134,14 +140,6 @@ export default function AgendaPage() {
     navigate(`/sesion/${sessionId}`);
   };
 
-  const handleCloseStartSession = () => {
-    if (startSessionMutation.isPending) {
-      return;
-    }
-    setStartSessionAppointment(null);
-    setSelectedSessionTypeId(null);
-    startSessionMutation.reset();
-  };
   const handleEmptySlotClick = (time: string) => {
     setAppointmentInitialStartTime(time);
     setAppointmentDialogKey((current) => current + 1);
@@ -150,40 +148,7 @@ export default function AgendaPage() {
 
   const [appointmentDialogKey, setAppointmentDialogKey] = useState(0);
 
-  const [startSessionAppointment, setStartSessionAppointment] =
-    useState<Appointment | null>(null);
-
-  const [selectedSessionTypeId, setSelectedSessionTypeId] = useState<
-    number | null
-  >(null);
-
-  const { data: sessionTypes = [], isLoading: loadingSessionTypes } =
-    useSessionTypes(Boolean(startSessionAppointment));
-
   const startSessionMutation = useStartSession();
-
-  const handleConfirmStartSession = () => {
-    if (!startSessionAppointment || selectedSessionTypeId === null) {
-      return;
-    }
-
-    const request: SessionRequest = {
-      pacienteId: startSessionAppointment.pacienteId,
-      usuarioId: startSessionAppointment.usuarioId,
-      tipoSesionId: selectedSessionTypeId,
-      fechaSesion: toLocalDateTimeString(new Date()),
-      citaId: startSessionAppointment.id,
-    };
-
-    startSessionMutation.mutate(request, {
-      onSuccess: (session) => {
-        setStartSessionAppointment(null);
-        setSelectedSessionTypeId(null);
-
-        navigate(`/sesion/${session.id}`);
-      },
-    });
-  };
 
   const toolbarTitle =
     viewMode === "day"
@@ -236,7 +201,7 @@ export default function AgendaPage() {
           ) : (
             <>
               <AgendaSummary
-                appointments={sortedAppointments}
+                appointments={agendaAppointments}
                 selectedDate={selectedDate}
               />
               <DayAgenda
@@ -291,23 +256,6 @@ export default function AgendaPage() {
         onClose={() => setSelectedAppointment(null)}
         onStartSession={handleOpenStartSession}
         onOpenSession={handleOpenSession}
-      />
-
-      <StartSessionDialog
-        open={startSessionAppointment !== null}
-        appointment={startSessionAppointment}
-        sessionTypes={sessionTypes}
-        selectedSessionTypeId={selectedSessionTypeId}
-        loading={startSessionMutation.isPending}
-        loadingSessionTypes={loadingSessionTypes}
-        error={
-          startSessionMutation.error
-            ? getApiErrorMessage(startSessionMutation.error)
-            : null
-        }
-        onClose={handleCloseStartSession}
-        onSessionTypeChange={setSelectedSessionTypeId}
-        onConfirm={handleConfirmStartSession}
       />
     </Box>
   );

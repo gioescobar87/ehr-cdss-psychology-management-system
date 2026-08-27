@@ -34,6 +34,8 @@ interface AppointmentDialogProps {
   open: boolean;
   initialDate: string;
   initialStartTime?: string;
+  lockedPatient?: { id: number; nombre: string };
+  motivoLabel?: string;
   onClose: () => void;
   onSuccess?: () => void;
 }
@@ -42,6 +44,8 @@ export default function AppointmentDialog({
   open,
   initialDate,
   initialStartTime,
+  lockedPatient,
+  motivoLabel = "Motivo",
   onClose,
   onSuccess,
 }: AppointmentDialogProps) {
@@ -62,7 +66,7 @@ export default function AppointmentDialog({
     const startTime = initialStartTime || "08:00";
 
     return {
-      pacienteId: null,
+      pacienteId: lockedPatient?.id ?? null,
       fecha: initialDate,
       horaInicio: startTime,
       horaFin: addMinutesToTime(startTime, 60),
@@ -177,7 +181,7 @@ export default function AppointmentDialog({
             </Alert>
           )}
 
-          {isPatientsError && (
+          {isPatientsError && !lockedPatient && (
             <Alert severity="error">
               No fue posible cargar los pacientes asignados.
             </Alert>
@@ -189,34 +193,43 @@ export default function AppointmentDialog({
             </Alert>
           )}
 
-          <FormControl
-            fullWidth
-            required
-            disabled={isPatientsLoading || mutation.isPending}
-          >
-            <InputLabel>Paciente</InputLabel>
-
-            <Select
-              value={form.pacienteId ?? ""}
+          {lockedPatient ? (
+            <TextField
+              fullWidth
               label="Paciente"
-              onChange={(event) =>
-                handleChange(
-                  "pacienteId",
-                  event.target.value ? Number(event.target.value) : null,
-                )
-              }
+              value={lockedPatient.nombre}
+              disabled
+            />
+          ) : (
+            <FormControl
+              fullWidth
+              required
+              disabled={isPatientsLoading || mutation.isPending}
             >
-              <MenuItem value="">
-                <em>Seleccionar paciente</em>
-              </MenuItem>
+              <InputLabel>Paciente</InputLabel>
 
-              {assignedPatients.map((patient: PatientAssignment) => (
-                <MenuItem key={patient.pacienteId} value={patient.pacienteId}>
-                  {patient.pacienteNombre}
+              <Select
+                value={form.pacienteId ?? ""}
+                label="Paciente"
+                onChange={(event) =>
+                  handleChange(
+                    "pacienteId",
+                    event.target.value ? Number(event.target.value) : null,
+                  )
+                }
+              >
+                <MenuItem value="">
+                  <em>Seleccionar paciente</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+
+                {assignedPatients.map((patient: PatientAssignment) => (
+                  <MenuItem key={patient.pacienteId} value={patient.pacienteId}>
+                    {patient.pacienteNombre}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
 
           <TextField
             fullWidth
@@ -279,7 +292,7 @@ export default function AppointmentDialog({
 
           <TextField
             fullWidth
-            label="Motivo"
+            label={motivoLabel}
             value={form.motivo}
             onChange={(event) => handleChange("motivo", event.target.value)}
             disabled={mutation.isPending}

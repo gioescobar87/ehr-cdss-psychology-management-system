@@ -24,6 +24,13 @@ export interface Appointment {
 
 export interface CancellationRequest {
   motivoCancelacion: string;
+  solicitudPaciente: boolean;
+}
+
+export interface RescheduleRequest {
+  motivoCancelacion: string;
+  solicitudPaciente: boolean;
+  nuevaFechaHoraInicio: string;
 }
 
 export interface Cancellation {
@@ -33,6 +40,7 @@ export interface Cancellation {
   usuarioNombre: string;
   motivoCancelacion: string;
   fechaCancelacion: string;
+  solicitudPaciente: boolean;
 }
 
 export interface PatientAssignment {

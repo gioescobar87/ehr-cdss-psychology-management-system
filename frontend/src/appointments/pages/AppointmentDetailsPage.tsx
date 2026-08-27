@@ -55,7 +55,10 @@ export default function AppointmentDetailsPage() {
     error: cancellationError,
   } = useCancelAppointment();
 
-  const handleCancellation = async (reason: string) => {
+  const handleCancellation = async (
+    reason: string,
+    solicitudPaciente: boolean,
+  ) => {
     if (!appointment) {
       return;
     }
@@ -65,6 +68,7 @@ export default function AppointmentDetailsPage() {
         id: appointment.id,
         request: {
           motivoCancelacion: reason,
+          solicitudPaciente,
         },
       });
 
