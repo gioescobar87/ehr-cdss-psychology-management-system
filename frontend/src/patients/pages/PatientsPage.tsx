@@ -44,8 +44,19 @@ import { useUpdatePatientHistory } from "../hooks/usePatientRecords";
 import type { Patient, PatientRequest } from "../types/patient.types";
 import type { PatientHistoryRequest } from "../types/patientHistory.types";
 import ConfirmationDialog from "../../shared/components/dialogs/ConfirmationDialog";
-import { getPatientAppointments } from "../../appointments/api/appointmentApi";
+import {
+  getPatientAppointments,
+  getPatientCancellations,
+} from "../../appointments/api/appointmentApi";
 import { APPOINTMENT_STATUS } from "../../appointments/constants/appointmentStatus";
+import { usePatientAppointments } from "../../appointments/hooks/usePatientAppointments";
+import { useCurrentTime } from "../../shared/hooks/useCurrentTime";
+import AppointmentDialog from "../../appointments/components/AppointmentDialog";
+import {
+  formatAppointmentDate,
+  formatAppointmentTime,
+  toDateInputValue,
+} from "../../shared/utils/dateUtils";
 
 export default function PatientsPage() {
   const { data: patients = [], isLoading, isError } = usePatients();
@@ -113,6 +124,17 @@ function PatientWorkspace({
       queryFn: () => getPatientAppointments(item.id),
     })),
   });
+  const cancellationQueries = useQueries({
+    queries: patients.map((item) => ({
+      queryKey: ["patient-cancellations", item.id],
+      queryFn: () => getPatientCancellations(item.id),
+    })),
+  });
+  const { data: nextAppointmentCandidates = [] } = usePatientAppointments(
+    currentPatient?.id,
+  );
+  const currentTime = useCurrentTime();
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const { data: civilStatuses = [] } = useEstadoCivil();
   const { data: educationLevels = [] } = useNivelEscolaridad();
   const updateMutation = useUpdatePatient();
@@ -185,21 +207,39 @@ function PatientWorkspace({
       new Map(
         patients.map((item, index) => {
           const appointments = appointmentQueries[index]?.data ?? [];
+          const cancellations = cancellationQueries[index]?.data ?? [];
           return [
             item.id,
             {
               total: appointments.length,
-              cancelled: appointments.filter(
-                (appointment) =>
-                  appointment.estadoId === APPOINTMENT_STATUS.CANCELLED ||
-                  appointment.estado?.trim().toLowerCase() === "cancelada",
+              cancelled: cancellations.filter(
+                (cancellation) => cancellation.solicitudPaciente === true,
               ).length,
             },
           ];
         }),
       ),
-    [appointmentQueries, patients],
+    [appointmentQueries, cancellationQueries, patients],
   );
+  const nextAppointment = useMemo(() => {
+    if (!currentPatient) return null;
+
+    const now = currentTime.getTime();
+
+    return (
+      nextAppointmentCandidates
+        .filter(
+          (appointment) =>
+            appointment.estadoId !== APPOINTMENT_STATUS.CANCELLED &&
+            new Date(appointment.fechaHoraInicio).getTime() > now,
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.fechaHoraInicio).getTime() -
+            new Date(b.fechaHoraInicio).getTime(),
+        )[0] ?? null
+    );
+  }, [currentPatient, nextAppointmentCandidates, currentTime]);
   const isSaving =
     updateMutation.isPending ||
     createMutation.isPending ||
@@ -370,17 +410,41 @@ function PatientWorkspace({
                   color="text.secondary"
                   sx={{ mt: 0.5 }}
                 >
-                  Información personal
+                  {isNewPatient || !nextAppointment ? (
+                    currentPatient ? (
+                      <Box
+                        component="button"
+                        type="button"
+                        onClick={() => setScheduleDialogOpen(true)}
+                        sx={{
+                          border: "none",
+                          background: "none",
+                          p: 0,
+                          font: "inherit",
+                          color: "primary.main",
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                        }}
+                      >
+                        Programar una nueva cita
+                      </Box>
+                    ) : (
+                      "Programar una nueva cita"
+                    )
+                  ) : (
+                    `Próxima cita: ${formatAppointmentDate(nextAppointment.fechaHoraInicio)} · ${formatAppointmentTime(nextAppointment.fechaHoraInicio)}`
+                  )}
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1}>
                 <Button
                   variant="outlined"
+                  color="warning"
                   startIcon={<CloseOutlinedIcon />}
                   onClick={handleCancel}
                   disabled={isSaving}
                 >
-                  Cancelar
+                  Cancelar edición
                 </Button>
                 <Button
                   variant="contained"
@@ -481,6 +545,18 @@ function PatientWorkspace({
           onCancel();
         }}
       />
+      {currentPatient && (
+        <AppointmentDialog
+          open={scheduleDialogOpen}
+          initialDate={toDateInputValue(new Date())}
+          lockedPatient={{
+            id: currentPatient.id,
+            nombre: `${currentPatient.nombre} ${currentPatient.apellido}`,
+          }}
+          motivoLabel="Objetivo de la   cita"
+          onClose={() => setScheduleDialogOpen(false)}
+        />
+      )}
     </Box>
   );
 }
