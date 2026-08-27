@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.request.patient.PacienteHistorialRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
+import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.EvaluacionRiesgoResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.ObjetivoTerapiaResponseDTO;
@@ -168,6 +169,11 @@ public class PacienteController {
     @GetMapping("/{id}/citas")
     public ResponseEntity<List<CitaResponseDTO>> obtenerCitas(@PathVariable Integer id) {
         return ResponseEntity.ok(citaService.getByPatient(id));
+    }
+
+    @GetMapping("/{id}/cancelaciones")
+    public ResponseEntity<List<CancelacionResponseDTO>> obtenerCancelaciones(@PathVariable Integer id) {
+        return ResponseEntity.ok(citaService.getCancelacionesByPaciente(id));
     }
 
     @GetMapping("/{id}/sesiones")

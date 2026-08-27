@@ -36,5 +36,7 @@ public interface CitaService {
 
     CancelacionResponseDTO getCancelacion(Integer citaId);
 
+    List<CancelacionResponseDTO> getCancelacionesByPaciente(Integer pacienteId);
+
     CitaResponseDTO reagendarCita(Integer citaId, ReagendarCitaRequestDTO request);
 }

@@ -1,5 +1,7 @@
 package com.clinica.psicologia.system.mapper.clinical;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
@@ -34,6 +36,12 @@ public class CancelacionMapper {
         dto.setSolicitudPaciente(entity.getSolicitudPaciente());
 
         return dto;
+    }
+
+    public List<CancelacionResponseDTO> toResponseDTOList(List<Cancelacion> entities) {
+        return entities.stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
 }

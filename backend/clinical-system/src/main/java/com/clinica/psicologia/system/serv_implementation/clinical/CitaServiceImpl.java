@@ -325,6 +325,13 @@ public class CitaServiceImpl implements CitaService {
                 return cancelacionMapper.toResponseDTO(cancelacion);
         }
 
+        @Override
+        @Transactional(Transactional.TxType.SUPPORTS)
+        public List<CancelacionResponseDTO> getCancelacionesByPaciente(Integer pacienteId) {
+                return cancelacionMapper.toResponseDTOList(
+                                cancelacionRepository.findByCita_Paciente_Id(pacienteId));
+        }
+
         private CitaResponseDTO toResponseDTOWithSession(Cita cita) {
                 CitaResponseDTO dto = mapper.toResponseDTO(cita);
                 sesionRepository.findFirstByCitaId(cita.getId()).ifPresent(sesion -> dto.setSesionId(sesion.getId()));

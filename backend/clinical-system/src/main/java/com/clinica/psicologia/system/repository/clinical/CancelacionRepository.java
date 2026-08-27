@@ -1,5 +1,6 @@
 package com.clinica.psicologia.system.repository.clinical;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,5 +13,7 @@ public interface CancelacionRepository
     Optional<Cancelacion> findByCitaId(Integer citaId);
 
     boolean existsByCitaId(Integer citaId);
+
+    List<Cancelacion> findByCita_Paciente_Id(Integer pacienteId);
 
 }
