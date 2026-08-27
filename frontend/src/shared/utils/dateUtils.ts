@@ -112,3 +112,24 @@ export function formatRecordDate(value: string): string {
 
   return formatShortDate(extractDate(value));
 }
+
+const MONTH_YEAR_FORMATTER = new Intl.DateTimeFormat(GUATEMALA_LOCALE, {
+  month: "long",
+  year: "numeric",
+});
+
+export function toMonthStart(date: string): string {
+  return `${date.slice(0, 7)}-01`;
+}
+
+export function addMonths(date: string, amount: number): string {
+  const [year, month] = date.split("-").map(Number);
+
+  return toDateInputValue(new Date(year, month - 1 + amount, 1));
+}
+
+export function formatMonthYear(date: string): string {
+  const [year, month] = date.split("-").map(Number);
+
+  return MONTH_YEAR_FORMATTER.format(new Date(year, month - 1, 1));
+}
