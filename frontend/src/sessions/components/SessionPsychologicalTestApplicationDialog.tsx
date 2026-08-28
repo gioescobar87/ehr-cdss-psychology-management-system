@@ -50,8 +50,9 @@ export default function SessionPsychologicalTestApplicationDialog({
   onClose,
   onSuccess,
 }: SessionPsychologicalTestApplicationDialogProps) {
-  // const [combinedAttachment, setCombinedAttachment] =
-  //   useState<File | null>(null);
+  const [combinedAttachment, setCombinedAttachment] = useState<File | null>(
+    null,
+  );
 
   const [interpretation, setInterpretation] = useState(
     application?.interpretacion ?? "",
@@ -71,7 +72,7 @@ export default function SessionPsychologicalTestApplicationDialog({
       return;
     }
 
-    // setCombinedAttachment(null);
+    setCombinedAttachment(null);
     setInterpretation(application?.interpretacion ?? "");
 
     onClose();
@@ -82,17 +83,9 @@ export default function SessionPsychologicalTestApplicationDialog({
       return;
     }
 
-    /*
-     * The combinedAttachment File is intentionally not uploaded yet.
-     *
-     * Once S3 is configured, this file will be sent to the backend
-     * as multipart/form-data. The backend will upload it to S3 and
-     * persist only the resulting S3 object key in archivoAdjunto.
-     */
     const request: SessionPsychologicalTestRequest = {
       sesionId: session.id,
       pruebaPsicologicaId: test.id,
-      archivoAdjunto: application?.archivoAdjunto || undefined,
       interpretacion: interpretation.trim() || undefined,
     };
 
@@ -101,6 +94,7 @@ export default function SessionPsychologicalTestApplicationDialog({
         {
           id: application.id,
           request,
+          attachment: combinedAttachment,
         },
         {
           onSuccess: () => {
@@ -117,16 +111,19 @@ export default function SessionPsychologicalTestApplicationDialog({
       return;
     }
 
-    createMutation.mutate(request, {
-      onSuccess: () => {
-        showSuccess(
-          "La aplicación de la prueba psicológica fue registrada correctamente.",
-        );
+    createMutation.mutate(
+      { request, attachment: combinedAttachment },
+      {
+        onSuccess: () => {
+          showSuccess(
+            "La aplicación de la prueba psicológica fue registrada correctamente.",
+          );
 
-        onSuccess?.();
-        onClose();
+          onSuccess?.();
+          onClose();
+        },
       },
-    });
+    );
   };
 
   const errorMessage = mutation.error
@@ -134,12 +131,7 @@ export default function SessionPsychologicalTestApplicationDialog({
     : null;
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
       <DialogTitle>
         <Stack spacing={0.5}>
           <Typography variant="h6" fontWeight={700}>
@@ -158,9 +150,7 @@ export default function SessionPsychologicalTestApplicationDialog({
 
       <DialogContent dividers>
         <Stack spacing={3} sx={{ pt: 1 }}>
-          {errorMessage && (
-            <Alert severity="error">{errorMessage}</Alert>
-          )}
+          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
 
           {test && (
             <Box
@@ -170,11 +160,7 @@ export default function SessionPsychologicalTestApplicationDialog({
                 bgcolor: "action.hover",
               }}
             >
-              <Stack
-                direction="row"
-                spacing={1.5}
-                alignItems="flex-start"
-              >
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
                 <Box
                   sx={{
                     width: 42,
@@ -192,10 +178,7 @@ export default function SessionPsychologicalTestApplicationDialog({
                 </Box>
 
                 <Box sx={{ minWidth: 0 }}>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                  >
+                  <Typography variant="subtitle1" fontWeight={700}>
                     {test.nombre}
                   </Typography>
 
@@ -212,22 +195,16 @@ export default function SessionPsychologicalTestApplicationDialog({
           )}
 
           <Box>
-            <Typography
-              variant="subtitle2"
-              fontWeight={600}
-              sx={{ mb: 1 }}
-            >
+            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
               Archivo adjunto
             </Typography>
 
             <FileAttachmentUploader
               disabled={isPending}
               existingFileName={
-                application?.archivoAdjunto
-                  ? "Archivo adjunto actual"
-                  : null
+                application?.archivoAdjunto ? "Archivo adjunto actual" : null
               }
-              // onCombinedFileChange={setCombinedAttachment}
+              onCombinedFileChange={setCombinedAttachment}
             />
           </Box>
 
@@ -235,9 +212,7 @@ export default function SessionPsychologicalTestApplicationDialog({
             fullWidth
             label="Interpretación clínica"
             value={interpretation}
-            onChange={(event) =>
-              setInterpretation(event.target.value)
-            }
+            onChange={(event) => setInterpretation(event.target.value)}
             disabled={isPending}
             multiline
             minRows={7}
@@ -253,10 +228,7 @@ export default function SessionPsychologicalTestApplicationDialog({
           py: 2,
         }}
       >
-        <Button
-          onClick={handleClose}
-          disabled={isPending}
-        >
+        <Button onClick={handleClose} disabled={isPending}>
           Cancelar
         </Button>
 

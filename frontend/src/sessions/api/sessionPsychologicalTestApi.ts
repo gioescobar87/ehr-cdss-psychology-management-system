@@ -27,10 +27,13 @@ export async function getPsychologicalTestApplicationById(
 
 export async function createPsychologicalTestApplication(
   request: SessionPsychologicalTestRequest,
+  attachment?: File | null,
 ): Promise<SessionPsychologicalTest> {
+  const formData = createApplicationFormData(request, attachment);
+
   const response = await apiClient.post<SessionPsychologicalTest>(
     "/aplicacion-prueba",
-    request,
+    formData,
   );
 
   return response.data;
@@ -39,11 +42,44 @@ export async function createPsychologicalTestApplication(
 export async function updatePsychologicalTestApplication(
   id: number,
   request: SessionPsychologicalTestRequest,
+  attachment?: File | null,
 ): Promise<SessionPsychologicalTest> {
+  const formData = createApplicationFormData(request, attachment);
+
   const response = await apiClient.put<SessionPsychologicalTest>(
     `/aplicacion-prueba/${id}`,
-    request,
+    formData,
   );
 
+  return response.data;
+}
+
+function createApplicationFormData(
+  request: SessionPsychologicalTestRequest,
+  attachment?: File | null,
+): FormData {
+  const formData = new FormData();
+
+  formData.append(
+    "request",
+    new Blob([JSON.stringify(request)], { type: "application/json" }),
+  );
+
+  if (attachment) {
+    formData.append("attachment", attachment, attachment.name);
+  }
+
+  return formData;
+}
+
+export async function getPsychologicalTestApplicationAttachment(
+  id: number,
+): Promise<Blob> {
+  const response = await apiClient.get<Blob>(
+    `/aplicacion-prueba/${id}/archivo`,
+    {
+      responseType: "blob",
+    },
+  );
   return response.data;
 }

@@ -12,14 +12,20 @@ import type { SessionPsychologicalTestRequest } from "../types/sessionPsychologi
 interface UpdatePsychologicalTestApplicationVariables {
   id: number;
   request: SessionPsychologicalTestRequest;
+  attachment?: File | null;
 }
 
 export function useCreatePsychologicalTestApplication() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: SessionPsychologicalTestRequest) =>
-      createPsychologicalTestApplication(request),
+    mutationFn: ({
+      request,
+      attachment,
+    }: {
+      request: SessionPsychologicalTestRequest;
+      attachment?: File | null;
+    }) => createPsychologicalTestApplication(request, attachment),
 
     onSuccess: (application) => {
       queryClient.invalidateQueries({
@@ -38,8 +44,9 @@ export function useUpdatePsychologicalTestApplication() {
     mutationFn: ({
       id,
       request,
+      attachment,
     }: UpdatePsychologicalTestApplicationVariables) =>
-      updatePsychologicalTestApplication(id, request),
+      updatePsychologicalTestApplication(id, request, attachment),
 
     onSuccess: (application) => {
       queryClient.invalidateQueries({

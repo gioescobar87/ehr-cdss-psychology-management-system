@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react";
 import {
     Box,
     Button,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -17,12 +18,14 @@ import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
 interface PdfPreviewDialogProps {
     open: boolean;
     file: File | null;
+    loading?: boolean;
     onClose: () => void;
 }
 
 export default function PdfPreviewDialog({
     open,
     file,
+    loading = false,
     onClose,
 }: PdfPreviewDialogProps) {
     const objectUrl = useMemo(() => {
@@ -88,7 +91,23 @@ export default function PdfPreviewDialog({
                     overflow: "hidden",
                 }}
             >
-                {objectUrl ? (
+                {loading ? (
+                    <Stack
+                        alignItems="center"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{
+                            height: "100%",
+                            minHeight: 400,
+                        }}
+                    >
+                        <CircularProgress />
+
+                        <Typography color="text.secondary">
+                            Cargando documento...
+                        </Typography>
+                    </Stack>
+                ) : objectUrl ? (
                     <Box
                         component="iframe"
                         src={objectUrl}

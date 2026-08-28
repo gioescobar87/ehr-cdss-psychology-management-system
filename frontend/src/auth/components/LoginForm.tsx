@@ -58,13 +58,13 @@ export default function LoginForm() {
           <FormTextField<LoginFormData>
             control={control}
             name="username"
-            label="Username"
+            label="Usuario"
           />
 
           <FormTextField<LoginFormData>
             control={control}
             name="password"
-            label="Password"
+            label="Contraseña"
             type="password"
           />
 

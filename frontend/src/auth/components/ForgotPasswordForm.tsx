@@ -45,10 +45,11 @@ export default function ForgotPasswordForm() {
       }}
     >
       <Typography variant="h4" mb={1} align="center">
-        Forgot Password
+        Recuperar contraseña
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={4} align="center">
-        Enter your email address to request a password reset.
+        Ingrese su correo electrónico para solicitar el restablecimiento de su
+        contraseña.
       </Typography>
       <Box
         component="form"
@@ -59,7 +60,7 @@ export default function ForgotPasswordForm() {
           <FormTextField<ForgotPasswordFormData>
             control={control}
             name="email"
-            label="Email"
+            label="Correo electrónico"
             type="email"
           />
           <Button
@@ -69,22 +70,22 @@ export default function ForgotPasswordForm() {
             disabled={forgotPasswordMutation.isPending}
           >
             {forgotPasswordMutation.isPending
-              ? "Sending..."
-              : "Send Reset Request"}
+              ? "Enviando..."
+              : "Solicitar restablecimiento"}
           </Button>
           {forgotPasswordMutation.isSuccess && (
             <Typography color="success.main">
-              If an account exists with that email address, a password reset
-              request has been created.
+              Si existe una cuenta con ese correo electrónico, se ha creado la
+              solicitud de restablecimiento.
             </Typography>
           )}
           {forgotPasswordMutation.isError && (
             <Typography color="error">
-              Unable to process the password reset request. Please try again.
+              No fue posible procesar la solicitud. Intente nuevamente.
             </Typography>
           )}
           <Button variant="text" onClick={() => navigate("/login")}>
-            Back to Login
+            Volver a iniciar sesión
           </Button>
         </Stack>
       </Box>
