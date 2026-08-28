@@ -11,30 +11,43 @@ import com.clinica.psicologia.system.model.clinical.AplicacionPrueba;
 @Component
 public class AplicacionPruebaMapper {
 
-    public AplicacionPruebaResponseDTO toResponseDTO(AplicacionPrueba entity) {
+    public AplicacionPruebaResponseDTO toResponseDTO(
+            AplicacionPrueba entity) {
 
-        AplicacionPruebaResponseDTO dto = new AplicacionPruebaResponseDTO();
+        AplicacionPruebaResponseDTO dto =
+                new AplicacionPruebaResponseDTO();
 
         dto.setId(entity.getId());
         dto.setSesionId(entity.getSesion().getId());
-        dto.setPruebaPsicologicaId(entity.getPruebaPsicologica().getId());
-        dto.setFechaAplicacion(entity.getFechaAplicacion());
-        dto.setArchivoAdjunto(entity.getArchivoAdjunto());
-        dto.setInterpretacion(entity.getInterpretacion());
-        dto.setEstadoId(entity.getEstado().getId());
-        dto.setEstado(entity.getEstado().getNombre());
+        dto.setPruebaPsicologicaId(
+                entity.getPruebaPsicologica().getId());
+        dto.setFechaAplicacion(
+                entity.getFechaAplicacion());
+        dto.setArchivoAdjunto(
+                entity.getArchivoAdjunto());
+        dto.setInterpretacion(
+                entity.getInterpretacion());
+        dto.setEstadoId(
+                entity.getEstado().getId());
+        dto.setEstado(
+                entity.getEstado().getNombre());
 
         return dto;
     }
 
-    public List<AplicacionPruebaResponseDTO> toResponseList(List<AplicacionPrueba> entities) {
+    public List<AplicacionPruebaResponseDTO> toResponseList(
+            List<AplicacionPrueba> entities) {
+
         return entities.stream()
                 .map(this::toResponseDTO)
                 .toList();
     }
 
-    public void updateEntity(AplicacionPrueba entity, AplicacionPruebaRequestDTO dto) {
-        entity.setArchivoAdjunto(dto.getArchivoAdjunto());
-        entity.setInterpretacion(dto.getInterpretacion());
+    public void updateEntity(
+            AplicacionPrueba entity,
+            AplicacionPruebaRequestDTO dto) {
+
+        entity.setInterpretacion(
+                dto.getInterpretacion());
     }
 }

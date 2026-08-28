@@ -19,8 +19,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name="aplicacion_prueba")
-public class AplicacionPrueba extends BaseEntity{
+@Table(name = "aplicacion_prueba")
+public class AplicacionPrueba extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "sesion_id", nullable = false)
