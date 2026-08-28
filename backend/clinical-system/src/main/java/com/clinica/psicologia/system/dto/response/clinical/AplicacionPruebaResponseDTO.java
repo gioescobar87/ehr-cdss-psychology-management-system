@@ -2,8 +2,6 @@ package com.clinica.psicologia.system.dto.response.clinical;
 
 import java.time.LocalDate;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import lombok.Getter;
 import lombok.Setter;
 
