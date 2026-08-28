@@ -20,6 +20,7 @@ export interface Sesion {
   estadoId: number;
   estado: string;
   citaId: number;
+  proximaCitaId?: number | null;
 }
 
 export interface SessionType {

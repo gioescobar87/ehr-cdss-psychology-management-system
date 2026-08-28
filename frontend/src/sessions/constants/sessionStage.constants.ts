@@ -13,8 +13,8 @@ export const SESSION_STAGE_ITEMS: SessionStageNavigationItem[] = [
     label: "Evaluación",
   },
   {
-    id: "intervention",
-    label: "Intervención",
+    id: "treatmentPlan",
+    label: "Plan terapeútico",
   },
   {
     id: "evolution",
@@ -25,7 +25,7 @@ export const SESSION_STAGE_ITEMS: SessionStageNavigationItem[] = [
 export const SESSION_STAGE_SECTION_IDS: Record<SessionStage, string> = {
   context: "session-context",
   evaluation: "session-evaluation",
-  intervention: "session-intervention",
+  treatmentPlan: "session-intervention",
   evolution: "session-evolution",
 };
 

@@ -1,4 +1,4 @@
-import { Box, Divider, List, Stack, Typography } from "@mui/material";
+import { Box, List, Stack, Typography } from "@mui/material";
 
 import type {
   ClinicalActivity,
@@ -22,17 +22,26 @@ export default function ClinicalRecordTimeline({
 }: ClinicalRecordTimelineProps) {
   return (
     <Stack
-      spacing={2}
+      spacing={1.5}
       sx={{
-        pt: 1,
+        p: 1.25,
       }}
     >
-      {encounters.map((encounter, encounterIndex) => (
-        <Box key={encounter.sessionId}>
+      {encounters.map((encounter) => (
+        <Box
+          key={encounter.sessionId}
+          sx={{
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 1.5,
+            overflow: "hidden",
+          }}
+        >
           <Box
             sx={{
-              px: 1,
-              mb: 1,
+              px: 1.5,
+              py: 1,
+              bgcolor: "action.hover",
             }}
           >
             <Typography
@@ -61,7 +70,7 @@ export default function ClinicalRecordTimeline({
             )}
           </Box>
 
-          <List disablePadding>
+          <List disablePadding sx={{ p: 0.5 }}>
             {encounter.activities.map((activity) => (
               <ClinicalRecordActivity
                 key={activity.id}
@@ -71,14 +80,6 @@ export default function ClinicalRecordTimeline({
               />
             ))}
           </List>
-
-          {encounterIndex < encounters.length - 1 && (
-            <Divider
-              sx={{
-                mt: 1.5,
-              }}
-            />
-          )}
         </Box>
       ))}
     </Stack>

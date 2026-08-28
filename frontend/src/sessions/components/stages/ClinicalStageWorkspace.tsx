@@ -22,7 +22,7 @@ export default function ClinicalStageWorkspace({
     case "evaluation":
       return <EvaluationStage session={session} />;
 
-    case "intervention":
+    case "treatmentPlan":
       return <InterventionStage session={session} />;
 
     case "evolution":

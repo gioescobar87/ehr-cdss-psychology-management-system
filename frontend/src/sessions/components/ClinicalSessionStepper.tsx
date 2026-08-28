@@ -2,8 +2,9 @@ import { Box, Stack, Typography } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-export type ClinicalSessionStep =
-  "context" | "evaluation" | "intervention" | "evolution";
+import type { SessionStage } from "../types/sessionWorkspace.types";
+
+export type ClinicalSessionStep = SessionStage;
 
 interface ClinicalSessionStepperProps {
   activeStep: ClinicalSessionStep;
@@ -26,8 +27,8 @@ const STEPS: StepDefinition[] = [
     label: "Evaluación",
   },
   {
-    id: "intervention",
-    label: "Intervención",
+    id: "treatmentPlan",
+    label: "Plan terapeútico",
   },
   {
     id: "evolution",

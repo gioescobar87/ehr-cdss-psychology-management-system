@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Alert,
@@ -31,6 +31,8 @@ import {
 import { getApiErrorMessage } from "../../shared/utils/apiError";
 import { useNotification } from "../../shared/hooks/useNotification";
 
+import FileAttachmentUploader from "../../shared/components/forms/FileAttachmentUploader";
+
 interface SessionPsychologicalTestApplicationDialogProps {
   open: boolean;
   session: Sesion;
@@ -48,9 +50,8 @@ export default function SessionPsychologicalTestApplicationDialog({
   onClose,
   onSuccess,
 }: SessionPsychologicalTestApplicationDialogProps) {
-  const [attachment, setAttachment] = useState(
-    application?.archivoAdjunto ?? "",
-  );
+  // const [combinedAttachment, setCombinedAttachment] =
+  //   useState<File | null>(null);
 
   const [interpretation, setInterpretation] = useState(
     application?.interpretacion ?? "",
@@ -65,17 +66,13 @@ export default function SessionPsychologicalTestApplicationDialog({
   const mutation = isEditMode ? updateMutation : createMutation;
   const isPending = mutation.isPending;
 
-  useEffect(() => {
-    if (open) {
-      setAttachment(application?.archivoAdjunto ?? "");
-      setInterpretation(application?.interpretacion ?? "");
-    }
-  }, [open, application]);
-
   const handleClose = () => {
     if (isPending) {
       return;
     }
+
+    // setCombinedAttachment(null);
+    setInterpretation(application?.interpretacion ?? "");
 
     onClose();
   };
@@ -85,10 +82,17 @@ export default function SessionPsychologicalTestApplicationDialog({
       return;
     }
 
+    /*
+     * The combinedAttachment File is intentionally not uploaded yet.
+     *
+     * Once S3 is configured, this file will be sent to the backend
+     * as multipart/form-data. The backend will upload it to S3 and
+     * persist only the resulting S3 object key in archivoAdjunto.
+     */
     const request: SessionPsychologicalTestRequest = {
       sesionId: session.id,
       pruebaPsicologicaId: test.id,
-      archivoAdjunto: attachment.trim() || undefined,
+      archivoAdjunto: application?.archivoAdjunto || undefined,
       interpretacion: interpretation.trim() || undefined,
     };
 
@@ -130,7 +134,12 @@ export default function SessionPsychologicalTestApplicationDialog({
     : null;
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="md"
+    >
       <DialogTitle>
         <Stack spacing={0.5}>
           <Typography variant="h6" fontWeight={700}>
@@ -149,7 +158,9 @@ export default function SessionPsychologicalTestApplicationDialog({
 
       <DialogContent dividers>
         <Stack spacing={3} sx={{ pt: 1 }}>
-          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+          {errorMessage && (
+            <Alert severity="error">{errorMessage}</Alert>
+          )}
 
           {test && (
             <Box
@@ -159,7 +170,11 @@ export default function SessionPsychologicalTestApplicationDialog({
                 bgcolor: "action.hover",
               }}
             >
-              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+              <Stack
+                direction="row"
+                spacing={1.5}
+                alignItems="flex-start"
+              >
                 <Box
                   sx={{
                     width: 42,
@@ -177,7 +192,10 @@ export default function SessionPsychologicalTestApplicationDialog({
                 </Box>
 
                 <Box sx={{ minWidth: 0 }}>
-                  <Typography variant="subtitle1" fontWeight={700}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={700}
+                  >
                     {test.nombre}
                   </Typography>
 
@@ -193,23 +211,33 @@ export default function SessionPsychologicalTestApplicationDialog({
             </Box>
           )}
 
-          <TextField
-            fullWidth
-            label="Archivo adjunto"
-            value={attachment}
-            onChange={(event) => setAttachment(event.target.value)}
-            disabled={isPending}
-            multiline
-            minRows={2}
-            placeholder="Referencia al documento o archivo asociado"
-            helperText="Opcional. Registre una referencia al documento o archivo relacionado con la aplicación."
-          />
+          <Box>
+            <Typography
+              variant="subtitle2"
+              fontWeight={600}
+              sx={{ mb: 1 }}
+            >
+              Archivo adjunto
+            </Typography>
+
+            <FileAttachmentUploader
+              disabled={isPending}
+              existingFileName={
+                application?.archivoAdjunto
+                  ? "Archivo adjunto actual"
+                  : null
+              }
+              // onCombinedFileChange={setCombinedAttachment}
+            />
+          </Box>
 
           <TextField
             fullWidth
             label="Interpretación clínica"
             value={interpretation}
-            onChange={(event) => setInterpretation(event.target.value)}
+            onChange={(event) =>
+              setInterpretation(event.target.value)
+            }
             disabled={isPending}
             multiline
             minRows={7}
@@ -225,7 +253,10 @@ export default function SessionPsychologicalTestApplicationDialog({
           py: 2,
         }}
       >
-        <Button onClick={handleClose} disabled={isPending}>
+        <Button
+          onClick={handleClose}
+          disabled={isPending}
+        >
           Cancelar
         </Button>
 

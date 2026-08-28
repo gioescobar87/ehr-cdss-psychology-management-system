@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -15,7 +15,7 @@ import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 
 import { useCreateAppointment } from "../../appointments/hooks/useCreateAppointment";
 import { useUpdateAppointment } from "../../appointments/hooks/useUpdateAppointment";
-import { useAppointment } from "../../appointments/hooks/useAppointment";
+import { usePatientAppointments } from "../../appointments/hooks/usePatientAppointments";
 import { APPOINTMENT_STATUS } from "../../appointments/constants/appointmentStatus";
 import {
   combineDateAndTime,
@@ -23,6 +23,7 @@ import {
 } from "../../shared/utils/dateUtils";
 import { getApiErrorMessage } from "../../shared/utils/apiError";
 import { useAuth } from "../../auth/hooks/useAuth";
+import { useCurrentTime } from "../../shared/hooks/useCurrentTime";
 import type { Sesion } from "../types/session.types";
 import type {
   Appointment,
@@ -41,12 +42,35 @@ export default function NextAppointment({ session }: NextAppointmentProps) {
   const [objective, setObjective] = useState("");
   const mutation = useCreateAppointment();
   const updateMutation = useUpdateAppointment();
-  const { data: linkedAppointment } = useAppointment(session.citaId);
+  const { data: patientAppointments = [] } = usePatientAppointments(
+    session.pacienteId,
+  );
   const [scheduledAppointment, setScheduledAppointment] =
     useState<Appointment | null>(null);
   const { user } = useAuth();
+  const currentTime = useCurrentTime();
 
-  const appointment = scheduledAppointment ?? linkedAppointment ?? null;
+  // The next appointment is the closest one scheduled after the current date/time,
+  // regardless of whether it was created from the agenda or from this stepper.
+  const upcomingAppointment = useMemo(() => {
+    const now = currentTime.getTime();
+
+    return (
+      patientAppointments
+        .filter(
+          (candidate) =>
+            candidate.estadoId !== APPOINTMENT_STATUS.CANCELLED &&
+            new Date(candidate.fechaHoraInicio).getTime() > now,
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.fechaHoraInicio).getTime() -
+            new Date(b.fechaHoraInicio).getTime(),
+        )[0] ?? null
+    );
+  }, [patientAppointments, currentTime]);
+
+  const appointment = scheduledAppointment ?? upcomingAppointment;
   const isEditing = appointment !== null;
   const isPending = mutation.isPending || updateMutation.isPending;
   const timeError = Boolean(startTime && endTime && endTime <= startTime);

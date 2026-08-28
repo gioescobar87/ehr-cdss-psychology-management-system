@@ -1,9 +1,19 @@
-import { Alert, Box, CircularProgress, Typography } from "@mui/material";
+import { useState } from "react";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
 
 import type { Sesion } from "../types/session.types";
 import type { SessionStage } from "../types/sessionWorkspace.types";
 
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
+import { useSessionTypes } from "../hooks/useSessionTypes";
+import { useUpdateSession } from "../hooks/useUpdateSession";
 
 import ClinicalSessionStepper from "./ClinicalSessionStepper";
 import ClinicalStageWorkspace from "./stages/ClinicalStageWorkspace";
@@ -104,35 +114,44 @@ export default function ClinicalSessionWorkspace({
 
       <Box
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 2,
           mb: 2.5,
         }}
       >
-        <Typography
-          variant="h4"
-          component="h2"
-          fontWeight={700}
-          sx={{
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {patient.nombre} {patient.apellido}
-        </Typography>
+        <Box>
+          <Typography
+            variant="h4"
+            component="h2"
+            fontWeight={700}
+            sx={{
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {patient.nombre} {patient.apellido}
+          </Typography>
 
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{
-            mt: 0.5,
-          }}
-        >
-          {[
-            age !== null ? `${age} años` : null,
-            formattedSex,
-            patient.ocupacion,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{
+              mt: 0.5,
+            }}
+          >
+            {[
+              age !== null ? `${age} años` : null,
+              formattedSex,
+              patient.ocupacion,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </Typography>
+        </Box>
+
+        <SessionTypeSelector session={session} />
       </Box>
 
       {/* Clinical session workspace */}
@@ -178,5 +197,43 @@ export default function ClinicalSessionWorkspace({
         </Box>
       </Box>
     </Box>
+  );
+}
+
+function SessionTypeSelector({ session }: { session: Sesion }) {
+  const { data: sessionTypes = [] } = useSessionTypes();
+  const updateMutation = useUpdateSession();
+  const [tipoSesionId, setTipoSesionId] = useState(session.tipoSesionId);
+
+  const handleChange = (value: number) => {
+    setTipoSesionId(value);
+
+    updateMutation.mutate({
+      id: session.id,
+      request: {
+        pacienteId: session.pacienteId,
+        usuarioId: session.usuarioId,
+        tipoSesionId: value,
+        fechaSesion: session.fechaSesion,
+        observacionesGenerales: session.observacionesGenerales,
+        citaId: session.citaId,
+      },
+    });
+  };
+
+  return (
+    <Select
+      size="small"
+      value={tipoSesionId}
+      onChange={(event) => handleChange(Number(event.target.value))}
+      disabled={updateMutation.isPending || sessionTypes.length === 0}
+      sx={{ minWidth: 200 }}
+    >
+      {sessionTypes.map((type) => (
+        <MenuItem key={type.id} value={type.id}>
+          {type.nombre}
+        </MenuItem>
+      ))}
+    </Select>
   );
 }

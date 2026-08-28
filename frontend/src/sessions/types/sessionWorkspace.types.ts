@@ -1,5 +1,5 @@
 export type SessionStage =
-  "context" | "evaluation" | "intervention" | "evolution";
+  "context" | "evaluation" | "treatmentPlan" | "evolution";
 
 export interface SessionStageNavigationItem {
   id: SessionStage;

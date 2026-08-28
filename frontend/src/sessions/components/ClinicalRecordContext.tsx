@@ -4,11 +4,10 @@ import {
   Box,
   Button,
   CircularProgress,
-  Divider,
   Typography,
 } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import MedicalHistoryDialog from "./MedicalHistoryDialog";
+import PatientDetailsDialog from "../../patients/components/PatientDetailsDialog";
 
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 import type { Sesion } from "../types/session.types";
@@ -47,7 +46,7 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(
     null,
   );
-  const [medicalHistoryOpen, setMedicalHistoryOpen] = useState(false);
+  const [patientDialogOpen, setPatientDialogOpen] = useState(false);
 
   const selectedActivity = useMemo(
     () =>
@@ -111,7 +110,7 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
           borderColor: "divider",
         }}
       >
-        <Box sx={{ px: 2, py: 1.5 }}>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider" }}>
           <Typography
             variant="overline"
             color="text.secondary"
@@ -120,7 +119,6 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
             Historial clínico
           </Typography>
         </Box>
-        <Divider />
         <Box sx={{ minHeight: 0, overflowY: "auto" }}>
           {encounters.length > 0 ? (
             <ClinicalRecordTimeline
@@ -171,9 +169,9 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
                 size="small"
                 variant="outlined"
                 startIcon={<VisibilityOutlinedIcon />}
-                onClick={() => setMedicalHistoryOpen(true)}
+                onClick={() => setPatientDialogOpen(true)}
               >
-                Ver historial médico
+                Ver paciente
               </Button>
             </Box>
             <Box sx={{ mt: 2 }}>
@@ -182,10 +180,10 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
           </>
         ) : null}
       </Box>
-      <MedicalHistoryDialog
-        open={medicalHistoryOpen}
+      <PatientDetailsDialog
+        open={patientDialogOpen}
         patientId={session.pacienteId}
-        onClose={() => setMedicalHistoryOpen(false)}
+        onClose={() => setPatientDialogOpen(false)}
       />
     </Box>
   );

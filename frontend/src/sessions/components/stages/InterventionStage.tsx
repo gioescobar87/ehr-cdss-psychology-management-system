@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import type { Sesion } from "../../types/session.types";
 import SessionInterventions from "../SessionIntervention";
 import SessionObjectives from "../SessionObjectives";
+import SessionTreatmentPlan from "../SessionTreatmentPlan";
 import StageNavigator from "./StageNavigator";
 
 interface InterventionStageProps {
@@ -33,12 +34,13 @@ export default function InterventionStage({ session }: InterventionStageProps) {
       }}
     >
       <StageNavigator
-        title="Intervención"
+        title="Plan terapéutico"
         selectedId={selectedId}
         onSelect={setSelectedId}
         items={[
           { id: "objectives", label: "Objetivos terapéuticos" },
           { id: "interventions", label: "Intervenciones realizadas" },
+          { id: "treatment-plan", label: "Plan terapéutico" },
         ]}
       />
       <Box
@@ -51,8 +53,10 @@ export default function InterventionStage({ session }: InterventionStageProps) {
       >
         {selectedId === "objectives" ? (
           <SessionObjectives session={session} />
-        ) : (
+        ) : selectedId === "interventions" ? (
           <SessionInterventions session={session} allowCreate={false} />
+        ) : (
+          <SessionTreatmentPlan session={session} />
         )}
       </Box>
     </Box>

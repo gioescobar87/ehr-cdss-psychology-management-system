@@ -1,6 +1,7 @@
 export interface SesionPaciente {
   id: number;
   pacienteId: number;
+  usuarioId: number;
   tipoSesionId: number;
   tipoSesion?: string;
   fechaSesion: string;
