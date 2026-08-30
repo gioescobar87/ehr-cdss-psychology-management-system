@@ -26,14 +26,13 @@ export default function ForbiddenPage() {
           403
         </Typography>
         <Typography variant="h5" gutterBottom>
-          Access Forbidden
+          Acceso denegado
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 3 }}>
-          You are authenticated, but you do not have permission to access this
-          resource.
+          No cuenta con autorización para acceder a este sitio.
         </Typography>
         <Button variant="contained" onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
+          Volver al inicio
         </Button>
       </Paper>
     </Box>
