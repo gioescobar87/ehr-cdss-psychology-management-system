@@ -1,0 +1,5 @@
+ALTER TABLE paciente
+ADD COLUMN fecha_inicio TIMESTAMP NULL,
+ADD COLUMN motivo_inicio TEXT NULL,
+ADD COLUMN fecha_cierre TIMESTAMP NULL,
+ADD COLUMN motivo_cierre TEXT NULL;
