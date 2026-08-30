@@ -90,7 +90,27 @@ public class SesionServiceImpl implements SesionService {
 
                 mapper.updateEntity(entity, request);
 
-                return mapper.toResponseDTO(repository.save(entity));
+                Sesion savedEntity = repository.save(entity);
+
+                registrarInicioDeCaso(paciente, savedEntity.getFechaSesion());
+
+                return mapper.toResponseDTO(savedEntity);
+        }
+
+        /** The case start is captured on the patient's first session, keeping the reason of their earliest appointment. */
+        private void registrarInicioDeCaso(Paciente paciente, LocalDateTime fechaPrimeraSesion) {
+
+                if (paciente.getFechaInicio() != null) {
+                        return;
+                }
+
+                paciente.setFechaInicio(fechaPrimeraSesion);
+
+                citaRepository
+                                .findFirstByPacienteIdOrderByFechaHoraInicioAsc(paciente.getId())
+                                .ifPresent(primeraCita -> paciente.setMotivoInicio(primeraCita.getMotivo()));
+
+                pacienteRepository.save(paciente);
         }
 
         @Override
@@ -163,6 +183,14 @@ public class SesionServiceImpl implements SesionService {
 
                 return mapper.toResponseDTOList(
                                 repository.findByUsuarioIdOrderByFechaSesionDesc(usuarioId));
+        }
+
+        @Override
+        public List<SesionResponseDTO> getByUserActivePatient(Integer usuarioId) {
+
+                return mapper.toResponseDTOList(
+                                repository.findByUsuarioIdAndActiveAssignmentOrderByFechaSesionDesc(
+                                                usuarioId));
         }
 
         @Override

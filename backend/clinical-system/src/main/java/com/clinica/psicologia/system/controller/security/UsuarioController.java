@@ -115,6 +115,11 @@ public class UsuarioController {
         return ResponseEntity.ok(sesionService.getByUser(id));
     }
 
+    @GetMapping("/{id}/sesiones-asignadas")
+    public ResponseEntity<List<SesionResponseDTO>> obtenerSesionesAsignadas(@PathVariable Integer id) {
+        return ResponseEntity.ok(sesionService.getByUserActivePatient(id));
+    }
+
     @GetMapping("/{id}/pacientes")
     public ResponseEntity<List<PacienteAsignacionResponseDTO>> obtenerPacientes(@PathVariable Integer id) {
         return ResponseEntity.ok(pacienteAsignacionService.getPacientesActualesByUsuario(id));

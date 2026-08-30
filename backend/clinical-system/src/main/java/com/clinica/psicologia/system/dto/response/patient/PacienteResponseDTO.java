@@ -18,7 +18,11 @@ public record PacienteResponseDTO(
     Integer estadoId,
     String estado,
     Integer edad,
-    String refiere
+    String refiere,
+    java.time.LocalDateTime fechaInicio,
+    String motivoInicio,
+    java.time.LocalDateTime fechaCierre,
+    String motivoCierre
 ) {
     
 }

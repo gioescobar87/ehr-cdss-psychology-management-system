@@ -8,4 +8,8 @@ import java.util.List;
 
 public interface PacienteRepository extends JpaRepository<Paciente, Integer>{
 	List<Paciente> findByIdInAndEstadoId(List<Integer> ids, Integer estadoId);
+
+	List<Paciente> findByIdInAndEstadoIdAndFechaCierreIsNull(List<Integer> ids, Integer estadoId);
+
+	List<Paciente> findByFechaCierreIsNull();
 }

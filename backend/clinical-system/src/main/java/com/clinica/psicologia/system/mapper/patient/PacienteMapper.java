@@ -53,7 +53,11 @@ public class PacienteMapper {
             paciente.getEstado() != null ? paciente.getEstado().getId() : null,
             paciente.getEstado() != null ? paciente.getEstado().getNombre() : null,
             edad,
-            paciente.getRefiere()
+            paciente.getRefiere(),
+            paciente.getFechaInicio(),
+            paciente.getMotivoInicio(),
+            paciente.getFechaCierre(),
+            paciente.getMotivoCierre()
         );
     }
 

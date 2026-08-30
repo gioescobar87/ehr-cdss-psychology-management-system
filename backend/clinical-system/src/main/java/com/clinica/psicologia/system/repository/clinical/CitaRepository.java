@@ -2,6 +2,7 @@ package com.clinica.psicologia.system.repository.clinical;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,6 +11,8 @@ import com.clinica.psicologia.system.model.clinical.Cita;
 public interface CitaRepository extends JpaRepository<Cita, Integer> {
 
         List<Cita> findByPacienteId(Integer pacienteId);
+
+        Optional<Cita> findFirstByPacienteIdOrderByFechaHoraInicioAsc(Integer pacienteId);
 
         List<Cita> findByUsuarioId(Integer usuarioId);
 

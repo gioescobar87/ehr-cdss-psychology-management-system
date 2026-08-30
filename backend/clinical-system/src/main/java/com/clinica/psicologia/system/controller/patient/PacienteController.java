@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
+import com.clinica.psicologia.system.dto.request.patient.CerrarCasoRequestDTO;
 import com.clinica.psicologia.system.dto.request.patient.PacienteHistorialRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
@@ -104,7 +106,7 @@ public class PacienteController {
             .map(PacienteAsignacionResponseDTO::getPacienteId)
             .toList();
 
-        return pacienteRepository.findByIdInAndEstadoId(patientIds, 1)
+        return pacienteRepository.findByIdInAndEstadoIdAndFechaCierreIsNull(patientIds, 1)
             .stream()
             .map(pacienteMapper::toResponse)
             .toList();
@@ -130,6 +132,14 @@ public class PacienteController {
             @PathVariable Integer id,
             @RequestBody PacienteHistorialRequestDTO request) {
         pacienteHistorialService.actualizar(id, request);
+    }
+
+    @PatchMapping("/{id}/cerrar-caso")
+    public ResponseEntity<PacienteResponseDTO> cerrarCaso(
+            @PathVariable Integer id,
+            @Valid @RequestBody CerrarCasoRequestDTO request) {
+
+        return ResponseEntity.ok(service.cerrarCaso(id, request));
     }
 
     @RestControllerAdvice

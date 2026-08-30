@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.clinica.psicologia.system.dto.request.patient.CerrarCasoRequestDTO;
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.request.patient.AsignarPacienteRequestDTO;
 import com.clinica.psicologia.system.dto.response.patient.PacienteResponseDTO;
@@ -14,6 +15,7 @@ import com.clinica.psicologia.system.model.patient.Paciente;
 import com.clinica.psicologia.system.repository.catalog.EstadoCivilRepository;
 import com.clinica.psicologia.system.repository.catalog.NivelEscolaridadRepository;
 import com.clinica.psicologia.system.repository.patient.PacienteRepository;
+import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.patient.PacienteService;
 import com.clinica.psicologia.system.service.patient.PacienteAsignacionService;
@@ -56,7 +58,7 @@ public class PacienteServiceImpl implements PacienteService {
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public List<PacienteResponseDTO> obtenerPacientes() {
-        return pacienteRepository.findAll()
+        return pacienteRepository.findByFechaCierreIsNull()
                 .stream()
                 .map(pacienteMapper::toResponse)
                 .toList();
@@ -85,12 +87,28 @@ public class PacienteServiceImpl implements PacienteService {
         return pacienteMapper.toResponse(paciente);
     }
 
+    @Override
+    public PacienteResponseDTO cerrarCaso(Integer id, CerrarCasoRequestDTO dto) {
+
+        Paciente paciente = obtenerPaciente(id);
+
+        if (paciente.getFechaCierre() != null) {
+            throw new BusinessRuleException("El caso del paciente ya fue cerrado.");
+        }
+
+        paciente.setFechaCierre(java.time.LocalDateTime.now());
+        paciente.setMotivoCierre(dto.getMotivoCierre());
+
+        paciente = pacienteRepository.save(paciente);
+
+        return pacienteMapper.toResponse(paciente);
+    }
+
     private Paciente obtenerPaciente(Integer id) {
         return pacienteRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Paciente no encontrado: " + id));
     }
-
     private EstadoCivil obtenerEstadoCivil(Integer id) {
         if (id == null) {
             return null;

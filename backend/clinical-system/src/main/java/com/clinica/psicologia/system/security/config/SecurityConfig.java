@@ -290,6 +290,9 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.PUT, "/api/paciente/**")
                                                 .access(hasPermission("PACIENTE_WRITE"))
 
+                                                .requestMatchers(HttpMethod.PATCH, "/api/paciente/**")
+                                                .access(hasPermission("PACIENTE_WRITE"))
+
                                                 // =========================
                                                 // EMERGENCY CONTACTS
                                                 // ========================= "/api/contacto-emergencia"

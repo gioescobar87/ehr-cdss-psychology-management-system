@@ -21,6 +21,8 @@ public interface SesionService {
 
     List<SesionResponseDTO> getByUser(Integer usuarioId);
 
+    List<SesionResponseDTO> getByUserActivePatient(Integer usuarioId);
+
     List<SesionResponseDTO> getByCita(Integer citaId);
 
     SesionResponseDTO asignarProximaCita(Integer id, Integer citaId);

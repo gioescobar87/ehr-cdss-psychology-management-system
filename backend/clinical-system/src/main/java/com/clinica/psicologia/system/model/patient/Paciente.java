@@ -66,6 +66,20 @@ public class Paciente extends BaseEntity {
     @Convert(converter = StringEncryptConverter.class)
     private String refiere;
 
+    @Column(name = "fecha_inicio")
+    private LocalDateTime fechaInicio;
+
+    @Column(name = "motivo_inicio")
+    @Convert(converter = StringEncryptConverter.class)
+    private String motivoInicio;
+
+    @Column(name = "fecha_cierre")
+    private LocalDateTime fechaCierre;
+
+    @Column(name = "motivo_cierre")
+    @Convert(converter = StringEncryptConverter.class)
+    private String motivoCierre;
+
     @PrePersist
     public void prePersist() {
 
