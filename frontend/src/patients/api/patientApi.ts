@@ -18,3 +18,14 @@ export async function updatePatient(
   const response = await apiClient.put<Patient>(`/paciente/${id}`, request);
   return response.data;
 }
+
+export async function closePatientCase(
+  id: number,
+  motivoCierre: string,
+): Promise<Patient> {
+  const response = await apiClient.patch<Patient>(
+    `/paciente/${id}/cerrar-caso`,
+    { motivoCierre },
+  );
+  return response.data;
+}

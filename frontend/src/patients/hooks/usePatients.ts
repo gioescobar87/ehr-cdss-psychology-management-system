@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createPatient, getPatients, updatePatient } from "../api/patientApi";
+import {
+  createPatient,
+  getPatients,
+  updatePatient,
+  closePatientCase,
+} from "../api/patientApi";
 import type { PatientRequest } from "../types/patient.types";
 
 export const patientKeys = {
@@ -28,6 +33,18 @@ export function useCreatePatient() {
 
   return useMutation({
     mutationFn: createPatient,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: patientKeys.all });
+    },
+  });
+}
+
+export function useClosePatientCase() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, motivoCierre }: { id: number; motivoCierre: string }) =>
+      closePatientCase(id, motivoCierre),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: patientKeys.all });
     },

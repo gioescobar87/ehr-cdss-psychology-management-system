@@ -17,6 +17,10 @@ export interface Patient {
   estado: string | null;
   edad: number;
   refiere: string | null;
+  fechaInicio: string | null;
+  motivoInicio: string | null;
+  fechaCierre: string | null;
+  motivoCierre: string | null;
 }
 
 export interface PatientRequest {

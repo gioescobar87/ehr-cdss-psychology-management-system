@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import {
   Alert,
   Box,
@@ -6,6 +7,10 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   MenuItem,
   Select,
@@ -19,6 +24,8 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import FolderOffOutlinedIcon from "@mui/icons-material/FolderOffOutlined";
 import { useQueries } from "@tanstack/react-query";
 
 import PageHeader from "../../shared/components/common/PageHeader";
@@ -30,6 +37,7 @@ import {
   useCreatePatient,
   usePatients,
   useUpdatePatient,
+  useClosePatientCase,
 } from "../hooks/usePatients";
 import { usePatientCatalogs } from "../hooks/usePatientCatalogs";
 import { useMedicalHistory } from "../../sessions/hooks/useMedicalHistory";
@@ -141,6 +149,7 @@ function PatientWorkspace({
   const createMutation = useCreatePatient();
   const historyMutation = useUpdatePatientHistory();
   const { showSuccess } = useNotification();
+  const isNewPatient = isCreating;
   const [form, setForm] = useState<PatientRequest>(() =>
     currentPatient ? toRequest(currentPatient) : emptyPatientRequest(),
   );
@@ -159,12 +168,15 @@ function PatientWorkspace({
   >({});
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(isNewPatient);
+  const [closeCaseDialogOpen, setCloseCaseDialogOpen] = useState(false);
+  const [closeCaseReason, setCloseCaseReason] = useState("");
+  const closeCaseMutation = useClosePatientCase();
 
   const updateField = (
     field: keyof PatientRequest,
     value: string | number | null,
   ) => setForm((current) => ({ ...current, [field]: value }));
-  const isNewPatient = isCreating;
   const catalogs = usePatientCatalogs(true);
   const existingRecords = useMemo(
     () =>
@@ -436,99 +448,125 @@ function PatientWorkspace({
                   )}
                 </Typography>
               </Box>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant="outlined"
-                  color="warning"
-                  startIcon={<CloseOutlinedIcon />}
-                  onClick={handleCancel}
-                  disabled={isSaving}
-                >
-                  Cancelar edición
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<SaveOutlinedIcon />}
-                  onClick={save}
-                  disabled={isSaving}
-                >
-                  {isSaving
-                    ? "Guardando..."
-                    : isNewPatient
-                      ? "Crear paciente"
-                      : "Guardar cambios"}
-                </Button>
-              </Stack>
+              {isEditing ? (
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    startIcon={<CloseOutlinedIcon />}
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                  >
+                    Cancelar edición
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<SaveOutlinedIcon />}
+                    onClick={save}
+                    disabled={isSaving}
+                  >
+                    {isSaving
+                      ? "Guardando..."
+                      : isNewPatient
+                        ? "Crear paciente"
+                        : "Guardar cambios"}
+                  </Button>
+                </Stack>
+              ) : (
+                <Stack direction="row" spacing={1}>
+                  {currentPatient && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      startIcon={<FolderOffOutlinedIcon />}
+                      onClick={() => setCloseCaseDialogOpen(true)}
+                    >
+                      Cerrar caso
+                    </Button>
+                  )}
+                  <Button
+                    variant="contained"
+                    startIcon={<EditOutlinedIcon />}
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Editar
+                  </Button>
+                </Stack>
+              )}
             </Box>
             <Box sx={{ minHeight: 0, overflowY: "auto", pt: 3 }}>
-              <Stack spacing={3}>
-                {(updateMutation.error || createMutation.error) && (
-                  <Alert severity="error">
-                    {getApiErrorMessage(
-                      updateMutation.error ?? createMutation.error,
-                    )}
-                  </Alert>
-                )}
-                <PersonalForm
-                  form={form}
-                  updateField={(field, value) => {
-                    setHasPendingChanges(true);
-                    updateField(field, value);
-                  }}
-                  civilStatuses={civilStatuses}
-                  educationLevels={educationLevels}
-                  refiere={form.refiere ?? ""}
-                  onRefiereChange={(value) => updateField("refiere", value)}
-                  //   status={currentPatient?.estado ?? "Pendiente"}
-                />
-                {(isNewPatient || currentPatient) && (
-                  <OptionalSectionsSelector
-                    records={allRecords}
-                    onAdd={(section) => {
+              {!isEditing && currentPatient ? (
+                <PatientReadOnlyView patient={currentPatient} />
+              ) : (
+                <Stack spacing={3}>
+                  {(updateMutation.error || createMutation.error) && (
+                    <Alert severity="error">
+                      {getApiErrorMessage(
+                        updateMutation.error ?? createMutation.error,
+                      )}
+                    </Alert>
+                  )}
+                  <PersonalForm
+                    form={form}
+                    updateField={(field, value) => {
                       setHasPendingChanges(true);
-                      setOptionalRecords((current) => ({
-                        ...current,
-                        [section]: [...current[section], createEmptyRecord()],
-                      }));
+                      updateField(field, value);
                     }}
-                    onRemoveRecord={(section, recordId) => {
-                      setHasPendingChanges(true);
-                      if (recordId.startsWith("existing-")) {
-                        setRemovedRecordIds((current) => [
-                          ...current,
-                          recordId,
-                        ]);
-                      } else {
-                        setOptionalRecords((current) => ({
-                          ...current,
-                          [section]: current[section].filter(
-                            (record) => record.id !== recordId,
-                          ),
-                        }));
-                      }
-                    }}
-                    onChangeRecord={(section, recordId, changes) => {
-                      setHasPendingChanges(true);
-                      if (recordId.startsWith("existing-")) {
-                        setRecordEdits((current) => ({
-                          ...current,
-                          [recordId]: { ...current[recordId], ...changes },
-                        }));
-                      } else {
-                        setOptionalRecords((current) => ({
-                          ...current,
-                          [section]: current[section].map((record) =>
-                            record.id === recordId
-                              ? { ...record, ...changes }
-                              : record,
-                          ),
-                        }));
-                      }
-                    }}
-                    catalogs={catalogs}
+                    civilStatuses={civilStatuses}
+                    educationLevels={educationLevels}
+                    refiere={form.refiere ?? ""}
+                    onRefiereChange={(value) => updateField("refiere", value)}
+                    //   status={currentPatient?.estado ?? "Pendiente"}
                   />
-                )}
-              </Stack>
+                  {(isNewPatient || currentPatient) && (
+                    <OptionalSectionsSelector
+                      records={allRecords}
+                      onAdd={(section) => {
+                        setHasPendingChanges(true);
+                        setOptionalRecords((current) => ({
+                          ...current,
+                          [section]: [...current[section], createEmptyRecord()],
+                        }));
+                      }}
+                      onRemoveRecord={(section, recordId) => {
+                        setHasPendingChanges(true);
+                        if (recordId.startsWith("existing-")) {
+                          setRemovedRecordIds((current) => [
+                            ...current,
+                            recordId,
+                          ]);
+                        } else {
+                          setOptionalRecords((current) => ({
+                            ...current,
+                            [section]: current[section].filter(
+                              (record) => record.id !== recordId,
+                            ),
+                          }));
+                        }
+                      }}
+                      onChangeRecord={(section, recordId, changes) => {
+                        setHasPendingChanges(true);
+                        if (recordId.startsWith("existing-")) {
+                          setRecordEdits((current) => ({
+                            ...current,
+                            [recordId]: { ...current[recordId], ...changes },
+                          }));
+                        } else {
+                          setOptionalRecords((current) => ({
+                            ...current,
+                            [section]: current[section].map((record) =>
+                              record.id === recordId
+                                ? { ...record, ...changes }
+                                : record,
+                            ),
+                          }));
+                        }
+                      }}
+                      catalogs={catalogs}
+                    />
+                  )}
+                </Stack>
+              )}
             </Box>
           </>
         )}
@@ -545,6 +583,72 @@ function PatientWorkspace({
           onCancel();
         }}
       />
+      <Dialog
+        open={closeCaseDialogOpen}
+        onClose={() => {
+          if (!closeCaseMutation.isPending) setCloseCaseDialogOpen(false);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Cerrar caso</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <Alert severity="warning">
+              Al cerrar el caso ya no podrá acceder a la información de
+              paciente. Esta acción es irreversible.
+            </Alert>
+            {closeCaseMutation.isError && (
+              <Alert severity="error">
+                {getApiErrorMessage(closeCaseMutation.error)}
+              </Alert>
+            )}
+            <TextField
+              label="Motivo de cierre"
+              value={closeCaseReason}
+              onChange={(event) => setCloseCaseReason(event.target.value)}
+              disabled={closeCaseMutation.isPending}
+              required
+              fullWidth
+              multiline
+              minRows={3}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setCloseCaseDialogOpen(false)}
+            disabled={closeCaseMutation.isPending}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={!closeCaseReason.trim() || closeCaseMutation.isPending}
+            onClick={() => {
+              if (!currentPatient) return;
+
+              closeCaseMutation.mutate(
+                {
+                  id: currentPatient.id,
+                  motivoCierre: closeCaseReason.trim(),
+                },
+                {
+                  onSuccess: () => {
+                    showSuccess("El caso del paciente fue cerrado.");
+                    setCloseCaseDialogOpen(false);
+                    setCloseCaseReason("");
+                    onCancel();
+                  },
+                },
+              );
+            }}
+          >
+            {closeCaseMutation.isPending ? "Cerrando..." : "Confirmar cierre"}
+          </Button>
+        </DialogActions>
+      </Dialog>
       {currentPatient && (
         <AppointmentDialog
           open={scheduleDialogOpen}
@@ -558,6 +662,234 @@ function PatientWorkspace({
         />
       )}
     </Box>
+  );
+}
+
+function PatientReadOnlyView({ patient }: { patient: Patient }) {
+  const history = useMedicalHistory(patient.id, true);
+  const isLoading = [
+    history.medical,
+    history.family,
+    history.allergies,
+    history.medications,
+    history.emergencyContacts,
+  ].some((query) => query.isLoading);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+        <CircularProgress size={28} />
+      </Box>
+    );
+  }
+
+  return (
+    <Stack spacing={3}>
+      <ReadOnlySection title="Información personal">
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+            gap: 2,
+          }}
+        >
+          {[
+            ["DPI", patient.dpi || "---"],
+            [
+              "Fecha de nacimiento",
+              `${patient.fechaNacimiento} (${patient.edad} años)`,
+            ],
+            ["Sexo", formatSex(patient.sexo)],
+            ["Estado civil", patient.estadoCivil || "---"],
+            ["Nivel de escolaridad", patient.nivelEscolaridad || "---"],
+            ["Ocupación", patient.ocupacion || "---"],
+            ["Teléfono", patient.telefono || "---"],
+            ["Dirección", patient.direccion || "---"],
+            ["Refiere", patient.refiere || "---"],
+            ["Estado", patient.estado || "---"],
+          ].map(([label, value]) => (
+            <Box key={label}>
+              <Typography variant="caption" color="text.secondary">
+                {label}
+              </Typography>
+              <Typography variant="body2" fontWeight={500}>
+                {value}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </ReadOnlySection>
+
+      <ReadOnlySection title="Antecedentes médicos personales">
+        {history.medical.data?.length ? (
+          <Stack spacing={1.5}>
+            {history.medical.data.map((item) => (
+              <ReadOnlyRecord
+                key={item.id}
+                title={item.condicionMedica}
+                lines={[
+                  `Fecha de diagnóstico: ${item.fechaDiagnostico}`,
+                  item.tratamientoActual
+                    ? `Tratamiento actual: ${item.tratamientoActual}`
+                    : null,
+                  item.observaciones
+                    ? `Observaciones: ${item.observaciones}`
+                    : null,
+                ]}
+              />
+            ))}
+          </Stack>
+        ) : (
+          <ReadOnlyEmpty />
+        )}
+      </ReadOnlySection>
+
+      <ReadOnlySection title="Antecedentes familiares">
+        {history.family.data?.length ? (
+          <Stack spacing={1.5}>
+            {history.family.data.map((item) => (
+              <ReadOnlyRecord
+                key={item.id}
+                title={item.condicionMedica}
+                lines={[
+                  `Parentesco: ${item.parentesco}`,
+                  item.observaciones
+                    ? `Observaciones: ${item.observaciones}`
+                    : null,
+                ]}
+              />
+            ))}
+          </Stack>
+        ) : (
+          <ReadOnlyEmpty />
+        )}
+      </ReadOnlySection>
+
+      <ReadOnlySection title="Alergias">
+        {history.allergies.data?.length ? (
+          <Stack spacing={1.5}>
+            {history.allergies.data.map((item) => (
+              <ReadOnlyRecord
+                key={item.id}
+                title={item.sustanciaAlergena || "Sustancia no especificada"}
+                lines={[
+                  item.nivelSeveridadAlergia
+                    ? `Severidad: ${item.nivelSeveridadAlergia}`
+                    : null,
+                  item.tipoReaccion ? `Reacción: ${item.tipoReaccion}` : null,
+                  item.observaciones
+                    ? `Observaciones: ${item.observaciones}`
+                    : null,
+                ]}
+              />
+            ))}
+          </Stack>
+        ) : (
+          <ReadOnlyEmpty />
+        )}
+      </ReadOnlySection>
+
+      <ReadOnlySection title="Medicamentos">
+        {history.medications.data?.length ? (
+          <Stack spacing={1.5}>
+            {history.medications.data.map((item) => (
+              <ReadOnlyRecord
+                key={item.id}
+                title={item.medicamento}
+                lines={[
+                  item.dosis ? `Dosis: ${item.dosis}` : null,
+                  item.frecuencia ? `Frecuencia: ${item.frecuencia}` : null,
+                  item.viaAdministracion
+                    ? `Vía de administración: ${item.viaAdministracion}`
+                    : null,
+                  item.fechaInicio ? `Inicio: ${item.fechaInicio}` : null,
+                  item.fechaFin ? `Fin: ${item.fechaFin}` : null,
+                  item.prescritoPor
+                    ? `Prescrito por: ${item.prescritoPor}`
+                    : null,
+                ]}
+              />
+            ))}
+          </Stack>
+        ) : (
+          <ReadOnlyEmpty />
+        )}
+      </ReadOnlySection>
+
+      <ReadOnlySection title="Contactos de emergencia">
+        {history.emergencyContacts.data?.length ? (
+          <Stack spacing={1.5}>
+            {history.emergencyContacts.data.map((item) => (
+              <ReadOnlyRecord
+                key={item.id}
+                title={item.nombre}
+                lines={[
+                  item.parentesco ? `Parentesco: ${item.parentesco}` : null,
+                  `Teléfono: ${item.telefono}`,
+                  `Dirección: ${item.direccion}`,
+                  item.observaciones
+                    ? `Observaciones: ${item.observaciones}`
+                    : null,
+                ]}
+              />
+            ))}
+          </Stack>
+        ) : (
+          <ReadOnlyEmpty />
+        )}
+      </ReadOnlySection>
+    </Stack>
+  );
+}
+
+function ReadOnlySection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <Box>
+      <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+        {title}
+      </Typography>
+      {children}
+    </Box>
+  );
+}
+
+function ReadOnlyRecord({
+  title,
+  lines,
+}: {
+  title: string;
+  lines: (string | null)[];
+}) {
+  return (
+    <Box sx={{ p: 1.5, border: 1, borderColor: "divider", borderRadius: 1.5 }}>
+      <Typography variant="body2" fontWeight={700}>
+        {title}
+      </Typography>
+      {lines.filter(Boolean).map((line) => (
+        <Typography
+          key={line}
+          variant="caption"
+          color="text.secondary"
+          display="block"
+        >
+          {line}
+        </Typography>
+      ))}
+    </Box>
+  );
+}
+
+function ReadOnlyEmpty() {
+  return (
+    <Typography variant="body2" color="text.secondary">
+      Sin registros.
+    </Typography>
   );
 }
 
