@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, Link } from "react-router-dom";
 import { useLogin } from "../hooks/useLogin";
+import { getCurrentUser } from "../api/authApi";
 
 import { loginSchema, type LoginFormData } from "../schemas/loginSchema";
 
@@ -29,7 +30,10 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await loginMutation.mutateAsync(data);
-      navigate("/citas");
+
+      const profile = await getCurrentUser();
+
+      navigate(profile.roles.includes("PSICOLOGO") ? "/citas" : "/dashboard");
     } catch {
       // The mutation error is already exposed
       // through loginMutation.isError.
