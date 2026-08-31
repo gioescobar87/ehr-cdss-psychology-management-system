@@ -32,3 +32,10 @@ export async function updateSession(
 export async function deleteSession(id: number): Promise<void> {
   await apiClient.delete(`/sesion/${id}`);
 }
+
+export async function getUserSessions(usuarioId: number): Promise<Sesion[]> {
+  const response = await apiClient.get<Sesion[]>(
+    `/usuarios/${usuarioId}/sesiones-asignadas`,
+  );
+  return response.data;
+}

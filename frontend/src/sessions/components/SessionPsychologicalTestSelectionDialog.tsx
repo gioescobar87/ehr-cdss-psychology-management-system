@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Alert,
@@ -55,13 +55,6 @@ export default function SessionPsychologicalTestSelectionDialog({
   const [selectedTestId, setSelectedTestId] = useState<number | null>(null);
 
   const { data: tests = [], isLoading, isError } = usePsychologicalTests(open);
-
-  useEffect(() => {
-    if (!open) {
-      setSearch("");
-      setSelectedTestId(null);
-    }
-  }, [open]);
 
   const availableTests = useMemo(
     () => tests.filter((test) => isActiveStatus(test.estado)),
@@ -142,7 +135,14 @@ export default function SessionPsychologicalTestSelectionDialog({
         </Stack>
       </DialogTitle>
 
-      <DialogContent dividers sx={{ p: 0 }}>
+      <DialogContent
+        dividers
+        sx={{
+          p: 0,
+          minHeight: 0,
+          overflow: "hidden",
+        }}
+      >
         {isError ? (
           <Stack
             justifyContent="center"
@@ -180,7 +180,8 @@ export default function SessionPsychologicalTestSelectionDialog({
                 md: "minmax(300px, 0.85fr) minmax(420px, 1.4fr)",
               },
               height: "100%",
-              minHeight: 500,
+              minHeight: 0,
+              overflow: "hidden",
             }}
           >
             <Box
@@ -197,6 +198,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                 display: "flex",
                 flexDirection: "column",
                 minWidth: 0,
+                minHeight: 0,
               }}
             >
               <Box sx={{ p: 2 }}>
@@ -268,6 +270,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                   sx={{
                     overflowY: "auto",
                     flex: 1,
+                    minHeight: 0,
                   }}
                 >
                   {filteredTests.map((test) => {
@@ -332,6 +335,7 @@ export default function SessionPsychologicalTestSelectionDialog({
                 },
                 minWidth: 0,
                 overflowY: "auto",
+                minHeight: 0,
               }}
             >
               {!selectedTest ? (

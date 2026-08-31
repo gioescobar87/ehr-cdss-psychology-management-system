@@ -1,6 +1,9 @@
+import { useState } from "react";
+
 import {
   Alert,
   Box,
+  Button,
   CircularProgress,
   Divider,
   Stack,
@@ -14,6 +17,8 @@ import {
   useHistoricalRiskEvaluation,
   useHistoricalSession,
 } from "../hooks/useClinicalRecordDetails";
+import { usePsychologicalTestAttachment } from "../hooks/usePsychologicalTestAttachment";
+import PdfPreviewDialog from "../../shared/components/dialogs/PdfPreviewDialog";
 
 import { formatRecordDate } from "../../shared/utils/dateUtils";
 
@@ -50,7 +55,12 @@ export default function ClinicalRecordDetail({
       return <RiskDetail evaluationId={activity.riskId} />;
 
     case "psychological-test":
-      return <PsychologicalTestDetail applicationId={activity.testId} />;
+      return (
+        <PsychologicalTestDetail
+          applicationId={activity.testId}
+          testName={activity.title}
+        />
+      );
 
     case "diagnosis":
       return (
@@ -151,12 +161,22 @@ function RiskDetail({ evaluationId }: { evaluationId: number }) {
   );
 }
 
-function PsychologicalTestDetail({ applicationId }: { applicationId: number }) {
+function PsychologicalTestDetail({
+  applicationId,
+  testName,
+}: {
+  applicationId: number;
+  testName: string;
+}) {
+  const [previewOpen, setPreviewOpen] = useState(false);
   const {
     data: application,
     isLoading,
     isError,
   } = useHistoricalPsychologicalTest(applicationId);
+  const attachmentQuery = usePsychologicalTestAttachment(applicationId, {
+    enabled: previewOpen,
+  });
 
   if (isLoading) {
     return <DetailLoading />;
@@ -167,22 +187,11 @@ function PsychologicalTestDetail({ applicationId }: { applicationId: number }) {
   }
 
   return (
-    <Stack spacing={3}>
-      <DetailHeader
-        title="Aplicación de prueba psicológica"
-        date={application.fechaAplicacion}
-      />
-
-      <Stack spacing={2}>
-        <DetailField
-          label="Prueba"
-          value={`#${application.pruebaPsicologicaId}`}
-        />
-
-        <DetailField
-          label="Estado"
-          value={application.estado ?? "No especificado"}
-        />
+    <>
+      <Stack spacing={3}>
+        <Typography variant="h5" fontWeight={700}>
+          {testName}
+        </Typography>
 
         <Box>
           <Typography
@@ -198,13 +207,44 @@ function PsychologicalTestDetail({ applicationId }: { applicationId: number }) {
         </Box>
 
         {application.archivoAdjunto && (
-          <DetailField
-            label="Archivo adjunto"
-            value={application.archivoAdjunto}
-          />
+          <Box>
+            <Button
+              variant="text"
+              onClick={() => setPreviewOpen(true)}
+              disabled={attachmentQuery.isFetching}
+              sx={{
+                justifyContent: "flex-start",
+                px: 0,
+                textDecoration: "underline",
+              }}
+            >
+              {attachmentQuery.isFetching
+                ? "Cargando adjunto..."
+                : "Ver adjunto"}
+            </Button>
+
+            {attachmentQuery.isError && previewOpen && (
+              <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
+                No fue posible cargar el adjunto.
+              </Typography>
+            )}
+          </Box>
         )}
       </Stack>
-    </Stack>
+
+      <PdfPreviewDialog
+        open={previewOpen}
+        file={
+          attachmentQuery.data
+            ? new File([attachmentQuery.data], `${testName}.pdf`, {
+                type: "application/pdf",
+              })
+            : null
+        }
+        loading={attachmentQuery.isFetching}
+        onClose={() => setPreviewOpen(false)}
+      />
+    </>
   );
 }
 

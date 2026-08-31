@@ -46,16 +46,6 @@ export default function SessionSymptoms({ session }: SessionSymptomsProps) {
     [allSymptoms],
   );
 
-  const currentSessionSymptoms = useMemo(
-    () =>
-      new Set(
-        allSymptoms
-          .filter((symptom) => symptom.sesionId === session.id)
-          .map((symptom) => symptom.criterioClinicoId),
-      ),
-    [allSymptoms, session.id],
-  );
-
   const handlePresenceChange = (symptom: SessionSymptom, presente: boolean) => {
     updateMutation.mutate({
       id: symptom.id,
@@ -141,10 +131,6 @@ export default function SessionSymptoms({ session }: SessionSymptomsProps) {
                 <SymptomRow
                   key={symptom.id}
                   symptom={symptom}
-                  isCurrentSession={
-                    currentSessionSymptoms.has(symptom.criterioClinicoId) &&
-                    symptom.sesionId === session.id
-                  }
                   isUpdating={
                     updateMutation.isPending &&
                     updateMutation.variables?.id === symptom.id
@@ -200,14 +186,12 @@ function EmptySymptomsState({ onCreate }: { onCreate: () => void }) {
 
 interface SymptomRowProps {
   symptom: SessionSymptom;
-  isCurrentSession: boolean;
   isUpdating: boolean;
   onPresenceChange: (symptom: SessionSymptom, presente: boolean) => void;
 }
 
 function SymptomRow({
   symptom,
-  isCurrentSession,
   isUpdating,
   onPresenceChange,
 }: SymptomRowProps) {
@@ -237,7 +221,7 @@ function SymptomRow({
               onChange={(event) =>
                 onPresenceChange(symptom, event.target.checked)
               }
-              disabled={!isCurrentSession || isUpdating}
+              disabled={isUpdating}
               size="small"
             />
           }

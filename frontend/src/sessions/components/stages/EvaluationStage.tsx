@@ -13,7 +13,7 @@ interface EvaluationStageProps {
 }
 
 export default function EvaluationStage({ session }: EvaluationStageProps) {
-  const [selectedId, setSelectedId] = useState("tests");
+  const [selectedId, setSelectedId] = useState("symptoms");
 
   return (
     <Box
