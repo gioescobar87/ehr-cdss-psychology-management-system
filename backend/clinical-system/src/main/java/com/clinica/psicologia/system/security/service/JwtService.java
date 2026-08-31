@@ -21,18 +21,15 @@ public class JwtService {
     private final JwtProperties jwtProperties;
 
     private Key getSignKey() {
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"+jwtProperties.getSecret());
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUsername(String token) {
-        System.out.println("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT TOKEN RECEIVED: [" + token + "]");
         return extractClaim(token, Claims::getSubject);
     }
 
     public Date extractExpiration(String token) {
-        System.out.println("TOKEN RECEIVED: [" + token + "]");
         return extractClaim(token, Claims::getExpiration);
     }
 
