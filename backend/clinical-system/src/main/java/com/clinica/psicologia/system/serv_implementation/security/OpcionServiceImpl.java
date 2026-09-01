@@ -21,28 +21,20 @@ import com.clinica.psicologia.system.repository.security.OpcionRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.security.OpcionService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class OpcionServiceImpl implements OpcionService {
     private final OpcionRepository opcionRepository;
     private final ModuloRepository moduloRepository;
     private final EstadoRepository estadoRepository;
     private final OpcionMapper opcionMapper;
-
-    public OpcionServiceImpl(
-            OpcionRepository opcionRepository,
-            ModuloRepository moduloRepository,
-            EstadoRepository estadoRepository,
-            OpcionMapper opcionMapper) {
-
-        this.opcionRepository = opcionRepository;
-        this.moduloRepository = moduloRepository;
-        this.estadoRepository = estadoRepository;
-        this.opcionMapper = opcionMapper;
-    }
+    private final ApplicationSupportService supportService;
 
     private Opcion findOpcion(Integer id) {
 
@@ -67,60 +59,39 @@ public class OpcionServiceImpl implements OpcionService {
 
     @Override
     @Transactional
-    public OpcionResponseDTO create(
-            OpcionRequestDTO request) {
+    public OpcionResponseDTO create(OpcionRequestDTO request) {
 
-        if (opcionRepository.existsByNombre(
-                request.getNombre())) {
+        if (opcionRepository.existsByNombre(request.getNombre())) {
 
-            throw new DuplicateResourceException(
-                    "Option already exists");
+            throw new DuplicateResourceException("Option already exists");
         }
-
-        Estado estado = estadoRepository
-                .findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "State not found"));
 
         Modulo modulo = moduloRepository
                 .findById(request.getModuloId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Module not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Module not found"));
 
         Opcion opcionPadre = null;
 
         if (request.getOpcionPadreId() != null) {
-
             opcionPadre = opcionRepository
                     .findById(request.getOpcionPadreId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Parent option not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent option not found"));
         }
 
         Opcion opcion = new Opcion();
 
         opcion.setNombre(request.getNombre());
         opcion.setDescripcion(request.getDescripcion());
-
         opcion.setRutaFrontend(request.getRutaFrontend());
-
         opcion.setComponente(request.getComponente());
-
         opcion.setIcono(request.getIcono());
-
         opcion.setOrden(request.getOrden());
-
         opcion.setVisibleMenu(request.getVisibleMenu());
-
         opcion.setRequiereAutenticacion(request.getRequiereAutenticacion());
-
         opcion.setEsMenuPrincipal(request.getEsMenuPrincipal());
-
         opcion.setModulo(modulo);
-
         opcion.setOpcionPadre(opcionPadre);
-
-        opcion.setEstado(estado);
+        opcion.setEstado(supportService.getActiveState());
 
         return opcionMapper.toResponseDTO(opcionRepository.save(opcion));
     }
@@ -129,31 +100,22 @@ public class OpcionServiceImpl implements OpcionService {
     @Transactional
     public void delete(Integer id) {
 
-        if (opcionRepository
-                .existsByOpcionPadreId(id)) {
-
-            throw new DuplicateResourceException(
-                    "Option has child options");
+        if (opcionRepository.existsByOpcionPadreId(id)) {
+            throw new DuplicateResourceException("Option has child options");
         }
 
-        opcionRepository.delete(
-                findOpcion(id));
+        opcionRepository.delete(findOpcion(id));
     }
 
     @Override
     @Transactional
-    public void changeStatus(
-            Integer id,
-            Integer estadoId) {
+    public void changeStatus(Integer id, Integer estadoId) {
 
         Opcion opcion = opcionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Option not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Option not found"));
 
-        Estado estado = estadoRepository.findById(
-                estadoId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "State not found"));
+        Estado estado = estadoRepository.findById(estadoId)
+                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
 
         opcion.setEstado(estado);
 
@@ -161,66 +123,58 @@ public class OpcionServiceImpl implements OpcionService {
     }
 
     @Override
-    public List<OpcionResponseDTO> findByModulo(
-            Integer moduloId) {
-
-        return opcionMapper.toResponseDTOList(
-                opcionRepository.findByModuloId(
-                        moduloId));
+    public List<OpcionResponseDTO> findByModulo(Integer moduloId) {
+        return opcionMapper.toResponseDTOList(opcionRepository.findByModuloId(moduloId));
     }
 
     @Override
-    public List<OpcionResponseDTO> findChildren(
-            Integer opcionId) {
-
-        return opcionMapper.toResponseDTOList(
-                opcionRepository.findByOpcionPadreId(
-                        opcionId));
+    public List<OpcionResponseDTO> findChildren(Integer opcionId) {
+        return opcionMapper.toResponseDTOList(opcionRepository.findByOpcionPadreId(opcionId));
     }
 
     @Override
     @Transactional
-    public OpcionResponseDTO update(
-            Integer id,
-            OpcionRequestDTO request) {
+    public OpcionResponseDTO update(Integer id, OpcionRequestDTO request) {
 
         Opcion opcion = opcionRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Option not found"));
+                        new ResourceNotFoundException("Option not found"));
 
-        if (opcionRepository.existsByNombreAndIdNot(
-                request.getNombre(),
-                id)) {
-
-            throw new DuplicateResourceException(
-                    "Option already exists");
+        if (opcionRepository.existsByNombreAndIdNot(request.getNombre(), id)) {
+            throw new DuplicateResourceException("Option already exists");
         }
 
-        Estado estado = estadoRepository.findById(
-                request.getEstadoId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "State not found"));
+        Modulo modulo = moduloRepository
+                .findById(request.getModuloId())
+                .orElseThrow(() -> new ResourceNotFoundException("Module not found"));
 
-        opcion.setNombre(
-                request.getNombre());
+        Opcion opcionPadre = null;
 
-        opcion.setDescripcion(
-                request.getDescripcion());
+        if (request.getOpcionPadreId() != null) {
+            opcionPadre = opcionRepository
+                    .findById(request.getOpcionPadreId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent option not found"));
+        }
 
-        opcion.setEstado(estado);
+        opcion.setNombre(request.getNombre());
+        opcion.setDescripcion(request.getDescripcion());
+        opcion.setRutaFrontend(request.getRutaFrontend());
+        opcion.setComponente(request.getComponente());
+        opcion.setIcono(request.getIcono());
+        opcion.setOrden(request.getOrden());
+        opcion.setVisibleMenu(request.getVisibleMenu());
+        opcion.setRequiereAutenticacion(request.getRequiereAutenticacion());
+        opcion.setEsMenuPrincipal(request.getEsMenuPrincipal());
+        opcion.setModulo(modulo);
+        opcion.setOpcionPadre(opcionPadre);
 
-        return opcionMapper.toResponseDTO(
-                opcionRepository.save(opcion));
+        return opcionMapper.toResponseDTO(opcionRepository.save(opcion));
     }
 
     @Override
     public List<OpcionTreeResponseDTO> getTree() {
         List<Opcion> opciones = opcionRepository.findAll();
-
         Map<Integer, OpcionTreeResponseDTO> map = new HashMap<>();
-
         List<OpcionTreeResponseDTO> roots = new ArrayList<>();
 
         for (Opcion opcion : opciones) {
@@ -256,6 +210,7 @@ public class OpcionServiceImpl implements OpcionService {
                 }
             }
         }
+
         roots.sort(Comparator.comparing(OpcionTreeResponseDTO::getOrden));
 
         roots.forEach(root ->

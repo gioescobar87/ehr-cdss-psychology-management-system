@@ -36,7 +36,4 @@ public class OpcionRequestDTO {
 
     @NotNull(message = "El menú principal es obligatorio")
     private Boolean esMenuPrincipal;
-
-    @NotNull(message = "El estado es obligatorio")
-    private Integer estadoId;
 }
