@@ -1,6 +1,5 @@
 package com.clinica.psicologia.system.serv_implementation.security;
 
-import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -9,27 +8,27 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clinica.psicologia.system.dto.request.security.PermisoRequestDTO;
 import com.clinica.psicologia.system.dto.response.security.PermisoResponseDTO;
 import com.clinica.psicologia.system.model.catalog.Estado;
+import com.clinica.psicologia.system.model.security.Opcion;
 import com.clinica.psicologia.system.model.security.Permiso;
+import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.security.PermisoRepository;
 import com.clinica.psicologia.system.repository.security.RolPermisoRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.security.PermisoService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class PermisoServiceImpl implements PermisoService {
 
     private final EstadoRepository estadoRepository;
     private final PermisoRepository permisoRepository;
     private final RolPermisoRepository rolPermisoRepository;
-
-    public PermisoServiceImpl(PermisoRepository permisoRepository,
-            EstadoRepository estadoRepository, RolPermisoRepository rolPermisoRepository) {
-        this.permisoRepository = permisoRepository;
-        this.rolPermisoRepository = rolPermisoRepository;
-        this.estadoRepository = estadoRepository;
-    }
+    private final ApplicationSupportService supportService;
 
     @Override
     public List<PermisoResponseDTO> findAll() {
@@ -58,16 +57,11 @@ public class PermisoServiceImpl implements PermisoService {
             throw new DuplicateResourceException("Permission already exists");
         }
 
-        Estado estado = estadoRepository
-                .findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "State not found"));
-
         Permiso permiso = new Permiso();
 
         permiso.setNombre(request.getNombre());
         permiso.setDescripcion(request.getDescripcion());
-        permiso.setEstado(estado);
+        permiso.setEstado(supportService.getActiveState());
 
         return toDTO(permisoRepository.save(permiso));
     }
@@ -84,14 +78,8 @@ public class PermisoServiceImpl implements PermisoService {
                     "Permission already exists");
         }
 
-        Estado estado = estadoRepository
-                .findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "State not found"));
-
         permiso.setNombre(request.getNombre());
         permiso.setDescripcion(request.getDescripcion());
-        permiso.setEstado(estado);
 
         return toDTO(permisoRepository.save(permiso));
     }
@@ -119,5 +107,20 @@ public class PermisoServiceImpl implements PermisoService {
         dto.setEstadoId(permiso.getEstado().getId());
         dto.setEstado(permiso.getEstado().getNombre());
         return dto;
+    }
+
+    @Override
+    @Transactional
+    public void changeStatus(Integer id, Integer estadoId) {
+
+        Permiso permiso = permisoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Option not found"));
+
+        Estado estado = estadoRepository.findById(estadoId)
+                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
+
+        permiso.setEstado(estado);
+
+        permisoRepository.save(permiso);
     }
 }

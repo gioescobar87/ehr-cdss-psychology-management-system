@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import com.clinica.psicologia.system.dto.request.security.EstadoChangeRequestDTO;
 import com.clinica.psicologia.system.dto.request.security.PermisoRequestDTO;
 import com.clinica.psicologia.system.dto.response.security.PermisoResponseDTO;
 import com.clinica.psicologia.system.service.security.PermisoService;
@@ -48,5 +49,11 @@ public class PermisoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         permisoService.delete(id);
+    }
+
+    @PatchMapping("/{id}/estado")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeEstado(@PathVariable Integer id,@Valid @RequestBody EstadoChangeRequestDTO request) {
+        permisoService.changeStatus(id, request.getEstadoId());
     }
 }

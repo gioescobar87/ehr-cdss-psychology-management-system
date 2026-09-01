@@ -16,4 +16,6 @@ public interface PermisoService {
     PermisoResponseDTO update(Integer id, PermisoRequestDTO request);
 
     void delete(Integer id);
+
+    void changeStatus(Integer id, Integer estadoId);
 }
