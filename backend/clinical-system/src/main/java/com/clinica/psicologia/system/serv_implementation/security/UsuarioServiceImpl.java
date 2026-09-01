@@ -21,8 +21,12 @@ import com.clinica.psicologia.system.repository.security.UsuarioRolRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.security.UsuarioService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
@@ -31,23 +35,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRolRepository usuarioRolRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
-
-    public UsuarioServiceImpl(
-            UsuarioRepository usuarioRepository,
-            EstadoRepository estadoRepository,
-            RolRepository rolRepository,
-            UsuarioRolRepository usuarioRolRepository,
-            UsuarioMapper usuarioMapper,
-            PasswordEncoder passwordEncoder) {
-
-        this.usuarioRepository = usuarioRepository;
-        this.estadoRepository = estadoRepository;
-        this.rolRepository = rolRepository;
-        this.usuarioRolRepository = usuarioRolRepository;
-        this.usuarioMapper = usuarioMapper;
-        this.passwordEncoder = passwordEncoder;
-    }
-
+    private final ApplicationSupportService supportService;
+    
     // =========================
     // GET ALL USERS
     // =========================
@@ -86,15 +75,12 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new DuplicateResourceException("Email already exists");
         }
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
-
         Usuario usuario = new Usuario();
         usuario.setUsername(request.getUsername());
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
         usuario.setCorreo(request.getCorreo());
-        usuario.setEstado(estado);
+        usuario.setEstado(supportService.getActiveState());
 
         // Option A: temporary password (must be changed via auth flow)
         usuario.setPassword(passwordEncoder.encode("Temp123*"));
@@ -122,14 +108,10 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new DuplicateResourceException("Email already exists");
         }
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
-
         usuario.setUsername(request.getUsername());
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
         usuario.setCorreo(request.getCorreo());
-        usuario.setEstado(estado);
 
         Usuario updated = usuarioRepository.save(usuario);
 

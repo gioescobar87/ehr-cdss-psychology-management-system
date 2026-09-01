@@ -2,7 +2,6 @@ package com.clinica.psicologia.system.dto.request.security;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +21,4 @@ public class UsuarioRequestDTO {
     @Email
     @NotBlank
     private String correo;
-
-    @NotNull
-    private Integer estadoId;
 }

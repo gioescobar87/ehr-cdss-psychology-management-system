@@ -8,9 +8,15 @@ import com.clinica.psicologia.system.dto.response.security.UsuarioResponseDTO;
 import com.clinica.psicologia.system.dto.response.security.UsuarioRolResponseDTO;
 import com.clinica.psicologia.system.model.security.Rol;
 import com.clinica.psicologia.system.model.security.Usuario;
+import com.clinica.psicologia.system.repository.security.UsuarioRolRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class UsuarioMapper {
+
+    private final UsuarioRolRepository usuarioRolRepository;
 
     public UsuarioResponseDTO toResponseDTO(Usuario usuario) {
 
@@ -30,6 +36,17 @@ public class UsuarioMapper {
         dto.setFechaCreacion(usuario.getFechaCreacion());
         dto.setFechaModificacion(usuario.getFechaModificacion());
 
+        List<Rol> roles = usuarioRolRepository.findByUsuario(usuario)
+                .stream()
+                .map(usuarioRol -> usuarioRol.getRol())
+                .toList();
+
+        dto.setRoles(
+                roles.stream()
+                        .map(this::toRolResponseDTO)
+                        .toList()
+        );
+
         return dto;
     }
 
@@ -41,8 +58,7 @@ public class UsuarioMapper {
                 .toList();
     }
 
-    public UsuarioRolResponseDTO toRolResponseDTO(
-            Rol rol) {
+    public UsuarioRolResponseDTO toRolResponseDTO(Rol rol) {
 
         UsuarioRolResponseDTO dto =
                 new UsuarioRolResponseDTO();

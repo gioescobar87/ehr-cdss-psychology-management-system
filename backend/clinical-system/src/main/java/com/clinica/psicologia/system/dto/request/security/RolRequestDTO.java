@@ -1,7 +1,6 @@
 package com.clinica.psicologia.system.dto.request.security;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +12,4 @@ public class RolRequestDTO {
     private String nombre;
 
     private String descripcion;
-
-    @NotNull
-    private Integer estadoId;
 }

@@ -1,6 +1,7 @@
 package com.clinica.psicologia.system.dto.response.security;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,4 +27,6 @@ public class UsuarioResponseDTO {
     private LocalDateTime fechaCreacion;
 
     private LocalDateTime fechaModificacion;
+
+    private List<UsuarioRolResponseDTO> roles;
 }

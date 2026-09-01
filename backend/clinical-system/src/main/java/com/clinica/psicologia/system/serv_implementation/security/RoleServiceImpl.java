@@ -16,26 +16,19 @@ import com.clinica.psicologia.system.repository.security.UsuarioRolRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.security.RoleService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
     private final RolRepository rolRepository;
     private final EstadoRepository estadoRepository;
     private final RolMapper rolMapper;
     private final UsuarioRolRepository usuarioRolRepository;
-
-    public RoleServiceImpl(
-            RolRepository rolRepository,
-            EstadoRepository estadoRepository,
-            RolMapper rolMapper,
-            UsuarioRolRepository usuarioRolRepository) {
-
-        this.rolRepository = rolRepository;
-        this.estadoRepository = estadoRepository;
-        this.rolMapper = rolMapper;
-        this.usuarioRolRepository = usuarioRolRepository;
-    }
+    private final ApplicationSupportService supportService;
 
     @Override
     public List<RolResponseDTO> findAll() {
@@ -59,13 +52,10 @@ public class RoleServiceImpl implements RoleService {
             throw new DuplicateResourceException("Role already exists");
         }
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
-
         Rol rol = new Rol();
         rol.setNombre(request.getNombre());
         rol.setDescripcion(request.getDescripcion());
-        rol.setEstado(estado);
+        rol.setEstado(supportService.getActiveState());
 
         return rolMapper.toResponse(rolRepository.save(rol));
     }
@@ -81,12 +71,8 @@ public class RoleServiceImpl implements RoleService {
             throw new DuplicateResourceException("Role already exists");
         }
 
-        Estado estado = estadoRepository.findById(request.getEstadoId())
-                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
-
         rol.setNombre(request.getNombre());
         rol.setDescripcion(request.getDescripcion());
-        rol.setEstado(estado);
 
         return rolMapper.toResponse(rolRepository.save(rol));
     }
