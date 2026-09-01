@@ -467,7 +467,7 @@ function RecordLine({
 function EmptyText() {
   return (
     <Typography variant="body2" color="text.secondary">
-      Sin registros.
+      ---
     </Typography>
   );
 }

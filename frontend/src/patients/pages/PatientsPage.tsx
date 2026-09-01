@@ -888,7 +888,7 @@ function ReadOnlyRecord({
 function ReadOnlyEmpty() {
   return (
     <Typography variant="body2" color="text.secondary">
-      Sin registros.
+      ---
     </Typography>
   );
 }
