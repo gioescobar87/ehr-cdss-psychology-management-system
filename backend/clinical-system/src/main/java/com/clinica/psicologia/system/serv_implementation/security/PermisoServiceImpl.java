@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clinica.psicologia.system.dto.request.security.PermisoRequestDTO;
 import com.clinica.psicologia.system.dto.response.security.PermisoResponseDTO;
 import com.clinica.psicologia.system.model.catalog.Estado;
-import com.clinica.psicologia.system.model.security.Opcion;
 import com.clinica.psicologia.system.model.security.Permiso;
 import com.clinica.psicologia.system.repository.catalog.EstadoRepository;
 import com.clinica.psicologia.system.repository.security.PermisoRepository;
