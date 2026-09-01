@@ -16,9 +16,7 @@ import ChangePasswordPage from "../auth/pages/ChangePasswordPage";
 import ForgotPasswordPage from "../auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "../auth/pages/ResetPasswordPage";
 import ForbiddenPage from "./pages/ForbiddenPage";
-import PermissionListPage from "../catalog/pages/Permiso/PermisoListPage";
-import PermissionCreatePage from "../catalog/pages/Permiso/PermisoCreatePage";
-import PermissionEditPage from "../catalog/pages/Permiso/PermisoEditPage";
+import PermissionListPage from "../administration/pages/PermisoListPage";
 import ModuloListPage from "../administration/pages/ModuloListPage";
 import OpcionListPage from "../administration/pages/OpcionListPage";
 import RolListPage from "../administration/pages/RolListPage";
@@ -131,14 +129,6 @@ export const router = createBrowserRouter([
               {
                 path: "/administration/permissions",
                 element: <PermissionListPage />,
-              },
-              {
-                path: "/administration/permissions/new",
-                element: <PermissionCreatePage />,
-              },
-              {
-                path: "/administration/permissions/:id/edit",
-                element: <PermissionEditPage />,
               },
               {
                 path: "/administration/usuarios",
