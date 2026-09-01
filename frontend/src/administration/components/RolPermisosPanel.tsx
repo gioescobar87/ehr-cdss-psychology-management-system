@@ -13,7 +13,7 @@ import {
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 
-import { useGetAllPermisos } from "../../catalog/hooks/usePermiso";
+import { useGetAllPermisos } from "../hooks/usePermiso";
 import {
   useAssignPermiso,
   useRemovePermiso,
