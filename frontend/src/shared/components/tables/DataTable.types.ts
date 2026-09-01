@@ -24,4 +24,6 @@ export interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
 
   ariaLabel?: string;
+  maxHeight?: string | number;
+  stickyHeader?: boolean;
 }

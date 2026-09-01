@@ -19,6 +19,8 @@ export default function DataTable<T>({
   emptyMessage = "No se encontraron registros.",
   onRowClick,
   ariaLabel = "Data table",
+  maxHeight,
+  stickyHeader = false,
 }: DataTableProps<T>) {
   if (loading) {
     return <LoadingSkeleton rows={5} />;
@@ -33,8 +35,32 @@ export default function DataTable<T>({
   }
 
   return (
-    <TableContainer component={Paper}>
-      <Table aria-label={ariaLabel}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        ...(maxHeight && {
+          maxHeight,
+          overflow: "auto",
+        }),
+      }}
+    >
+      <Table
+        aria-label={ariaLabel}
+        stickyHeader={stickyHeader}
+        sx={{
+          ...(stickyHeader && {
+            "& thead": {
+              "& th": {
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                backgroundColor: "background.paper",
+                fontWeight: 600,
+              },
+            },
+          }),
+        }}
+      >
         <TableHead>
           <TableRow>
             {columns.map((column) => (
