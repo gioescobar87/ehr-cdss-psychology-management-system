@@ -19,7 +19,4 @@ public class ModuloRequestDTO {
 
     @NotNull
     private Integer orden;
-
-    @NotNull(message = "El estado del módulo es obligatorio")
-    private Integer estadoId;
 }

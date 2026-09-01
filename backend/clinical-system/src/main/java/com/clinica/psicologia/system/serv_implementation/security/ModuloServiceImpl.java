@@ -15,24 +15,19 @@ import com.clinica.psicologia.system.repository.security.ModuloRepository;
 import com.clinica.psicologia.system.security.exception.custom.DuplicateResourceException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.security.ModuloService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ModuloServiceImpl
                 implements ModuloService {
 
         private final ModuloRepository moduloRepository;
         private final EstadoRepository estadoRepository;
         private final ModuloMapper moduloMapper;
-
-        public ModuloServiceImpl(
-                        ModuloRepository moduloRepository,
-                        EstadoRepository estadoRepository,
-                        ModuloMapper moduloMapper) {
-
-                this.moduloRepository = moduloRepository;
-                this.estadoRepository = estadoRepository;
-                this.moduloMapper = moduloMapper;
-        }
+        private final ApplicationSupportService supportService;
 
         @Override
         public List<ModuloResponseDTO> findAll() {
@@ -60,9 +55,6 @@ public class ModuloServiceImpl
                         throw new DuplicateResourceException("Module already exists");
                 }
 
-                Estado estado = estadoRepository.findById(request.getEstadoId())
-                                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
-
                 Modulo modulo = new Modulo();
 
                 modulo.setNombre(request.getNombre());
@@ -70,7 +62,7 @@ public class ModuloServiceImpl
                 modulo.setIcono(request.getIcono());
                 modulo.setOrden(request.getOrden());
 
-                modulo.setEstado(estado);
+                modulo.setEstado(supportService.getActiveState());
 
                 return moduloMapper.toResponse(moduloRepository.save(modulo));
         }
@@ -86,35 +78,23 @@ public class ModuloServiceImpl
                         throw new DuplicateResourceException("Module already exists");
                 }
 
-                Estado estado = estadoRepository.findById(
-                                request.getEstadoId())
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                "State not found"));
-
                 modulo.setNombre(request.getNombre());
                 modulo.setDescripcion(request.getDescripcion());
                 modulo.setIcono(request.getIcono());
                 modulo.setOrden(request.getOrden());
-
-                modulo.setEstado(estado);
 
                 return moduloMapper.toResponse(moduloRepository.save(modulo));
         }
 
         @Override
         @Transactional
-        public void changeStatus(
-                        Integer id,
-                        Integer estadoId) {
+        public void changeStatus(Integer id, Integer estadoId) {
 
                 Modulo modulo = moduloRepository.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Module not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Module not found"));
 
-                Estado estado = estadoRepository.findById(
-                                estadoId)
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                "State not found"));
+                Estado estado = estadoRepository.findById(estadoId)
+                                .orElseThrow(() -> new ResourceNotFoundException("State not found"));
 
                 modulo.setEstado(estado);
 
@@ -123,12 +103,9 @@ public class ModuloServiceImpl
 
         @Override
         @Transactional
-        public void delete(
-                        Integer id) {
-
+        public void delete(Integer id) {
                 Modulo modulo = moduloRepository.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Module not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Module not found"));
 
                 moduloRepository.delete(modulo);
         }
