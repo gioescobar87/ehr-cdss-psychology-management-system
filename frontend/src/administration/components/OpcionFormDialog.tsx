@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 
-import {
-  Controller,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -32,17 +28,11 @@ import {
   type FormValues,
 } from "../schemas/opcion.schema";
 
-import {
-  useCreate,
-  useUpdate,
-} from "../hooks/useOpcion";
+import { useCreate, useUpdate } from "../hooks/useOpcion";
 
 import { useGetAll as useGetAllModulos } from "../hooks/useModulo";
 
-import type {
-  Response,
-  Request,
-} from "../types/opcion.types";
+import type { Response, Request } from "../types/opcion.types";
 
 interface OpcionFormDialogProps {
   open: boolean;
@@ -62,21 +52,17 @@ export default function OpcionFormDialog({
   const createOpcion = useCreate();
   const updateOpcion = useUpdate();
 
-  const {
-    data: modulos = [],
-  } = useGetAllModulos();
+  const { data: modulos = [] } = useGetAllModulos();
 
-  const [submitError, setSubmitError] =
-    useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isEditing = !!editingOpcion;
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState,
-  } = useForm<FormInput, unknown, FormValues>({
+  const { control, handleSubmit, reset, formState } = useForm<
+    FormInput,
+    unknown,
+    FormValues
+  >({
     resolver: zodResolver(schema),
     defaultValues: {
       moduloId: 0,
@@ -94,9 +80,7 @@ export default function OpcionFormDialog({
   });
 
   const isSaving =
-    formState.isSubmitting ||
-    createOpcion.isPending ||
-    updateOpcion.isPending;
+    formState.isSubmitting || createOpcion.isPending || updateOpcion.isPending;
 
   /*
    * useWatch is used instead of watch() so the component
@@ -109,8 +93,7 @@ export default function OpcionFormDialog({
 
   const parentOptions = opciones.filter(
     (opcion) =>
-      opcion.moduloId === selectedModuloId &&
-      opcion.id !== editingOpcion?.id,
+      opcion.moduloId === selectedModuloId && opcion.id !== editingOpcion?.id,
   );
 
   /*
@@ -126,24 +109,16 @@ export default function OpcionFormDialog({
     if (isEditing && editingOpcion) {
       reset({
         moduloId: editingOpcion.moduloId,
-        opcionPadreId:
-          editingOpcion.opcionPadreId ?? null,
+        opcionPadreId: editingOpcion.opcionPadreId ?? null,
         nombre: editingOpcion.nombre,
-        descripcion:
-          editingOpcion.descripcion ?? "",
-        rutaFrontend:
-          editingOpcion.rutaFrontend,
-        componente:
-          editingOpcion.componente ?? "",
-        icono:
-          editingOpcion.icono ?? "",
+        descripcion: editingOpcion.descripcion ?? "",
+        rutaFrontend: editingOpcion.rutaFrontend,
+        componente: editingOpcion.componente ?? "",
+        icono: editingOpcion.icono ?? "",
         orden: editingOpcion.orden,
-        visibleMenu:
-          editingOpcion.visibleMenu,
-        requiereAutenticacion:
-          editingOpcion.requiereAutenticacion,
-        esMenuPrincipal:
-          editingOpcion.esMenuPrincipal,
+        visibleMenu: editingOpcion.visibleMenu,
+        requiereAutenticacion: editingOpcion.requiereAutenticacion,
+        esMenuPrincipal: editingOpcion.esMenuPrincipal,
       });
     } else {
       reset({
@@ -160,36 +135,23 @@ export default function OpcionFormDialog({
         esMenuPrincipal: false,
       });
     }
-  }, [
-    open,
-    isEditing,
-    editingOpcion,
-    reset,
-  ]);
+  }, [open, isEditing, editingOpcion, reset]);
 
-  const handleFormSubmit = async (
-    values: FormValues,
-  ) => {
+  const handleFormSubmit = async (values: FormValues) => {
     setSubmitError(null);
 
     const request: Request = {
       moduloId: values.moduloId,
       opcionPadreId: values.opcionPadreId,
       nombre: values.nombre,
-      descripcion:
-        values.descripcion || null,
+      descripcion: values.descripcion || null,
       rutaFrontend: values.rutaFrontend,
-      componente:
-        values.componente || null,
-      icono:
-        values.icono || null,
+      componente: values.componente || null,
+      icono: values.icono || null,
       orden: values.orden,
-      visibleMenu:
-        values.visibleMenu,
-      requiereAutenticacion:
-        values.requiereAutenticacion,
-      esMenuPrincipal:
-        values.esMenuPrincipal,
+      visibleMenu: values.visibleMenu,
+      requiereAutenticacion: values.requiereAutenticacion,
+      esMenuPrincipal: values.esMenuPrincipal,
     };
 
     try {
@@ -199,18 +161,13 @@ export default function OpcionFormDialog({
           request,
         });
       } else {
-        await createOpcion.mutateAsync(
-          request,
-        );
+        await createOpcion.mutateAsync(request);
       }
 
       onClose();
       onSuccess();
     } catch (error) {
-      console.error(
-        "Failed to save option:",
-        error,
-      );
+      console.error("Failed to save option:", error);
 
       setSubmitError(
         "No fue posible guardar los cambios. Verifique la información e inténtelo nuevamente.",
@@ -227,8 +184,7 @@ export default function OpcionFormDialog({
     onClose();
   };
 
-  const hasErrors =
-    Object.keys(formState.errors).length > 0;
+  const hasErrors = Object.keys(formState.errors).length > 0;
 
   return (
     <Dialog
@@ -243,36 +199,21 @@ export default function OpcionFormDialog({
               xs: "auto",
               md: 680,
             },
-            maxHeight:
-              "calc(100vh - 48px)",
+            maxHeight: "calc(100vh - 48px)",
           },
         },
       }}
     >
-      <DialogTitle>
-        {isEditing
-          ? "Editar opción"
-          : "Nueva opción"}
-      </DialogTitle>
+      <DialogTitle>{isEditing ? "Editar opción" : "Nueva opción"}</DialogTitle>
 
-      <DialogContent
-        sx={{ overflow: "auto" }}
-      >
-        <Stack
-          spacing={3}
-          sx={{ pt: 2 }}
-        >
-          {submitError && (
-            <Alert severity="error">
-              {submitError}
-            </Alert>
-          )}
+      <DialogContent sx={{ overflow: "auto" }}>
+        <Stack spacing={3} sx={{ pt: 2 }}>
+          {submitError && <Alert severity="error">{submitError}</Alert>}
 
           {!isEditing && (
             <Alert severity="info">
-              La opción se creará con el estado
-              predeterminado establecido por el
-              sistema.
+              La opción se creará con el estado predeterminado establecido por
+              el sistema.
             </Alert>
           )}
 
@@ -286,12 +227,10 @@ export default function OpcionFormDialog({
               name="moduloId"
               control={control}
               label="Módulo"
-              options={modulos.map(
-                (modulo) => ({
-                  value: modulo.id,
-                  label: modulo.nombre,
-                }),
-              )}
+              options={modulos.map((modulo) => ({
+                value: modulo.id,
+                label: modulo.nombre,
+              }))}
               disabled={isSaving}
             />
 
@@ -302,17 +241,12 @@ export default function OpcionFormDialog({
                 <TextField
                   select
                   label="Opción padre"
-                  value={
-                    field.value ?? ""
-                  }
+                  value={field.value ?? ""}
                   onChange={(event) =>
                     field.onChange(
-                      event.target.value ===
-                        ""
+                      event.target.value === ""
                         ? null
-                        : Number(
-                            event.target.value,
-                          ),
+                        : Number(event.target.value),
                     )
                   }
                   disabled={isSaving}
@@ -320,21 +254,14 @@ export default function OpcionFormDialog({
                   fullWidth
                 >
                   <MenuItem value="">
-                    <em>
-                      Sin opción padre
-                    </em>
+                    <em>Sin opción padre</em>
                   </MenuItem>
 
-                  {parentOptions.map(
-                    (opcion) => (
-                      <MenuItem
-                        key={opcion.id}
-                        value={opcion.id}
-                      >
-                        {opcion.nombre}
-                      </MenuItem>
-                    ),
-                  )}
+                  {parentOptions.map((opcion) => (
+                    <MenuItem key={opcion.id} value={opcion.id}>
+                      {opcion.nombre}
+                    </MenuItem>
+                  ))}
                 </TextField>
               )}
             />
@@ -409,20 +336,11 @@ export default function OpcionFormDialog({
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={
-                          field.value
+                        checked={field.value}
+                        onChange={(event) =>
+                          field.onChange(event.target.checked)
                         }
-                        onChange={(
-                          event,
-                        ) =>
-                          field.onChange(
-                            event.target
-                              .checked,
-                          )
-                        }
-                        disabled={
-                          isSaving
-                        }
+                        disabled={isSaving}
                       />
                     }
                     label="Visible en el menú"
@@ -437,20 +355,11 @@ export default function OpcionFormDialog({
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={
-                          field.value
+                        checked={field.value}
+                        onChange={(event) =>
+                          field.onChange(event.target.checked)
                         }
-                        onChange={(
-                          event,
-                        ) =>
-                          field.onChange(
-                            event.target
-                              .checked,
-                          )
-                        }
-                        disabled={
-                          isSaving
-                        }
+                        disabled={isSaving}
                       />
                     }
                     label="Requiere autenticación"
@@ -465,20 +374,11 @@ export default function OpcionFormDialog({
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={
-                          field.value
+                        checked={field.value}
+                        onChange={(event) =>
+                          field.onChange(event.target.checked)
                         }
-                        onChange={(
-                          event,
-                        ) =>
-                          field.onChange(
-                            event.target
-                              .checked,
-                          )
-                        }
-                        disabled={
-                          isSaving
-                        }
+                        disabled={isSaving}
                       />
                     }
                     label="Menú principal"
@@ -491,33 +391,18 @@ export default function OpcionFormDialog({
       </DialogContent>
 
       <DialogActions sx={{ p: 2 }}>
-        <Button
-          onClick={handleClose}
-          disabled={isSaving}
-        >
+        <Button onClick={handleClose} disabled={isSaving}>
           Cancelar
         </Button>
 
         <Button
-          onClick={handleSubmit(
-            handleFormSubmit,
-            (errors) => {
-              console.error(
-                "OPTION FORM VALIDATION FAILED:",
-                errors,
-              );
-            },
-          )}
+          onClick={handleSubmit(handleFormSubmit, (errors) => {
+            console.error("OPTION FORM VALIDATION FAILED:", errors);
+          })}
           variant="contained"
-          disabled={
-            isSaving || hasErrors
-          }
+          disabled={isSaving || hasErrors}
         >
-          {isSaving
-            ? "Procesando..."
-            : isEditing
-              ? "Actualizar"
-              : "Crear"}
+          {isSaving ? "Procesando..." : isEditing ? "Actualizar" : "Crear"}
         </Button>
       </DialogActions>
     </Dialog>
