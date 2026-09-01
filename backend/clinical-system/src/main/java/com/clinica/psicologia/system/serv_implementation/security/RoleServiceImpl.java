@@ -67,7 +67,7 @@ public class RoleServiceImpl implements RoleService {
         Rol rol = rolRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-        if (rolRepository.existsByNombre(request.getNombre())) {
+        if (rolRepository.existsByNombreAndIdNot(request.getNombre(), id)) {
             throw new DuplicateResourceException("Role already exists");
         }
 
