@@ -74,11 +74,11 @@ export default function ForgotPasswordForm() {
               : "Solicitar restablecimiento"}
           </Button>
           {forgotPasswordMutation.isSuccess && (
-            <Typography color="success.main">
-              Si existe una cuenta con ese correo electrónico, se ha creado la
-              solicitud de restablecimiento.
-            </Typography>
-          )}
+  <Typography color="success.main">
+    Si existe una cuenta con ese correo electrónico, recibirá un
+    mensaje con las instrucciones para restablecer su contraseña.
+  </Typography>
+)}
           {forgotPasswordMutation.isError && (
             <Typography color="error">
               No fue posible procesar la solicitud. Intente nuevamente.

@@ -6,7 +6,6 @@ import type {
   UserProfile,
   ChangePasswordRequest,
   ForgotPasswordRequest,
-  ForgotPasswordResponse,
   ResetPasswordRequest,
 } from "../types/auth.types";
 
@@ -36,12 +35,8 @@ export async function changePassword(
 
 export async function forgotPassword(
   request: ForgotPasswordRequest,
-): Promise<ForgotPasswordResponse> {
-  const response = await apiClient.post<ForgotPasswordResponse>(
-    "/auth/forgot-password",
-    request,
-  );
-  return response.data;
+): Promise<void> {
+  await apiClient.post("/auth/forgot-password", request);
 }
 
 export async function resetPassword(

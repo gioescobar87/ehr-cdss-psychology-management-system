@@ -259,9 +259,7 @@ export default function UsuarioFormDialog({
 
           {!isEditing && (
             <Alert severity="info">
-              El usuario se creará con una contraseña temporal. Deberá
-              restablecerla mediante la opción "Olvidé mi contraseña" en el
-              inicio de sesión.
+              "El usuario recibirá contraseña inicial en el correo electrónico registrado. Por seguridad, deberá cambiar su contraseña después de iniciar sesión."
             </Alert>
           )}
 
