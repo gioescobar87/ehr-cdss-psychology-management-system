@@ -3,6 +3,7 @@ package com.clinica.psicologia.system.security.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +26,6 @@ import com.clinica.psicologia.system.repository.security.UsuarioRepository;
 import com.clinica.psicologia.system.repository.security.UsuarioRolRepository;
 import com.clinica.psicologia.system.security.dto.ChangePasswordRequest;
 import com.clinica.psicologia.system.security.dto.ForgotPasswordRequest;
-import com.clinica.psicologia.system.security.dto.ForgotPasswordResponse;
 import com.clinica.psicologia.system.security.dto.LoginRequest;
 import com.clinica.psicologia.system.security.dto.RegisterRequest;
 import com.clinica.psicologia.system.security.dto.ResetPasswordRequest;
@@ -34,6 +34,7 @@ import com.clinica.psicologia.system.security.exception.custom.DuplicateResource
 import com.clinica.psicologia.system.security.exception.custom.InvalidCredentialsException;
 import com.clinica.psicologia.system.security.exception.custom.InvalidTokenException;
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
+import com.clinica.psicologia.system.support_services.security.EmailService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -51,6 +52,7 @@ public class AuthService {
         private final PasswordEncoder passwordEncoder;
         private final RefreshTokenRepository refreshTokenRepository;
         private final PasswordResetTokenRepository passwordResetTokenRepository;
+        private final EmailService emailService;
 
         public Map<String, String> login(LoginRequest request) {
                 authenticationManager.authenticate(
@@ -193,13 +195,16 @@ public class AuthService {
         }
 
         @Transactional
-        public ForgotPasswordResponse forgotPassword(
+        public void forgotPassword(
                         ForgotPasswordRequest request) {
 
-                Usuario usuario = usuarioRepository
-                                .findByCorreo(request.getEmail())
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                "User not found"));
+                Optional<Usuario> usuarioOptional = usuarioRepository.findByCorreo(request.getEmail());
+
+                if (usuarioOptional.isEmpty()) {
+                        return;
+                }
+
+                Usuario usuario = usuarioOptional.get();
 
                 passwordResetTokenRepository.deleteByUsuario(usuario);
 
@@ -213,8 +218,18 @@ public class AuthService {
 
                 passwordResetTokenRepository.save(token);
 
-                return new ForgotPasswordResponse(
-                                token.getToken());
+System.out.println(
+        "Reset token generated: " + token.getToken());
+
+System.out.println(
+        "Sending password reset email to: " + usuario.getCorreo());
+
+emailService.sendPasswordResetEmail(
+        usuario.getCorreo(),
+        usuario.getNombre(),
+        token.getToken());
+
+System.out.println("Password reset email sent successfully");
         }
 
         @Transactional

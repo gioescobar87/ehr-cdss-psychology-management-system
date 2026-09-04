@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clinica.psicologia.system.model.security.RefreshToken;
 import com.clinica.psicologia.system.security.dto.ChangePasswordRequest;
 import com.clinica.psicologia.system.security.dto.ForgotPasswordRequest;
-import com.clinica.psicologia.system.security.dto.ForgotPasswordResponse;
 import com.clinica.psicologia.system.security.dto.LoginRequest;
 import com.clinica.psicologia.system.security.dto.RegisterRequest;
 import com.clinica.psicologia.system.security.dto.ResetPasswordRequest;
@@ -119,10 +118,9 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ForgotPasswordResponse forgotPassword(
-            @Valid @RequestBody ForgotPasswordRequest request) {
-
-        return authService.forgotPassword(request);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
     }
 
     @PostMapping("/logout-all")

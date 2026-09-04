@@ -22,6 +22,8 @@ import com.clinica.psicologia.system.security.exception.custom.DuplicateResource
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.security.UsuarioService;
 import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
+import com.clinica.psicologia.system.support_services.security.EmailService;
+import com.clinica.psicologia.system.support_services.security.TemporaryPasswordGenerator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +38,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationSupportService supportService;
+    private final EmailService emailService;
+    private final TemporaryPasswordGenerator temporaryPasswordGenerator;
     
     // =========================
     // GET ALL USERS
@@ -75,6 +79,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new DuplicateResourceException("Email already exists");
         }
 
+        String temporaryPassword = temporaryPasswordGenerator.generate();
+
         Usuario usuario = new Usuario();
         usuario.setUsername(request.getUsername());
         usuario.setNombre(request.getNombre());
@@ -82,11 +88,16 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setCorreo(request.getCorreo());
         usuario.setEstado(supportService.getActiveState());
 
-        // Option A: temporary password (must be changed via auth flow)
-        usuario.setPassword(passwordEncoder.encode("Temp123*"));
+        usuario.setPassword(passwordEncoder.encode(temporaryPassword));
 
         Usuario saved = usuarioRepository.save(usuario);
 
+        emailService.sendTemporaryPassword(
+                saved.getCorreo(),
+                saved.getNombre() + " " + saved.getApellido(),
+                saved.getUsername(),
+                temporaryPassword
+        );
         return usuarioMapper.toResponseDTO(saved);
     }
 

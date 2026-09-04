@@ -3,8 +3,11 @@ package com.clinica.psicologia.system.support_services.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -65,26 +68,65 @@ public class EmailServiceImpl implements EmailService {
                 + "/reset-password?token="
                 + resetToken;
 
-        SimpleMailMessage message = new SimpleMailMessage();
+        MimeMessage message = mailSender.createMimeMessage();
 
-        message.setTo(recipientEmail);
-        message.setSubject("Restablecimiento de contraseña");
-        message.setText(
-                "Hola " + recipientName + ",\n\n"
-                        + "Hemos recibido una solicitud para restablecer "
-                        + "la contraseña de tu cuenta en el Sistema Integral "
-                        + "de Gestión de Expedientes Clínicos Psicológicos.\n\n"
-                        + "Para establecer una nueva contraseña, utiliza el "
-                        + "siguiente enlace:\n\n"
-                        + resetUrl + "\n\n"
-                        + "Este enlace es válido durante 1 hora y solo puede "
-                        + "utilizarse una vez.\n\n"
-                        + "Si no solicitaste este cambio, puedes ignorar este "
-                        + "correo. Tu contraseña actual permanecerá sin cambios.\n\n"
-                        + "Saludos,\n"
-                        + "Sistema Integral de Gestión de Expedientes "
-                        + "Clínicos Psicológicos");
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
-        mailSender.send(message);
+            helper.setFrom(fromEmail);
+            helper.setTo(recipientEmail);
+            helper.setSubject("Restablecimiento de contraseña");
+
+            String htmlContent = """
+                    <html>
+                    <body>
+                        <p>Hola %s,</p>
+
+                        <p>
+                            Hemos recibido una solicitud para restablecer
+                            la contraseña de tu cuenta en el Sistema Integral
+                            de Gestión de Expedientes Clínicos Psicológicos.
+                        </p>
+
+                        <p>
+                            Para establecer una nueva contraseña, haz clic en el
+                            siguiente enlace:
+                        </p>
+
+                        <p>
+                            <a href="%s">
+                                Haz clic aquí para restablecer tu contraseña
+                            </a>
+                        </p>
+
+                        <p>
+                            Este enlace es válido durante 1 hora y solo puede
+                            utilizarse una vez.
+                        </p>
+
+                        <p>
+                            Si no solicitaste este cambio, puedes ignorar este
+                            correo. Tu contraseña actual permanecerá sin cambios.
+                        </p>
+
+                        <p>
+                            Saludos,<br>
+                            Clarity EHRS
+                        </p>
+                    </body>
+                    </html>
+                    """.formatted(
+                    recipientName,
+                    resetUrl);
+
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            throw new IllegalStateException(
+                    "Failed to create password reset email",
+                    e);
+        }
     }
 }
