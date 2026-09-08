@@ -35,6 +35,7 @@ import type {
 
 const palette = [
   "#0f766e",
+  "#ca8a04",
   "#2563eb",
   "#b45309",
   "#be123c",
@@ -43,7 +44,6 @@ const palette = [
   "#0891b2",
   "#dc2626",
   "#9333ea",
-  "#ca8a04",
   "#0369a1",
   "#c026d3",
   "#ea580c",
@@ -74,7 +74,9 @@ interface CoordinatorStageWorkspaceProps {
 
 function addDays(value: string, days: number) {
   const date = new Date(`${value}T00:00:00`);
+
   date.setDate(date.getDate() + days);
+
   return date.toISOString().slice(0, 10);
 }
 
@@ -85,6 +87,61 @@ function formatWeekStart(value: string) {
     month: "long",
     year: "numeric",
   }).format(new Date(`${value}T00:00:00`));
+}
+
+type PsychologistOption = {
+  psychologistId: number;
+  psychologistName: string;
+};
+
+function getPsychologistOptions(
+  data: CoordinatorReportPageData,
+): PsychologistOption[] {
+  const options = new Map<number, string>();
+
+  data.summary.forEach((row) => {
+    options.set(row.psychologistId, row.psychologistName);
+  });
+
+  data.agenda.forEach((appointment) => {
+    if (!options.has(appointment.usuarioId)) {
+      options.set(appointment.usuarioId, appointment.usuarioNombre);
+    }
+  });
+
+  data.patients.forEach((patient) => {
+    if (!options.has(patient.psychologistId)) {
+      const patientWithName = patient as typeof patient & {
+        psychologistName?: string;
+      };
+
+      options.set(
+        patient.psychologistId,
+        patientWithName.psychologistName ??
+          `Psicólogo #${patient.psychologistId}`,
+      );
+    }
+  });
+
+  return [...options.entries()]
+    .map(([psychologistId, psychologistName]) => ({
+      psychologistId,
+      psychologistName,
+    }))
+    .sort((a, b) => a.psychologistName.localeCompare(b.psychologistName, "es"));
+}
+
+function getPsychologistColors(psychologistOptions: PsychologistOption[]) {
+  const sortedOptions = [...psychologistOptions].sort(
+    (a, b) => a.psychologistId - b.psychologistId,
+  );
+
+  return new Map(
+    sortedOptions.map(({ psychologistId }, index) => [
+      psychologistId,
+      palette[index % palette.length],
+    ]),
+  );
 }
 
 export default function CoordinatorStageWorkspace({
@@ -102,12 +159,7 @@ export default function CoordinatorStageWorkspace({
   onCloseAppointment,
   onClosePatient,
 }: CoordinatorStageWorkspaceProps) {
-  const psychologistOptions = data.summary.map(
-    ({ psychologistId, psychologistName }) => ({
-      psychologistId,
-      psychologistName,
-    }),
-  );
+  const psychologistOptions = getPsychologistOptions(data);
 
   const selectedPsychologistIds = selection.psychologistIds;
 
@@ -136,12 +188,7 @@ export default function CoordinatorStageWorkspace({
           selectedPsychologistIds.includes(patient.psychologistId),
         );
 
-  const psychologistColors = new Map(
-    psychologistOptions.map(({ psychologistId }, index) => [
-      psychologistId,
-      palette[index % palette.length],
-    ]),
-  );
+  const psychologistColors = getPsychologistColors(psychologistOptions);
 
   const selectedPsychologistNames = psychologistOptions
     .filter(({ psychologistId }) =>
@@ -157,9 +204,15 @@ export default function CoordinatorStageWorkspace({
     <Box
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", md: "row" },
+        flexDirection: {
+          xs: "column",
+          md: "row",
+        },
         alignItems: "flex-start",
-        gap: { xs: 2, md: 3 },
+        gap: {
+          xs: 2,
+          md: 3,
+        },
         width: "100%",
       }}
     >
@@ -170,20 +223,41 @@ export default function CoordinatorStageWorkspace({
         />
       </Box>
 
-      <Box sx={{ minWidth: 0, flex: 1 }}>
-        <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
+      <Box
+        sx={{
+          minWidth: 0,
+          flex: 1,
+        }}
+      >
+        <Paper
+          variant="outlined"
+          sx={{
+            p: {
+              xs: 2,
+              md: 3,
+            },
+          }}
+        >
           <Stack
-            direction={{ xs: "column", lg: "row" }}
+            direction={{
+              xs: "column",
+              lg: "row",
+            }}
             spacing={2}
             justifyContent="space-between"
-            alignItems={{ xs: "stretch", lg: "center" }}
+            alignItems={{
+              xs: "stretch",
+              lg: "center",
+            }}
             sx={{ mb: 3 }}
           >
             <Stack
               direction="row"
               spacing={1.5}
               alignItems="center"
-              sx={{ minWidth: 0 }}
+              sx={{
+                minWidth: 0,
+              }}
             >
               {stage === "summary" && (
                 <AssessmentOutlinedIcon color="primary" />
@@ -207,10 +281,19 @@ export default function CoordinatorStageWorkspace({
             </Stack>
 
             <Stack
-              direction={{ xs: "column", sm: "row" }}
+              direction={{
+                xs: "column",
+                sm: "row",
+              }}
               spacing={1.5}
-              alignItems={{ xs: "stretch", sm: "center" }}
-              justifyContent={{ xs: "flex-start", lg: "flex-end" }}
+              alignItems={{
+                xs: "stretch",
+                sm: "center",
+              }}
+              justifyContent={{
+                xs: "flex-start",
+                lg: "flex-end",
+              }}
               sx={{
                 flexShrink: 0,
               }}
@@ -220,7 +303,10 @@ export default function CoordinatorStageWorkspace({
                   direction="row"
                   spacing={0.5}
                   alignItems="center"
-                  justifyContent={{ xs: "center", sm: "flex-end" }}
+                  justifyContent={{
+                    xs: "center",
+                    sm: "flex-end",
+                  }}
                 >
                   <Button
                     aria-label="Semana anterior"
@@ -238,7 +324,10 @@ export default function CoordinatorStageWorkspace({
                   <Typography
                     variant="body2"
                     sx={{
-                      minWidth: { xs: 220, sm: 250 },
+                      minWidth: {
+                        xs: 220,
+                        sm: 250,
+                      },
                       textAlign: "center",
                       textTransform: "capitalize",
                       fontWeight: 600,
@@ -268,7 +357,9 @@ export default function CoordinatorStageWorkspace({
                     size="small"
                     value={startDate}
                     onChange={(event) => onStartDateChange(event.target.value)}
-                    InputLabelProps={{ shrink: true }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
 
                   <TextField
@@ -277,7 +368,9 @@ export default function CoordinatorStageWorkspace({
                     size="small"
                     value={endDate}
                     onChange={(event) => onEndDateChange(event.target.value)}
-                    InputLabelProps={{ shrink: true }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </>
               )}
@@ -286,7 +379,9 @@ export default function CoordinatorStageWorkspace({
                 size="small"
                 sx={{
                   minWidth: 240,
-                  maxWidth: { sm: 360 },
+                  maxWidth: {
+                    sm: 360,
+                  },
                 }}
               >
                 <InputLabel id="coordinator-psychologist-label">
@@ -324,6 +419,7 @@ export default function CoordinatorStageWorkspace({
                     value="all"
                     onClick={(event) => {
                       event.preventDefault();
+
                       callbacks.onPsychologistChange([]);
                     }}
                   >

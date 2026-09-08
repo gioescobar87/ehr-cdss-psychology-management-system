@@ -26,7 +26,9 @@ function addDays(value: string, days: number) {
 function getMonday(value: string) {
   const date = new Date(`${value}T00:00:00`);
   const day = date.getDay();
+
   date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day));
+
   return toInputDate(date);
 }
 
@@ -42,6 +44,7 @@ export default function CoordinatorReportPage() {
   const [stage, setStage] = useState<CoordinatorStage>("summary");
 
   const [startDate, setStartDate] = useState(addDays(today, -30));
+
   const [endDate, setEndDate] = useState(today);
 
   const [selection, setSelection] = useState<CoordinatorWorkspaceSelection>({
@@ -54,13 +57,29 @@ export default function CoordinatorReportPage() {
 
   const [selectedPatient, setSelectedPatient] = useState<number | null>(null);
 
-  const summary = useCoordinatorSummary(startDate, endDate);
-  const agenda = useCoordinatorAgenda(selection.weekStart);
-  const patients = useCoordinatorPatients();
+  const summary = useCoordinatorSummary(
+    startDate,
+    endDate,
+    stage === "summary",
+  );
 
-  const loading = summary.isLoading || agenda.isLoading || patients.isLoading;
+  const agenda = useCoordinatorAgenda(selection.weekStart, stage === "agenda");
 
-  const error = summary.isError || agenda.isError || patients.isError;
+  const patients = useCoordinatorPatients(stage === "patients");
+
+  const loading =
+    stage === "summary"
+      ? summary.isLoading
+      : stage === "agenda"
+        ? agenda.isLoading
+        : patients.isLoading;
+
+  const error =
+    stage === "summary"
+      ? summary.isError
+      : stage === "agenda"
+        ? agenda.isError
+        : patients.isError;
 
   const data: CoordinatorReportPageData = {
     summary: summary.data ?? [],

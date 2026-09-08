@@ -6,23 +6,33 @@ import {
   getCoordinatorSummary,
 } from "../api/coordinatorReportApi";
 
-export function useCoordinatorSummary(startDate: string, endDate: string) {
+export function useCoordinatorSummary(
+  startDate: string,
+  endDate: string,
+  enabled = true,
+) {
   return useQuery({
     queryKey: ["coordinator-report", "summary", startDate, endDate],
     queryFn: () => getCoordinatorSummary(startDate, endDate),
+    enabled,
+    staleTime: 60_000,
   });
 }
 
-export function useCoordinatorPatients() {
+export function useCoordinatorPatients(enabled = true) {
   return useQuery({
     queryKey: ["coordinator-report", "patients"],
     queryFn: getCoordinatorPatients,
+    enabled,
+    staleTime: 60_000,
   });
 }
 
-export function useCoordinatorAgenda(startDate: string) {
+export function useCoordinatorAgenda(startDate: string, enabled = true) {
   return useQuery({
     queryKey: ["coordinator-report", "agenda", startDate],
     queryFn: () => getCoordinatorAgenda(startDate),
+    enabled,
+    staleTime: 60_000,
   });
 }
