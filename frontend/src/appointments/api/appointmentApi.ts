@@ -54,10 +54,14 @@ export async function changeAppointmentStatus(
   });
 }
 
-export async function getAgenda(fecha: string): Promise<Appointment[]> {
+export async function getAgenda(
+  fecha: string,
+  usuarioId?: number,
+): Promise<Appointment[]> {
   const response = await apiClient.get<Appointment[]>("/cita/agenda", {
     params: {
       fecha,
+      ...(usuarioId === undefined ? {} : { usuarioId }),
     },
   });
 

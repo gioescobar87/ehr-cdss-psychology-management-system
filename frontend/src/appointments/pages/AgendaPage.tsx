@@ -15,6 +15,7 @@ import type { Appointment } from "../types/appointment.types";
 import { APPOINTMENT_STATUS } from "../constants/appointmentStatus";
 import AppointmentDetailsDrawer from "../components/AppointmentDetailsDrawer";
 import { useStartSession } from "../../sessions/hooks/useStartSession";
+import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
 
 import { useNavigate } from "react-router-dom";
 import { getPatientSessions } from "../../sessions/api/sessionContextApi";
@@ -32,6 +33,11 @@ import {
 
 export default function AgendaPage() {
   const navigate = useNavigate();
+  const { data: currentUser, isLoading: currentUserLoading } = useCurrentUser();
+  const psychologistId = currentUser?.roles.includes("PSICOLOGO")
+    ? currentUser.id
+    : undefined;
+  const userReady = !currentUserLoading && currentUser !== undefined;
 
   const [viewMode, setViewMode] = useState<AgendaViewMode>("day");
 
@@ -55,13 +61,13 @@ export default function AgendaPage() {
     data: dayAppointments = [],
     isLoading: dayLoading,
     isError: dayError,
-  } = useAgenda(selectedDate);
+  } = useAgenda(selectedDate, psychologistId, userReady);
 
   const {
     data: monthAppointments = [],
     isLoading: monthLoading,
     isError: monthError,
-  } = useAppointments(viewMode === "calendar");
+  } = useAppointments(psychologistId, viewMode === "calendar" && userReady);
 
   const agendaAppointments = useMemo(
     () =>
