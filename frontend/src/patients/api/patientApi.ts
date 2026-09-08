@@ -6,6 +6,11 @@ export async function getPatients(): Promise<Patient[]> {
   return response.data;
 }
 
+export async function getPatientById(id: number): Promise<Patient> {
+  const response = await apiClient.get<Patient>(`/paciente/${id}`);
+  return response.data;
+}
+
 export async function createPatient(request: PatientRequest): Promise<Patient> {
   const response = await apiClient.post<Patient>("/paciente", request);
   return response.data;

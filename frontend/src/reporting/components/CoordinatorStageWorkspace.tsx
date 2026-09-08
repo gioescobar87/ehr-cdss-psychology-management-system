@@ -12,6 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
@@ -171,6 +172,7 @@ export default function CoordinatorStageWorkspace({
   onCloseAppointment,
   onClosePatient,
 }: CoordinatorStageWorkspaceProps) {
+  const navigate = useNavigate();
   const psychologistOptions =
     getPsychologistOptions(data);
 
@@ -546,6 +548,8 @@ export default function CoordinatorStageWorkspace({
           }
           appointment={selectedAppointment}
           onClose={onCloseAppointment}
+          coordinatorReadOnly
+          onOpenSession={(sessionId) => navigate(`/sesion/${sessionId}`)}
         />
 
         <PatientDetailsDialog

@@ -15,7 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import type { ReactNode } from "react";
 
-import { usePatients } from "../hooks/usePatients";
+import { usePatient } from "../hooks/usePatients";
 import { useMedicalHistory } from "../../sessions/hooks/useMedicalHistory";
 import { formatDateOnly, formatRecordDate } from "../../shared/utils/dateUtils";
 
@@ -38,15 +38,18 @@ export default function PatientDetailsDialog({
   patientId,
   onClose,
 }: PatientDetailsDialogProps) {
-  const { data: patients = [], isLoading: isLoadingPatients } = usePatients();
-  const patient = patients.find((item) => item.id === patientId);
+  const {
+    data: patient,
+    isLoading: isLoadingPatient,
+    isError: isPatientError,
+  } = usePatient(patientId, open);
 
   const history = useMedicalHistory(patientId ?? 0, open && patientId !== null);
 
   const valorSinRegistro = "---";
 
   const isLoading =
-    isLoadingPatients ||
+    isLoadingPatient ||
     history.medical.isLoading ||
     history.family.isLoading ||
     history.allergies.isLoading ||
@@ -83,7 +86,7 @@ export default function PatientDetailsDialog({
           <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
             <CircularProgress size={28} />
           </Box>
-        ) : !patient ? (
+        ) : isPatientError || !patient ? (
           <Alert severity="error">
             No fue posible cargar la información del paciente.
           </Alert>

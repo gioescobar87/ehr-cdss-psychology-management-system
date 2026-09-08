@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createPatient,
   getPatients,
+  getPatientById,
   updatePatient,
   closePatientCase,
 } from "../api/patientApi";
@@ -14,6 +15,14 @@ export const patientKeys = {
 
 export function usePatients() {
   return useQuery({ queryKey: patientKeys.all, queryFn: getPatients });
+}
+
+export function usePatient(patientId: number | null, enabled = true) {
+  return useQuery({
+    queryKey: [...patientKeys.all, patientId],
+    queryFn: () => getPatientById(patientId!),
+    enabled: enabled && patientId !== null,
+  });
 }
 
 export function useUpdatePatient() {

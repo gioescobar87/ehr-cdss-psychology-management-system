@@ -18,7 +18,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotesIcon from "@mui/icons-material/Notes";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
@@ -43,6 +42,7 @@ interface AppointmentDetailsDrawerProps {
   open: boolean;
   appointment: Appointment | null;
   onClose: () => void;
+  coordinatorReadOnly?: boolean;
   onStartSession?: (appointment: Appointment) => void;
   onOpenSession?: (sessionId: number) => void;
 }
@@ -51,6 +51,7 @@ export default function AppointmentDetailsDrawer({
   open,
   appointment,
   onClose,
+  coordinatorReadOnly = false,
   onStartSession,
   onOpenSession,
 }: AppointmentDetailsDrawerProps) {
@@ -336,57 +337,59 @@ export default function AppointmentDetailsDrawer({
                 startIcon={
                   isLoadingSession ? (
                     <CircularProgress size={18} color="inherit" />
-                  ) : session ? (
-                    <OpenInNewIcon />
                   ) : (
-                    <PlayArrowIcon />
+                    <OpenInNewIcon />
                   )
                 }
                 onClick={() => {
                   if (session) {
                     onOpenSession?.(session.id);
-                    return;
                   }
-
-                  onStartSession?.(appointment);
                 }}
                 disabled={
                   isLoadingSession ||
                   isSessionError ||
-                  (!session && !onStartSession) ||
-                  (session !== null && !onOpenSession)
+                  (coordinatorReadOnly
+                    ? !session || !onOpenSession
+                    : (!session && !onStartSession) ||
+                      (session !== null && !onOpenSession))
                 }
                 fullWidth
               >
                 {isLoadingSession
                   ? "Verificando sesión..."
-                  : session
-                    ? "Abrir sesión terapéutica"
-                    : "Iniciar sesión terapéutica"}
+                  : coordinatorReadOnly
+                    ? "Ver última sesión terapéutica"
+                    : session
+                      ? "Abrir sesión terapéutica"
+                      : "Iniciar sesión terapéutica"}
               </Button>
 
-              <Button
-                variant="text"
-                startIcon={<MoreVertIcon />}
-                fullWidth
-                disabled={isCancelled}
-                sx={{
-                  justifyContent: "flex-start",
-                }}
-                onClick={(event) => setActionsAnchorEl(event.currentTarget)}
-              >
-                Más acciones
-              </Button>
+              {!coordinatorReadOnly && (
+                <Button
+                  variant="text"
+                  startIcon={<MoreVertIcon />}
+                  fullWidth
+                  disabled={isCancelled}
+                  sx={{
+                    justifyContent: "flex-start",
+                  }}
+                  onClick={(event) => setActionsAnchorEl(event.currentTarget)}
+                >
+                  Más acciones
+                </Button>
+              )}
             </Stack>
           </Stack>
         </Box>
       </Drawer>
 
-      <Menu
-        anchorEl={actionsAnchorEl}
-        open={Boolean(actionsAnchorEl)}
-        onClose={() => setActionsAnchorEl(null)}
-      >
+      {!coordinatorReadOnly && (
+        <Menu
+          anchorEl={actionsAnchorEl}
+          open={Boolean(actionsAnchorEl)}
+          onClose={() => setActionsAnchorEl(null)}
+        >
         <MenuItem
           onClick={() => {
             setActionsAnchorEl(null);
@@ -406,7 +409,8 @@ export default function AppointmentDetailsDrawer({
           <CancelOutlinedIcon fontSize="small" sx={{ mr: 1.5 }} />
           Cancelar cita
         </MenuItem>
-      </Menu>
+        </Menu>
+      )}
 
       <PatientDetailsDialog
         open={patientDialogOpen}
@@ -414,33 +418,37 @@ export default function AppointmentDetailsDrawer({
         onClose={() => setPatientDialogOpen(false)}
       />
 
-      <CancellationDialog
-        open={cancelDialogOpen}
-        loading={cancelMutation.isPending}
-        error={
-          cancelMutation.error ? getApiErrorMessage(cancelMutation.error) : null
-        }
-        onClose={() => {
-          setCancelDialogOpen(false);
-          cancelMutation.reset();
-        }}
-        onConfirm={handleCancelConfirm}
-      />
+      {!coordinatorReadOnly && (
+        <>
+          <CancellationDialog
+            open={cancelDialogOpen}
+            loading={cancelMutation.isPending}
+            error={
+              cancelMutation.error ? getApiErrorMessage(cancelMutation.error) : null
+            }
+            onClose={() => {
+              setCancelDialogOpen(false);
+              cancelMutation.reset();
+            }}
+            onConfirm={handleCancelConfirm}
+          />
 
-      <RescheduleDialog
-        open={rescheduleDialogOpen}
-        loading={rescheduleMutation.isPending}
-        error={
-          rescheduleMutation.error
-            ? getApiErrorMessage(rescheduleMutation.error)
-            : null
-        }
-        onClose={() => {
-          setRescheduleDialogOpen(false);
-          rescheduleMutation.reset();
-        }}
-        onConfirm={handleRescheduleConfirm}
-      />
+          <RescheduleDialog
+            open={rescheduleDialogOpen}
+            loading={rescheduleMutation.isPending}
+            error={
+              rescheduleMutation.error
+                ? getApiErrorMessage(rescheduleMutation.error)
+                : null
+            }
+            onClose={() => {
+              setRescheduleDialogOpen(false);
+              rescheduleMutation.reset();
+            }}
+            onConfirm={handleRescheduleConfirm}
+          />
+        </>
+      )}
     </>
   );
 }
