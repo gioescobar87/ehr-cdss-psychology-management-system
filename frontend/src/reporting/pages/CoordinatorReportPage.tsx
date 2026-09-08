@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 import type { Appointment } from "../../appointments/types/appointment.types";
 import {
@@ -17,9 +23,22 @@ function toInputDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-function addDays(value: string, days: number) {
-  const date = new Date(`${value}T00:00:00`);
-  date.setDate(date.getDate() + days);
+function getCurrentMonth() {
+  return toInputDate(new Date()).slice(0, 7);
+}
+
+function getMonthStart(month: string) {
+  return month ? `${month}-01` : "";
+}
+
+function getMonthEnd(month: string) {
+  if (!month) {
+    return "";
+  }
+
+  const [year, monthNumber] = month.split("-").map(Number);
+  const date = new Date(year, monthNumber, 0);
+
   return toInputDate(date);
 }
 
@@ -33,39 +52,56 @@ function getMonday(value: string) {
 }
 
 export type CoordinatorReportPageData = {
-  summary: NonNullable<ReturnType<typeof useCoordinatorSummary>["data"]>;
-  agenda: NonNullable<ReturnType<typeof useCoordinatorAgenda>["data"]>;
-  patients: NonNullable<ReturnType<typeof useCoordinatorPatients>["data"]>;
+  summary: NonNullable<
+    ReturnType<typeof useCoordinatorSummary>["data"]
+  >;
+  agenda: NonNullable<
+    ReturnType<typeof useCoordinatorAgenda>["data"]
+  >;
+  patients: NonNullable<
+    ReturnType<typeof useCoordinatorPatients>["data"]
+  >;
 };
 
 export default function CoordinatorReportPage() {
   const today = toInputDate(new Date());
+  const currentMonth = getCurrentMonth();
 
-  const [stage, setStage] = useState<CoordinatorStage>("summary");
+  const [stage, setStage] =
+    useState<CoordinatorStage>("summary");
 
-  const [startDate, setStartDate] = useState(addDays(today, -30));
+  const [reportMonth, setReportMonth] =
+    useState(currentMonth);
 
-  const [endDate, setEndDate] = useState(today);
-
-  const [selection, setSelection] = useState<CoordinatorWorkspaceSelection>({
-    psychologistIds: [],
-    weekStart: getMonday(today),
-  });
+  const [selection, setSelection] =
+    useState<CoordinatorWorkspaceSelection>({
+      psychologistIds: [],
+      weekStart: getMonday(today),
+    });
 
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
 
-  const [selectedPatient, setSelectedPatient] = useState<number | null>(null);
+  const [selectedPatient, setSelectedPatient] =
+    useState<number | null>(null);
+
+  const startDate = getMonthStart(reportMonth);
+  const endDate = getMonthEnd(reportMonth);
 
   const summary = useCoordinatorSummary(
     startDate,
     endDate,
-    stage === "summary",
+    stage === "summary" && Boolean(reportMonth),
   );
 
-  const agenda = useCoordinatorAgenda(selection.weekStart, stage === "agenda");
+  const agenda = useCoordinatorAgenda(
+    selection.weekStart,
+    stage === "agenda",
+  );
 
-  const patients = useCoordinatorPatients(stage === "patients");
+  const patients = useCoordinatorPatients(
+    stage === "patients",
+  );
 
   const loading =
     stage === "summary"
@@ -97,7 +133,10 @@ export default function CoordinatorReportPage() {
       }}
     >
       <Stack spacing={0.5} sx={{ mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 800 }}
+        >
           Reporte de coordinación
         </Typography>
 
@@ -112,16 +151,19 @@ export default function CoordinatorReportPage() {
         </Alert>
       )}
 
-      {loading && <CircularProgress size={24} sx={{ mb: 2 }} />}
+      {loading && (
+        <CircularProgress
+          size={24}
+          sx={{ mb: 2 }}
+        />
+      )}
 
       <CoordinatorStageWorkspace
         stage={stage}
         data={data}
         selection={selection}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
+        reportMonth={reportMonth}
+        onReportMonthChange={setReportMonth}
         callbacks={{
           onWeekStartChange: (weekStart) =>
             setSelection((current) => ({
@@ -141,8 +183,12 @@ export default function CoordinatorReportPage() {
         onStageChange={setStage}
         selectedAppointment={selectedAppointment}
         selectedPatient={selectedPatient}
-        onCloseAppointment={() => setSelectedAppointment(null)}
-        onClosePatient={() => setSelectedPatient(null)}
+        onCloseAppointment={() =>
+          setSelectedAppointment(null)
+        }
+        onClosePatient={() =>
+          setSelectedPatient(null)
+        }
       />
     </Box>
   );

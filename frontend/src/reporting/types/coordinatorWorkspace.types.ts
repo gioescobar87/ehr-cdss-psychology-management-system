@@ -21,13 +21,13 @@ export interface CoordinatorWorkspaceData {
 export type CoordinatorReportPageData = CoordinatorWorkspaceData;
 
 export interface CoordinatorWorkspaceSelection {
-  psychologistId: number | null;
+  psychologistIds: number[];
   weekStart: string;
 }
 
 export interface CoordinatorWorkspaceCallbacks {
   onWeekStartChange: (value: string) => void;
-  onPsychologistChange: (value: number | null) => void;
+  onPsychologistChange: (value: number[]) => void;
   onAppointmentSelect: (appointment: Appointment) => void;
   onPatientSelect: (patientId: number) => void;
 }
