@@ -154,12 +154,15 @@ public class CitaServiceImpl implements CitaService {
 
         @Override
         @Transactional(Transactional.TxType.SUPPORTS)
-        public List<CitaResponseDTO> getAgenda(LocalDate fecha) {
+        public List<CitaResponseDTO> getAgenda(LocalDate fecha, Integer usuarioId) {
+
+                LocalDateTime start = fecha.atStartOfDay();
+                LocalDateTime end = fecha.plusDays(1).atStartOfDay();
 
                 return mapper.toResponseDTOList(
-                                repository.findByFechaHoraInicioBetween(
-                                                fecha.atStartOfDay(),
-                                                fecha.plusDays(1).atStartOfDay()));
+                                usuarioId == null
+                                                ? repository.findByFechaHoraInicioBetween(start, end)
+                                                : repository.findByUsuarioIdAndFechaHoraInicioBetween(usuarioId, start, end));
         }
 
         @Override

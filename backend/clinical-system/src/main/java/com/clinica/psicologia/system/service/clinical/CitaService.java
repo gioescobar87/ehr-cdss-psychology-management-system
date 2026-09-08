@@ -26,7 +26,8 @@ public interface CitaService {
     void delete(Integer id);
 
     List<CitaResponseDTO> getAgenda(
-            LocalDate fecha);
+            LocalDate fecha,
+            Integer usuarioId);
 
     List<CitaResponseDTO> getByPatient(Integer pacienteId);
 
