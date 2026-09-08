@@ -67,6 +67,7 @@ import AppointmentDetailsPage from "../appointments/pages/AppointmentDetailsPage
 import ClinicalSessionPage from "../sessions/pages/ClinicalSessionPage";
 import PatientsPage from "../patients/pages/PatientsPage";
 import SessionsPage from "../sessions/pages/SessionsPage";
+import CoordinatorReportPage from "../reporting/pages/CoordinatorReportPage";
 
 export const router = createBrowserRouter([
   {
@@ -117,6 +118,10 @@ export const router = createBrowserRouter([
               {
                 path: "/sesiones",
                 element: <SessionsPage />,
+              },
+              {
+                path: "/reportes/coordinacion",
+                element: <CoordinatorReportPage />,
               },
               {
                 path: "/profile",
