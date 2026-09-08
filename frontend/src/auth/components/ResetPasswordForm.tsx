@@ -75,11 +75,7 @@ export default function ResetPasswordForm() {
             Enlace inválido
           </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-          >
+          <Typography variant="body2" color="text.secondary" align="center">
             El enlace de restablecimiento de contraseña no es válido o está
             incompleto.
           </Typography>
@@ -92,10 +88,7 @@ export default function ResetPasswordForm() {
             Solicitar nuevo enlace
           </Button>
 
-          <Button
-            variant="text"
-            onClick={() => navigate("/login")}
-          >
+          <Button variant="text" onClick={() => navigate("/login")}>
             Volver a iniciar sesión
           </Button>
         </Stack>
@@ -118,13 +111,9 @@ export default function ResetPasswordForm() {
             Contraseña restablecida
           </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-          >
-            Su contraseña ha sido restablecida correctamente. Ya puede
-            iniciar sesión con su nueva contraseña.
+          <Typography variant="body2" color="text.secondary" align="center">
+            Su contraseña ha sido restablecida correctamente. Ya puede iniciar
+            sesión con su nueva contraseña.
           </Typography>
 
           <Button
@@ -152,12 +141,7 @@ export default function ResetPasswordForm() {
         Restablecer contraseña
       </Typography>
 
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        mb={4}
-        align="center"
-      >
+      <Typography variant="body2" color="text.secondary" mb={4} align="center">
         Ingrese una nueva contraseña para su cuenta.
       </Typography>
 
@@ -247,10 +231,7 @@ export default function ResetPasswordForm() {
             </Typography>
           )}
 
-          <Button
-            variant="text"
-            onClick={() => navigate("/login")}
-          >
+          <Button variant="text" onClick={() => navigate("/login")}>
             Volver a iniciar sesión
           </Button>
         </Stack>
