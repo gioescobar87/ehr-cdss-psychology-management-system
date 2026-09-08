@@ -18,10 +18,7 @@ import CrudToolbar from "../../shared/components/common/CrudToolbar";
 import StatusToggle from "../components/StatusToggle";
 import PermisoFormDialog from "../components/PermisoFormDialog";
 
-import {
-  useGetAllPermisos,
-  useChangeStatus,
-} from "../hooks/usePermiso";
+import { useGetAllPermisos, useChangeStatus } from "../hooks/usePermiso";
 
 import { useGetAllEstados } from "../../catalog/hooks/useEstados";
 
@@ -35,18 +32,15 @@ function isActive(estado: string): boolean {
 export default function PermissionListPage() {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingPermission, setEditingPermission] =
-    useState<Response | null>(null);
+  const [editingPermission, setEditingPermission] = useState<Response | null>(
+    null,
+  );
 
   const [statusFilter, setStatusFilter] = useState<
     "ALL" | "ACTIVE" | "INACTIVE"
   >("ALL");
 
-  const {
-    data: permissions = [],
-    isLoading,
-    isError,
-  } = useGetAllPermisos();
+  const { data: permissions = [], isLoading, isError } = useGetAllPermisos();
 
   const { data: states = [] } = useGetAllEstados();
 
@@ -54,9 +48,7 @@ export default function PermissionListPage() {
 
   const activeState = states.find((state) => isActive(state.nombre));
 
-  const inactiveState = states.find(
-    (state) => !isActive(state.nombre),
-  );
+  const inactiveState = states.find((state) => !isActive(state.nombre));
 
   const filteredPermissions = useMemo(() => {
     const normalized = search.trim().toLowerCase();
@@ -72,13 +64,9 @@ export default function PermissionListPage() {
     }
 
     if (statusFilter === "ACTIVE") {
-      filtered = filtered.filter((permission) =>
-        isActive(permission.estado),
-      );
+      filtered = filtered.filter((permission) => isActive(permission.estado));
     } else if (statusFilter === "INACTIVE") {
-      filtered = filtered.filter(
-        (permission) => !isActive(permission.estado),
-      );
+      filtered = filtered.filter((permission) => !isActive(permission.estado));
     }
 
     return [...filtered].sort((a, b) => {
@@ -91,11 +79,7 @@ export default function PermissionListPage() {
       const aIsActive = isActive(a.estado);
       const bIsActive = isActive(b.estado);
 
-      return bIsActive === aIsActive
-        ? 0
-        : bIsActive
-          ? -1
-          : 1;
+      return bIsActive === aIsActive ? 0 : bIsActive ? -1 : 1;
     });
   }, [permissions, search, statusFilter]);
 
@@ -132,9 +116,7 @@ export default function PermissionListPage() {
             changeStatus.variables?.id === permission.id
           }
           onChange={(active) => {
-            const targetState = active
-              ? activeState
-              : inactiveState;
+            const targetState = active ? activeState : inactiveState;
 
             if (!targetState) {
               return;
@@ -157,13 +139,7 @@ export default function PermissionListPage() {
         const active = isActive(permission.estado);
 
         return (
-          <Tooltip
-            title={
-              active
-                ? "Editar permiso"
-                : "Permiso inactivo"
-            }
-          >
+          <Tooltip title={active ? "Editar permiso" : "Permiso inactivo"}>
             <span>
               <IconButton
                 size="small"
@@ -252,17 +228,11 @@ export default function PermissionListPage() {
             size="small"
             aria-label="Filtrar permisos por estado"
           >
-            <ToggleButton value="ALL">
-              Todos
-            </ToggleButton>
+            <ToggleButton value="ALL">Todos</ToggleButton>
 
-            <ToggleButton value="ACTIVE">
-              Activos
-            </ToggleButton>
+            <ToggleButton value="ACTIVE">Activos</ToggleButton>
 
-            <ToggleButton value="INACTIVE">
-              Inactivos
-            </ToggleButton>
+            <ToggleButton value="INACTIVE">Inactivos</ToggleButton>
           </ToggleButtonGroup>
 
           <AppButton

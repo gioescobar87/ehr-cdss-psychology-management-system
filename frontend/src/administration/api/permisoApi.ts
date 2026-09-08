@@ -19,10 +19,7 @@ export async function create(request: Request): Promise<Response> {
   return response.data;
 }
 
-export async function update(
-  id: number,
-  request: Request,
-): Promise<Response> {
+export async function update(id: number, request: Request): Promise<Response> {
   const response = await apiClient.put<Response>(`${BASE_PATH}/${id}`, request);
   return response.data;
 }

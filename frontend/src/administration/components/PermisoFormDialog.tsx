@@ -42,17 +42,15 @@ export default function PermisoFormDialog({
   const createPermission = useCreate();
   const updatePermission = useUpdate();
 
-  const [submitError, setSubmitError] =
-    useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isEditing = !!editingPermission;
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState,
-  } = useForm<FormInput, unknown, FormValues>({
+  const { control, handleSubmit, reset, formState } = useForm<
+    FormInput,
+    unknown,
+    FormValues
+  >({
     resolver: zodResolver(schema),
 
     defaultValues: {
@@ -82,16 +80,9 @@ export default function PermisoFormDialog({
         descripcion: "",
       });
     }
-  }, [
-    open,
-    isEditing,
-    editingPermission,
-    reset,
-  ]);
+  }, [open, isEditing, editingPermission, reset]);
 
-  const handleFormSubmit = async (
-    values: FormValues,
-  ) => {
+  const handleFormSubmit = async (values: FormValues) => {
     setSubmitError(null);
 
     const request: Request = {
@@ -112,10 +103,7 @@ export default function PermisoFormDialog({
       onClose();
       onSuccess();
     } catch (error) {
-      console.error(
-        "Failed to save permission:",
-        error,
-      );
+      console.error("Failed to save permission:", error);
 
       setSubmitError(
         "No fue posible guardar los cambios. Verifique la información e inténtelo nuevamente.",
@@ -132,34 +120,22 @@ export default function PermisoFormDialog({
     onClose();
   };
 
-  const hasErrors =
-    Object.keys(formState.errors).length > 0;
+  const hasErrors = Object.keys(formState.errors).length > 0;
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-    >
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        {isEditing
-          ? "Editar permiso"
-          : "Nuevo permiso"}
+        {isEditing ? "Editar permiso" : "Nuevo permiso"}
       </DialogTitle>
 
       <DialogContent>
         <Stack spacing={3} sx={{ pt: 2 }}>
-          {submitError && (
-            <Alert severity="error">
-              {submitError}
-            </Alert>
-          )}
+          {submitError && <Alert severity="error">{submitError}</Alert>}
 
           {!isEditing && (
             <Alert severity="info">
-              El permiso se creará con el estado
-              predeterminado establecido por el sistema.
+              El permiso se creará con el estado predeterminado establecido por
+              el sistema.
             </Alert>
           )}
 
@@ -192,31 +168,18 @@ export default function PermisoFormDialog({
       </DialogContent>
 
       <DialogActions sx={{ p: 2 }}>
-        <Button
-          onClick={handleClose}
-          disabled={isSaving}
-        >
+        <Button onClick={handleClose} disabled={isSaving}>
           Cancelar
         </Button>
 
         <Button
-          onClick={handleSubmit(
-            handleFormSubmit,
-            (errors) => {
-              console.error(
-                "PERMISSION FORM VALIDATION FAILED:",
-                errors,
-              );
-            },
-          )}
+          onClick={handleSubmit(handleFormSubmit, (errors) => {
+            console.error("PERMISSION FORM VALIDATION FAILED:", errors);
+          })}
           variant="contained"
           disabled={isSaving || hasErrors}
         >
-          {isSaving
-            ? "Procesando..."
-            : isEditing
-              ? "Actualizar"
-              : "Crear"}
+          {isSaving ? "Procesando..." : isEditing ? "Actualizar" : "Crear"}
         </Button>
       </DialogActions>
     </Dialog>
