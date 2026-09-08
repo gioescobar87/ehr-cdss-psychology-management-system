@@ -1,7 +1,6 @@
 package com.clinica.psicologia.system.serv_implementation.report;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
