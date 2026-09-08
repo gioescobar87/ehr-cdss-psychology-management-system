@@ -8,9 +8,14 @@ interface AgendaStageProps {
   onSelect: (appointment: Appointment) => void;
 }
 
-const SLOT_MINUTES = 30;
 const START_HOUR = 7;
 const END_HOUR = 20;
+const HOUR_HEIGHT = 72;
+const MIN_APPOINTMENT_HEIGHT = 32;
+const MIN_APPOINTMENT_WIDTH = 78;
+const APPOINTMENT_GAP = 4;
+const TIME_COLUMN_WIDTH = 64;
+const DAY_MIN_WIDTH = 170;
 
 function addDays(value: string, days: number) {
   const date = new Date(`${value}T00:00:00`);
@@ -27,46 +32,164 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-function getTimeSlots() {
-  const slots: string[] = [];
+function formatDay(date: string) {
+  return new Intl.DateTimeFormat("es-GT", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  }).format(new Date(`${date}T00:00:00`));
+}
 
-  for (
-    let minutes = START_HOUR * 60;
-    minutes < END_HOUR * 60;
-    minutes += SLOT_MINUTES
-  ) {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+function getMinutesFromStartOfDay(dateTime: string) {
+  const date = new Date(dateTime);
 
-    slots.push(
-      `${hours.toString().padStart(2, "0")}:${mins
-        .toString()
-        .padStart(2, "0")}`,
-    );
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function getAppointmentLayout(appointments: Appointment[]): Map<
+  number,
+  {
+    column: number;
+    totalColumns: number;
   }
+> {
+  const layout = new Map<
+    number,
+    {
+      column: number;
+      totalColumns: number;
+    }
+  >();
 
-  return slots;
+  const sortedAppointments = [...appointments].sort(
+    (a, b) =>
+      new Date(a.fechaHoraInicio).getTime() -
+      new Date(b.fechaHoraInicio).getTime(),
+  );
+
+  const columns: Appointment[][] = [];
+
+  sortedAppointments.forEach((appointment) => {
+    const appointmentStart = new Date(appointment.fechaHoraInicio).getTime();
+
+    const appointmentEnd = new Date(appointment.fechaHoraFin).getTime();
+
+    let columnIndex = columns.findIndex((column) => {
+      const lastAppointment = column[column.length - 1];
+
+      const lastAppointmentEnd = new Date(
+        lastAppointment.fechaHoraFin,
+      ).getTime();
+
+      return lastAppointmentEnd <= appointmentStart;
+    });
+
+    if (columnIndex === -1) {
+      columnIndex = columns.length;
+      columns.push([]);
+    }
+
+    columns[columnIndex].push(appointment);
+
+    layout.set(appointment.id, {
+      column: columnIndex,
+      totalColumns: 0,
+    });
+
+    const overlappingAppointments = sortedAppointments.filter((other) => {
+      if (other.id === appointment.id) {
+        return true;
+      }
+
+      const otherStart = new Date(other.fechaHoraInicio).getTime();
+
+      const otherEnd = new Date(other.fechaHoraFin).getTime();
+
+      return otherStart < appointmentEnd && otherEnd > appointmentStart;
+    });
+
+    const usedColumns = new Set<number>();
+
+    overlappingAppointments.forEach((other) => {
+      const otherLayout = layout.get(other.id);
+
+      if (otherLayout) {
+        usedColumns.add(otherLayout.column);
+      }
+    });
+
+    const totalColumns = Math.max(columns.length, usedColumns.size, 1);
+
+    overlappingAppointments.forEach((other) => {
+      const otherLayout = layout.get(other.id);
+
+      if (otherLayout) {
+        otherLayout.totalColumns = Math.max(
+          otherLayout.totalColumns,
+          totalColumns,
+        );
+      }
+    });
+  });
+
+  const appointmentGroups: Appointment[][] = [];
+
+  sortedAppointments.forEach((appointment) => {
+    const appointmentStart = new Date(appointment.fechaHoraInicio).getTime();
+
+    const appointmentEnd = new Date(appointment.fechaHoraFin).getTime();
+
+    const group = appointmentGroups.find((existingGroup) =>
+      existingGroup.some((existingAppointment) => {
+        const existingStart = new Date(
+          existingAppointment.fechaHoraInicio,
+        ).getTime();
+
+        const existingEnd = new Date(
+          existingAppointment.fechaHoraFin,
+        ).getTime();
+
+        return existingStart < appointmentEnd && existingEnd > appointmentStart;
+      }),
+    );
+
+    if (group) {
+      group.push(appointment);
+    } else {
+      appointmentGroups.push([appointment]);
+    }
+  });
+
+  appointmentGroups.forEach((group) => {
+    const usedColumns = new Set<number>();
+
+    group.forEach((appointment) => {
+      const appointmentLayout = layout.get(appointment.id);
+
+      if (appointmentLayout) {
+        usedColumns.add(appointmentLayout.column);
+      }
+    });
+
+    const totalColumns = Math.max(usedColumns.size, 1);
+
+    group.forEach((appointment) => {
+      const appointmentLayout = layout.get(appointment.id);
+
+      if (appointmentLayout) {
+        appointmentLayout.totalColumns = totalColumns;
+      }
+    });
+  });
+
+  return layout;
 }
 
-function getAppointmentTime(appointment: Appointment) {
-  const date = new Date(appointment.fechaHoraInicio);
-
-  return {
-    hours: date.getHours(),
-    minutes: date.getMinutes(),
-  };
+function getDayAppointments(appointments: Appointment[], day: string) {
+  return appointments.filter(
+    (appointment) => appointment.fechaHoraInicio.slice(0, 10) === day,
+  );
 }
-
-function getSlotKey(hours: number, minutes: number) {
-  const normalizedMinutes =
-    Math.floor(minutes / SLOT_MINUTES) * SLOT_MINUTES;
-
-  return `${hours.toString().padStart(2, "0")}:${normalizedMinutes
-    .toString()
-    .padStart(2, "0")}`;
-}
-
-const TIME_SLOTS = getTimeSlots();
 
 export default function AgendaStage({
   appointments,
@@ -74,46 +197,21 @@ export default function AgendaStage({
   psychologistColors,
   onSelect,
 }: AgendaStageProps) {
-  const weekDays = [0, 1, 2, 3, 4].map((offset) =>
-    addDays(weekStart, offset),
-  );
+  const weekDays = [0, 1, 2, 3, 4].map((offset) => addDays(weekStart, offset));
 
-  const appointmentsBySlot = new Map<string, Appointment[]>();
+  const psychologistLegend = [
+    ...new Map(
+      appointments.map((item) => [item.usuarioId, item.usuarioNombre]),
+    ),
+  ];
 
-  appointments.forEach((appointment) => {
-    const appointmentDate = appointment.fechaHoraInicio.slice(0, 10);
-    const { hours, minutes } = getAppointmentTime(appointment);
-
-    const slotKey = getSlotKey(hours, minutes);
-    const key = `${appointmentDate}-${slotKey}`;
-
-    const current = appointmentsBySlot.get(key) ?? [];
-    current.push(appointment);
-    appointmentsBySlot.set(key, current);
-  });
+  const timelineHeight = (END_HOUR - START_HOUR) * HOUR_HEIGHT;
 
   return (
-    <Box sx={{ width: "100%", overflowX: "auto" }}>
-      <Stack
-        direction="row"
-        flexWrap="wrap"
-        gap={2}
-        sx={{ mb: 2 }}
-      >
-        {[
-          ...new Map(
-            appointments.map((item) => [
-              item.usuarioId,
-              item.usuarioNombre,
-            ]),
-          ),
-        ].map(([id, name]) => (
-          <Stack
-            key={id}
-            direction="row"
-            spacing={0.75}
-            alignItems="center"
-          >
+    <Box sx={{ width: "100%" }}>
+      <Stack direction="row" flexWrap="wrap" gap={2} sx={{ mb: 2 }}>
+        {psychologistLegend.map(([id, name]) => (
+          <Stack key={id} direction="row" spacing={0.75} alignItems="center">
             <Box
               sx={{
                 width: 9,
@@ -124,10 +222,7 @@ export default function AgendaStage({
               }}
             />
 
-            <Typography
-              variant="caption"
-              sx={{ fontSize: "0.7rem" }}
-            >
+            <Typography variant="caption" sx={{ fontSize: "0.7rem" }}>
               {name}
             </Typography>
           </Stack>
@@ -136,12 +231,9 @@ export default function AgendaStage({
 
       <Box
         sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "64px repeat(5, minmax(150px, 1fr))",
-            md: "72px repeat(5, minmax(170px, 1fr))",
-          },
-          minWidth: 820,
+          width: "100%",
+          overflowX: "auto",
+          overflowY: "hidden",
           borderTop: "1px solid",
           borderLeft: "1px solid",
           borderColor: "divider",
@@ -149,57 +241,31 @@ export default function AgendaStage({
       >
         <Box
           sx={{
-            minHeight: 48,
-            bgcolor: "background.paper",
-            borderRight: "1px solid",
-            borderBottom: "1px solid",
-            borderColor: "divider",
+            display: "grid",
+            gridTemplateColumns: `${TIME_COLUMN_WIDTH}px repeat(5, minmax(${DAY_MIN_WIDTH}px, 1fr))`,
+            minWidth: `${TIME_COLUMN_WIDTH + DAY_MIN_WIDTH * 5}px`,
           }}
-        />
-
-        {weekDays.map((day) => (
+        >
           <Box
-            key={day}
             sx={{
-              minHeight: 48,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              px: 1,
+              height: 48,
               bgcolor: "background.paper",
               borderRight: "1px solid",
               borderBottom: "1px solid",
               borderColor: "divider",
             }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 700,
-                fontSize: "0.75rem",
-                textTransform: "capitalize",
-              }}
-            >
-              {new Intl.DateTimeFormat("es-GT", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-              }).format(new Date(`${day}T00:00:00`))}
-            </Typography>
-          </Box>
-        ))}
+          />
 
-        {TIME_SLOTS.map((time) => (
-          <Box key={time} sx={{ display: "contents" }}>
+          {weekDays.map((day) => (
             <Box
+              key={day}
               sx={{
-                minHeight: 58,
+                height: 48,
                 display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "flex-end",
-                pt: 0.75,
-                pr: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                px: 1,
                 bgcolor: "background.paper",
                 borderRight: "1px solid",
                 borderBottom: "1px solid",
@@ -207,115 +273,204 @@ export default function AgendaStage({
               }}
             >
               <Typography
-                variant="caption"
-                color="text.secondary"
+                variant="subtitle2"
                 sx={{
-                  fontSize: "0.68rem",
+                  fontWeight: 700,
+                  fontSize: "0.75rem",
+                  textTransform: "capitalize",
                   whiteSpace: "nowrap",
                 }}
               >
-                {time}
+                {formatDay(day)}
               </Typography>
             </Box>
+          ))}
 
-            {weekDays.map((day) => {
-              const key = `${day}-${time}`;
-              const slotAppointments =
-                appointmentsBySlot.get(key) ?? [];
+          <Box
+            sx={{
+              position: "relative",
+              height: timelineHeight,
+              bgcolor: "background.paper",
+              borderRight: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            {Array.from({
+              length: END_HOUR - START_HOUR,
+            }).map((_, index) => {
+              const hour = START_HOUR + index;
 
               return (
                 <Box
-                  key={key}
+                  key={hour}
                   sx={{
-                    minHeight: 58,
-                    p: 0.5,
-                    bgcolor: "grey.50",
-                    borderRight: "1px solid",
+                    height: HOUR_HEIGHT,
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "flex-end",
+                    pt: 0.75,
+                    pr: 0.75,
                     borderBottom: "1px solid",
                     borderColor: "divider",
                   }}
                 >
-                  <Box
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
                     sx={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(3, minmax(0, 1fr))",
-                      gap: 0.5,
-                      alignItems: "stretch",
+                      fontSize: "0.66rem",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    {slotAppointments.map((appointment) => {
-                      const psychologistColor =
-                        psychologistColors.get(
-                          appointment.usuarioId,
-                        );
-
-                      const isCancelled =
-                        appointment.estado === "CANCELADA";
-
-                      return (
-                        <Button
-                          key={appointment.id}
-                          onClick={() => onSelect(appointment)}
-                          sx={{
-                            width: "100%",
-                            minWidth: 0,
-                            minHeight: 42,
-                            display: "block",
-                            textAlign: "left",
-                            textTransform: "none",
-                            p: 0.5,
-                            borderLeft: `3px solid ${psychologistColor}`,
-                            bgcolor: "background.paper",
-                            color: "text.primary",
-                            boxShadow: 1,
-                            borderRadius: 0.75,
-                            overflow: "hidden",
-                            "&:hover": {
-                              bgcolor: "action.hover",
-                            },
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              display: "block",
-                              fontWeight: 800,
-                              fontSize: "0.62rem",
-                              lineHeight: 1.15,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {initials(appointment.pacienteNombre)}
-                          </Typography>
-
-                          {isCancelled && (
-                            <Typography
-                              variant="caption"
-                              color="error"
-                              sx={{
-                                display: "block",
-                                fontSize: "0.56rem",
-                                lineHeight: 1.15,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              CANCELADA
-                            </Typography>
-                          )}
-                        </Button>
-                      );
-                    })}
-                  </Box>
+                    {hour.toString().padStart(2, "0")}:00
+                  </Typography>
                 </Box>
               );
             })}
           </Box>
-        ))}
+
+          {weekDays.map((day) => {
+            const dayAppointments = getDayAppointments(appointments, day);
+
+            const layout = getAppointmentLayout(dayAppointments);
+
+            return (
+              <Box
+                key={day}
+                sx={{
+                  position: "relative",
+                  height: timelineHeight,
+                  minWidth: 0,
+                  bgcolor: "grey.50",
+                  borderRight: "1px solid",
+                  borderColor: "divider",
+                  overflow: "visible",
+                }}
+              >
+                {Array.from({
+                  length: END_HOUR - START_HOUR,
+                }).map((_, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      position: "absolute",
+                      top: index * HOUR_HEIGHT,
+                      left: 0,
+                      right: 0,
+                      height: HOUR_HEIGHT,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                      pointerEvents: "none",
+                    }}
+                  />
+                ))}
+
+                {dayAppointments.map((appointment) => {
+                  const appointmentStart = getMinutesFromStartOfDay(
+                    appointment.fechaHoraInicio,
+                  );
+
+                  const appointmentEnd = getMinutesFromStartOfDay(
+                    appointment.fechaHoraFin,
+                  );
+
+                  const timelineStart = START_HOUR * 60;
+
+                  const top =
+                    ((appointmentStart - timelineStart) / 60) * HOUR_HEIGHT;
+
+                  const duration =
+                    Math.max(appointmentEnd - appointmentStart, 15) / 60;
+
+                  const height = Math.max(
+                    duration * HOUR_HEIGHT - 4,
+                    MIN_APPOINTMENT_HEIGHT,
+                  );
+
+                  const appointmentLayout = layout.get(appointment.id);
+
+                  const column = appointmentLayout?.column ?? 0;
+
+                  const totalColumns = appointmentLayout?.totalColumns ?? 1;
+
+                  const psychologistColor = psychologistColors.get(
+                    appointment.usuarioId,
+                  );
+
+                  const isCancelled = appointment.estado === "CANCELADA";
+
+                  const widthPercentage = 100 / totalColumns;
+
+                  const leftPercentage = column * widthPercentage;
+
+                  return (
+                    <Button
+                      key={appointment.id}
+                      onClick={() => onSelect(appointment)}
+                      sx={{
+                        position: "absolute",
+                        top: Math.max(top + 2, 2),
+                        left: `calc(${leftPercentage}% + ${APPOINTMENT_GAP / 2}px)`,
+                        width: `calc(${widthPercentage}% - ${APPOINTMENT_GAP}px)`,
+                        height,
+                        minWidth:
+                          totalColumns === 1 ? 0 : MIN_APPOINTMENT_WIDTH,
+                        display: "block",
+                        textAlign: "left",
+                        textTransform: "none",
+                        p: 0.5,
+                        borderLeft: `3px solid ${psychologistColor}`,
+                        bgcolor: isCancelled ? "error.50" : "background.paper",
+                        color: "text.primary",
+                        boxShadow: 1,
+                        borderRadius: 0.75,
+                        overflow: "hidden",
+                        zIndex: 2,
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        "&:hover": {
+                          bgcolor: isCancelled ? "error.100" : "action.hover",
+                        },
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          fontWeight: 800,
+                          fontSize: "0.61rem",
+                          lineHeight: 1.15,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {initials(appointment.pacienteNombre)}
+                      </Typography>
+
+                      {isCancelled && (
+                        <Typography
+                          variant="caption"
+                          color="error"
+                          sx={{
+                            display: "block",
+                            fontSize: "0.55rem",
+                            lineHeight: 1.15,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          CANCELADA
+                        </Typography>
+                      )}
+                    </Button>
+                  );
+                })}
+              </Box>
+            );
+          })}
+        </Box>
       </Box>
     </Box>
   );
