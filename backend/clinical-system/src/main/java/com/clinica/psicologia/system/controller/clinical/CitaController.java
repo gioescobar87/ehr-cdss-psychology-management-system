@@ -59,8 +59,9 @@ public class CitaController {
 
     @GetMapping("/agenda")
     public List<CitaResponseDTO> getAgenda(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
-        return service.getAgenda(fecha);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam(required = false) Integer usuarioId) {
+        return service.getAgenda(fecha, usuarioId);
     }
 
     @GetMapping("/usuario/{usuarioId}")
