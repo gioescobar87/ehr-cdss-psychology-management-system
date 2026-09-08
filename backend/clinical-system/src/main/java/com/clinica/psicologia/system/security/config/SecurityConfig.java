@@ -654,6 +654,9 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/reportes/**")
                                                 .access(hasPermission("REPORTE_READ"))
 
+                                                .requestMatchers("/api/coordinator-report/**")
+                                                .access(hasPermission("REPORTE_READ"))
+
                                                 // =========================
                                                 // AUDIT LOG
                                                 // =========================

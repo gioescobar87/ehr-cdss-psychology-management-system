@@ -21,4 +21,6 @@ public class UsuarioRequestDTO {
     @Email
     @NotBlank
     private String correo;
+
+    private Integer coordinadorId;
 }

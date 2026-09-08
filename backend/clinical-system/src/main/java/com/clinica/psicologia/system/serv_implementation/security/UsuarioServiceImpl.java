@@ -79,6 +79,13 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new DuplicateResourceException("Email already exists");
         }
 
+        Usuario coordinador = null;
+
+        if (request.getCoordinadorId() != null) {
+            coordinador = usuarioRepository.findById(request.getCoordinadorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Coordinador no encontrado: " + request.getCoordinadorId()));
+        }
+
         String temporaryPassword = temporaryPasswordGenerator.generate();
 
         Usuario usuario = new Usuario();
@@ -87,6 +94,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setApellido(request.getApellido());
         usuario.setCorreo(request.getCorreo());
         usuario.setEstado(supportService.getActiveState());
+        usuario.setCoordinador(coordinador);
 
         usuario.setPassword(passwordEncoder.encode(temporaryPassword));
 
@@ -119,10 +127,18 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new DuplicateResourceException("Email already exists");
         }
 
+        Usuario coordinador = null;
+
+        if (request.getCoordinadorId() != null) {
+            coordinador = usuarioRepository.findById(request.getCoordinadorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Coordinador no encontrado: " + request.getCoordinadorId()));
+        }
+
         usuario.setUsername(request.getUsername());
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
         usuario.setCorreo(request.getCorreo());
+        usuario.setCoordinador(coordinador);
 
         Usuario updated = usuarioRepository.save(usuario);
 

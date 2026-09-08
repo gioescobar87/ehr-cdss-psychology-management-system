@@ -29,4 +29,8 @@ public class UsuarioResponseDTO {
     private LocalDateTime fechaModificacion;
 
     private List<UsuarioRolResponseDTO> roles;
+
+    private Integer coordinadorId;
+
+    private String coordinadorNombre;
 }
