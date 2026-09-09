@@ -34,3 +34,14 @@ export async function closePatientCase(
   );
   return response.data;
 }
+
+export async function updatePatientMotivoConsulta(
+  id: number,
+  motivoConsulta: string,
+): Promise<Patient> {
+  const response = await apiClient.patch<Patient>(
+    `/paciente/${id}/motivo-consulta`,
+    { motivoConsulta },
+  );
+  return response.data;
+}

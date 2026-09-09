@@ -18,7 +18,7 @@ export interface Patient {
   edad: number;
   refiere: string | null;
   fechaInicio: string | null;
-  motivoInicio: string | null;
+  motivoConsulta: string | null;
   fechaCierre: string | null;
   motivoCierre: string | null;
 }
