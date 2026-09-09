@@ -18,6 +18,8 @@ import {
 import type { ClinicalActivity } from "../types/clinicalRecord.types";
 import ClinicalRecordDetail from "./ClinicalRecordDetail";
 import ClinicalRecordTimeline from "./ClinicalRecordTimeline";
+import HealingOutlinedIcon from "@mui/icons-material/HealingOutlined";
+import SessionSymptomsReadOnlyDialog from "./SessionSymptomsReadOnlyDialog";
 
 interface ClinicalRecordProps {
   session: Sesion;
@@ -47,6 +49,7 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
     null,
   );
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+  const [symptomsDialogOpen, setSymptomsDialogOpen] = useState(false);
 
   const selectedActivity = useMemo(
     () =>
@@ -165,14 +168,33 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
               >
                 Documentación
               </Typography>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<VisibilityOutlinedIcon />}
-                onClick={() => setPatientDialogOpen(true)}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                }}
               >
-                Ver paciente
-              </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="secondary"
+                  startIcon={<HealingOutlinedIcon />}
+                  onClick={() => setSymptomsDialogOpen(true)}
+                >
+                  Sintomatología
+                </Button>
+
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<VisibilityOutlinedIcon />}
+                  onClick={() => setPatientDialogOpen(true)}
+                >
+                  Ver paciente
+                </Button>
+              </Box>
             </Box>
             <Box sx={{ mt: 2 }}>
               <ClinicalRecordDetail activity={selectedActivity} />
@@ -184,6 +206,11 @@ export default function ClinicalRecord({ session }: ClinicalRecordProps) {
         open={patientDialogOpen}
         patientId={session.pacienteId}
         onClose={() => setPatientDialogOpen(false)}
+      />
+      <SessionSymptomsReadOnlyDialog
+        open={symptomsDialogOpen}
+        session={session}
+        onClose={() => setSymptomsDialogOpen(false)}
       />
     </Box>
   );
