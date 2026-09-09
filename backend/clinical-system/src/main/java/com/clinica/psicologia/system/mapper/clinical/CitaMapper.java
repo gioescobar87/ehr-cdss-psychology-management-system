@@ -19,6 +19,15 @@ public class CitaMapper {
 
     public CitaResponseDTO toResponseDTO(Cita entity) {
 
+        Integer sessionId = sesionRepository.findFirstByCitaId(entity.getId())
+            .map(sesion -> sesion.getId())
+            .orElse(null);
+
+        return toResponseDTO(entity, sessionId);
+        }
+
+        public CitaResponseDTO toResponseDTO(Cita entity, Integer sessionId) {
+
         CitaResponseDTO dto = new CitaResponseDTO();
 
         dto.setId(entity.getId());
@@ -44,11 +53,9 @@ public class CitaMapper {
         dto.setEstadoId(entity.getEstado().getId());
         dto.setEstado(entity.getEstado().getNombre());
 
-        sesionRepository.findFirstByCitaId(entity.getId())
-                .ifPresent(sesion -> {
-                    dto.setTieneSesion(true);
-                    dto.setSesionId(sesion.getId());
-                });
+        dto.setTieneSesion(sessionId != null);
+        dto.setSesionId(sessionId);
+
         return dto;
     }
 

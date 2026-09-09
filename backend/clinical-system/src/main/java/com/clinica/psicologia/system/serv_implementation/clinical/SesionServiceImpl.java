@@ -97,28 +97,28 @@ public class SesionServiceImpl implements SesionService {
                 cita.setEstado(supportService.getEstado("COMPLETADA"));
                 citaRepository.save(cita);
 
-                registrarInicioDeCaso(paciente, savedEntity.getFechaSesion());
+                registrarInicioDeCaso(paciente, cita);
 
                 return mapper.toResponseDTO(savedEntity);
         }
 
-        /**
-         * The case start is captured on the patient's first session, keeping the reason
-         * of their earliest appointment.
-         */
-        private void registrarInicioDeCaso(Paciente paciente, LocalDateTime fechaPrimeraSesion) {
+        private void registrarInicioDeCaso(Paciente paciente, Cita cita) {
 
-                if (paciente.getFechaInicio() != null) {
-                        return;
+                boolean updated = false;
+
+                if (paciente.getFechaInicio() == null) {
+                        paciente.setFechaInicio(cita.getFechaHoraInicio());
+                        updated = true;
                 }
 
-                paciente.setFechaInicio(fechaPrimeraSesion);
+                if (paciente.getMotivoInicio() == null && cita.getMotivo() != null) {
+                        paciente.setMotivoInicio(cita.getMotivo());
+                        updated = true;
+                }
 
-                citaRepository
-                                .findFirstByPacienteIdOrderByFechaHoraInicioAsc(paciente.getId())
-                                .ifPresent(primeraCita -> paciente.setMotivoInicio(primeraCita.getMotivo()));
-
-                pacienteRepository.save(paciente);
+                if (updated) {
+                        pacienteRepository.save(paciente);
+                }
         }
 
         @Override

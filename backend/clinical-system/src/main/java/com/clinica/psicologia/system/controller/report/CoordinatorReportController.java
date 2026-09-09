@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
-import com.clinica.psicologia.system.dto.response.report.CoordinatorPatientResponseDTO;
-import com.clinica.psicologia.system.dto.response.report.CoordinatorSummaryResponseDTO;
+import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientResponseDTO;
+import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorSummaryResponseDTO;
 import com.clinica.psicologia.system.service.report.CoordinatorReportService;
 
 import lombok.RequiredArgsConstructor;
