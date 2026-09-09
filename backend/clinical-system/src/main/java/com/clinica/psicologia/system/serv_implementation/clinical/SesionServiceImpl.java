@@ -50,12 +50,14 @@ public class SesionServiceImpl implements SesionService {
                                 .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
 
                 if (repository.existsByCitaId(cita.getId())) {
-                        throw new BusinessRuleException("Se identificó una sesión existente asociada a la cita " + cita.getId());
+                        throw new BusinessRuleException(
+                                        "Se identificó una sesión existente asociada a la cita " + cita.getId());
                 }
                 LocalDateTime sessionCreationStart = cita.getFechaHoraInicio().minusMinutes(30);
 
                 if (LocalDateTime.now().isBefore(sessionCreationStart)) {
-                        throw new BusinessRuleException("La sesión solo puede crearse hasta 30 minutos antes de la cita.");
+                        throw new BusinessRuleException(
+                                        "La sesión solo puede crearse hasta 30 minutos antes de la cita.");
                 }
 
                 Paciente paciente = pacienteRepository.findById(request.getPacienteId())
@@ -92,12 +94,18 @@ public class SesionServiceImpl implements SesionService {
 
                 Sesion savedEntity = repository.save(entity);
 
+                cita.setEstado(supportService.getEstado("COMPLETADA"));
+                citaRepository.save(cita);
+
                 registrarInicioDeCaso(paciente, savedEntity.getFechaSesion());
 
                 return mapper.toResponseDTO(savedEntity);
         }
 
-        /** The case start is captured on the patient's first session, keeping the reason of their earliest appointment. */
+        /**
+         * The case start is captured on the patient's first session, keeping the reason
+         * of their earliest appointment.
+         */
         private void registrarInicioDeCaso(Paciente paciente, LocalDateTime fechaPrimeraSesion) {
 
                 if (paciente.getFechaInicio() != null) {

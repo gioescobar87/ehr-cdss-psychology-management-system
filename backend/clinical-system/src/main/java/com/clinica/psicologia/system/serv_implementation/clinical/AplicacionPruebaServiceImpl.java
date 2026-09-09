@@ -332,8 +332,6 @@ public class AplicacionPruebaServiceImpl implements AplicacionPruebaService {
         AplicacionPrueba entity = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Prueba psicológica no encontrada: " + id));
 
-        validateAuthorization(entity.getSesion());
-
         String objectKey = entity.getArchivoAdjunto();
 
         if (objectKey == null || objectKey.isBlank()) {

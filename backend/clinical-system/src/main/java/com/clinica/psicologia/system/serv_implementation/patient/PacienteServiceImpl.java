@@ -98,6 +98,7 @@ public class PacienteServiceImpl implements PacienteService {
 
         paciente.setFechaCierre(java.time.LocalDateTime.now());
         paciente.setMotivoCierre(dto.getMotivoCierre());
+        paciente.setEstado(supportService.getInactiveState());
 
         paciente = pacienteRepository.save(paciente);
 
