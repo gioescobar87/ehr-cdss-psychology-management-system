@@ -17,6 +17,7 @@ import {
 import {
   combineDateAndTime,
   toDateInputValue,
+  formatLongDateTime,
 } from "../../shared/utils/dateUtils";
 
 interface RescheduleDialogProps {
@@ -73,10 +74,20 @@ export default function RescheduleDialog({
       return;
     }
 
+    const nuevaFechaHoraInicio = combineDateAndTime(date, startTime);
+
+    const solicitante = solicitudPaciente ? "Paciente" : "Psicólogo";
+
+    const fechaHoraFormateada = formatLongDateTime(nuevaFechaHoraInicio);
+
+    const motivoConPrefijo =
+      `${solicitante} reprograma cita para ${fechaHoraFormateada}: ` +
+      motivo.trim();
+
     await onConfirm({
-      motivo: motivo.trim(),
+      motivo: motivoConPrefijo,
       solicitudPaciente,
-      nuevaFechaHoraInicio: combineDateAndTime(date, startTime),
+      nuevaFechaHoraInicio,
     });
 
     reset();

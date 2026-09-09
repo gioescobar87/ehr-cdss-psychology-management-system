@@ -80,4 +80,6 @@ export interface Appointment {
   estado: string;
   tieneSesion: boolean;
   sesionId?: number | null;
+  cancelacionId?: number | null;
+  motivoCancelacion?: string | null;
 }

@@ -54,7 +54,9 @@ export default function CancellationDialog({
       return;
     }
 
-    await onConfirm(motivo, solicitudPaciente);
+    const motivoConPrefijo = `Cancelación: ${motivo}`;
+
+    await onConfirm(motivoConPrefijo, solicitudPaciente);
 
     setMotivoCancelacion("");
     setSolicitudPaciente(null);

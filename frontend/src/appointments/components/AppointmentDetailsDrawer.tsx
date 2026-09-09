@@ -257,6 +257,27 @@ export default function AppointmentDetailsDrawer({
               </Typography>
             </Box>
 
+            {/* Cancellation reason */}
+
+            {isCancelled && (
+              <Box>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Motivo de cancelación
+                </Typography>
+
+                <Typography
+                  variant="body1"
+                  fontWeight={500}
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {appointment.motivoCancelacion ||
+                    "Sin motivo de cancelación registrado"}
+                </Typography>
+              </Box>
+            )}
+
             {/* Status */}
 
             <Box>
@@ -344,7 +365,9 @@ export default function AppointmentDetailsDrawer({
                 onClick={() => {
                   if (session) {
                     onOpenSession?.(session.id);
+                    return;
                   }
+                  onStartSession?.(appointment);
                 }}
                 disabled={
                   isLoadingSession ||
@@ -390,25 +413,25 @@ export default function AppointmentDetailsDrawer({
           open={Boolean(actionsAnchorEl)}
           onClose={() => setActionsAnchorEl(null)}
         >
-        <MenuItem
-          onClick={() => {
-            setActionsAnchorEl(null);
-            setRescheduleDialogOpen(true);
-          }}
-        >
-          <EventRepeatOutlinedIcon fontSize="small" sx={{ mr: 1.5 }} />
-          Reagendar cita
-        </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setActionsAnchorEl(null);
+              setRescheduleDialogOpen(true);
+            }}
+          >
+            <EventRepeatOutlinedIcon fontSize="small" sx={{ mr: 1.5 }} />
+            Reagendar cita
+          </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            setActionsAnchorEl(null);
-            setCancelDialogOpen(true);
-          }}
-        >
-          <CancelOutlinedIcon fontSize="small" sx={{ mr: 1.5 }} />
-          Cancelar cita
-        </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setActionsAnchorEl(null);
+              setCancelDialogOpen(true);
+            }}
+          >
+            <CancelOutlinedIcon fontSize="small" sx={{ mr: 1.5 }} />
+            Cancelar cita
+          </MenuItem>
         </Menu>
       )}
 
@@ -424,7 +447,9 @@ export default function AppointmentDetailsDrawer({
             open={cancelDialogOpen}
             loading={cancelMutation.isPending}
             error={
-              cancelMutation.error ? getApiErrorMessage(cancelMutation.error) : null
+              cancelMutation.error
+                ? getApiErrorMessage(cancelMutation.error)
+                : null
             }
             onClose={() => {
               setCancelDialogOpen(false);
