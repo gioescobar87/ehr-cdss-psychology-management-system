@@ -10,6 +10,7 @@ import {
   getClinicalSessionContext,
 } from "../api/sessionContextApi";
 import type { SessionNoteRequest } from "../types/sessionContext.types";
+import { updatePatientMotivoConsulta } from "../../patients/api/patientApi";
 
 export function useClinicalSessionContext(sessionId?: number) {
   return useQuery({
@@ -68,6 +69,30 @@ export function useCreateSessionNote() {
     onSuccess: (note) => {
       queryClient.invalidateQueries({
         queryKey: ["session-notes", note.sesionId],
+      });
+    },
+  });
+}
+
+export function useUpdatePatientMotivoConsulta() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      patientId,
+      motivoConsulta,
+    }: {
+      patientId: number;
+      motivoConsulta: string;
+    }) => updatePatientMotivoConsulta(patientId, motivoConsulta),
+
+    onSuccess: (_patient, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["clinical-session-context"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["patient", variables.patientId],
       });
     },
   });
