@@ -133,3 +133,17 @@ export function formatMonthYear(date: string): string {
 
   return MONTH_YEAR_FORMATTER.format(new Date(year, month - 1, 1));
 }
+
+const LONG_DATE_TIME_FORMATTER = new Intl.DateTimeFormat(GUATEMALA_LOCALE, {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: true,
+});
+
+export function formatLongDateTime(value: string): string {
+  return LONG_DATE_TIME_FORMATTER.format(new Date(value));
+}
