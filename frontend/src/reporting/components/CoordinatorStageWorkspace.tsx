@@ -99,18 +99,12 @@ function getPsychologistOptions(
   const options = new Map<number, string>();
 
   data.summary.forEach((row) => {
-    options.set(
-      row.psychologistId,
-      row.psychologistName,
-    );
+    options.set(row.psychologistId, row.psychologistName);
   });
 
   data.agenda.forEach((appointment) => {
     if (!options.has(appointment.usuarioId)) {
-      options.set(
-        appointment.usuarioId,
-        appointment.usuarioNombre,
-      );
+      options.set(appointment.usuarioId, appointment.usuarioNombre);
     }
   });
 
@@ -133,29 +127,19 @@ function getPsychologistOptions(
       psychologistId,
       psychologistName,
     }))
-    .sort((a, b) =>
-      a.psychologistName.localeCompare(
-        b.psychologistName,
-        "es",
-      ),
-    );
+    .sort((a, b) => a.psychologistName.localeCompare(b.psychologistName, "es"));
 }
 
-function getPsychologistColors(
-  psychologistOptions: PsychologistOption[],
-) {
+function getPsychologistColors(psychologistOptions: PsychologistOption[]) {
   const sortedOptions = [...psychologistOptions].sort(
-    (a, b) =>
-      a.psychologistId - b.psychologistId,
+    (a, b) => a.psychologistId - b.psychologistId,
   );
 
   return new Map(
-    sortedOptions.map(
-      ({ psychologistId }, index) => [
-        psychologistId,
-        palette[index % palette.length],
-      ],
-    ),
+    sortedOptions.map(({ psychologistId }, index) => [
+      psychologistId,
+      palette[index % palette.length],
+    ]),
   );
 }
 
@@ -173,65 +157,45 @@ export default function CoordinatorStageWorkspace({
   onClosePatient,
 }: CoordinatorStageWorkspaceProps) {
   const navigate = useNavigate();
-  const psychologistOptions =
-    getPsychologistOptions(data);
+  const psychologistOptions = getPsychologistOptions(data);
 
-  const selectedPsychologistIds =
-    selection.psychologistIds;
+  const selectedPsychologistIds = selection.psychologistIds;
 
   const allPsychologistsSelected =
     psychologistOptions.length > 0 &&
-    selectedPsychologistIds.length ===
-      psychologistOptions.length;
+    selectedPsychologistIds.length === psychologistOptions.length;
 
   const filteredSummary =
     selectedPsychologistIds.length === 0
       ? data.summary
       : data.summary.filter((row) =>
-          selectedPsychologistIds.includes(
-            row.psychologistId,
-          ),
+          selectedPsychologistIds.includes(row.psychologistId),
         );
 
   const filteredAgenda =
     selectedPsychologistIds.length === 0
       ? data.agenda
       : data.agenda.filter((item) =>
-          selectedPsychologistIds.includes(
-            item.usuarioId,
-          ),
+          selectedPsychologistIds.includes(item.usuarioId),
         );
 
   const filteredPatients =
     selectedPsychologistIds.length === 0
       ? data.patients
       : data.patients.filter((patient) =>
-          selectedPsychologistIds.includes(
-            patient.psychologistId,
-          ),
+          selectedPsychologistIds.includes(patient.psychologistId),
         );
 
-  const psychologistColors =
-    getPsychologistColors(
-      psychologistOptions,
-    );
+  const psychologistColors = getPsychologistColors(psychologistOptions);
 
-  const selectedPsychologistNames =
-    psychologistOptions
-      .filter(({ psychologistId }) =>
-        selectedPsychologistIds.includes(
-          psychologistId,
-        ),
-      )
-      .map(
-        ({ psychologistName }) =>
-          psychologistName,
-      );
+  const selectedPsychologistNames = psychologistOptions
+    .filter(({ psychologistId }) =>
+      selectedPsychologistIds.includes(psychologistId),
+    )
+    .map(({ psychologistName }) => psychologistName);
 
   const handleWeekChange = (days: number) => {
-    callbacks.onWeekStartChange(
-      addDays(selection.weekStart, days),
-    );
+    callbacks.onWeekStartChange(addDays(selection.weekStart, days));
   };
 
   return (
@@ -297,9 +261,7 @@ export default function CoordinatorStageWorkspace({
                 <AssessmentOutlinedIcon color="primary" />
               )}
 
-              {stage === "agenda" && (
-                <EventNoteOutlinedIcon color="primary" />
-              )}
+              {stage === "agenda" && <EventNoteOutlinedIcon color="primary" />}
 
               {stage === "patients" && (
                 <PeopleAltOutlinedIcon color="primary" />
@@ -310,10 +272,7 @@ export default function CoordinatorStageWorkspace({
                   {COORDINATOR_STAGE_LABELS[stage]}
                 </Typography>
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
+                <Typography variant="body2" color="text.secondary">
                   Información operativa del equipo asignado.
                 </Typography>
               </Box>
@@ -349,9 +308,7 @@ export default function CoordinatorStageWorkspace({
                 >
                   <Button
                     aria-label="Semana anterior"
-                    onClick={() =>
-                      handleWeekChange(-7)
-                    }
+                    onClick={() => handleWeekChange(-7)}
                     sx={{
                       minWidth: 40,
                       width: 40,
@@ -370,21 +327,16 @@ export default function CoordinatorStageWorkspace({
                         sm: 250,
                       },
                       textAlign: "center",
-                      textTransform:
-                        "capitalize",
+                      textTransform: "capitalize",
                       fontWeight: 600,
                     }}
                   >
-                    {formatWeekStart(
-                      selection.weekStart,
-                    )}
+                    {formatWeekStart(selection.weekStart)}
                   </Typography>
 
                   <Button
                     aria-label="Semana siguiente"
-                    onClick={() =>
-                      handleWeekChange(7)
-                    }
+                    onClick={() => handleWeekChange(7)}
                     sx={{
                       minWidth: 40,
                       width: 40,
@@ -401,11 +353,7 @@ export default function CoordinatorStageWorkspace({
                   type="month"
                   size="small"
                   value={reportMonth}
-                  onChange={(event) =>
-                    onReportMonthChange(
-                      event.target.value,
-                    )
-                  }
+                  onChange={(event) => onReportMonthChange(event.target.value)}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -431,40 +379,25 @@ export default function CoordinatorStageWorkspace({
                   value={selectedPsychologistIds}
                   label="Psicólogos"
                   onChange={(event) => {
-                    const value =
-                      event.target.value;
+                    const value = event.target.value;
 
                     const nextIds =
                       typeof value === "string"
-                        ? value
-                            .split(",")
-                            .filter(Boolean)
-                            .map(Number)
+                        ? value.split(",").filter(Boolean).map(Number)
                         : value.map(Number);
 
                     const allSelected =
-                      psychologistOptions.length >
-                        0 &&
-                      nextIds.length ===
-                        psychologistOptions.length;
+                      psychologistOptions.length > 0 &&
+                      nextIds.length === psychologistOptions.length;
 
-                    callbacks.onPsychologistChange(
-                      allSelected
-                        ? []
-                        : nextIds,
-                    );
+                    callbacks.onPsychologistChange(allSelected ? [] : nextIds);
                   }}
                   renderValue={(selected) => {
-                    if (
-                      selected.length === 0 ||
-                      allPsychologistsSelected
-                    ) {
+                    if (selected.length === 0 || allPsychologistsSelected) {
                       return "Todos";
                     }
 
-                    return selectedPsychologistNames.join(
-                      ", ",
-                    );
+                    return selectedPsychologistNames.join(", ");
                   }}
                 >
                   <MenuItem
@@ -472,15 +405,12 @@ export default function CoordinatorStageWorkspace({
                     onClick={(event) => {
                       event.preventDefault();
 
-                      callbacks.onPsychologistChange(
-                        [],
-                      );
+                      callbacks.onPsychologistChange([]);
                     }}
                   >
                     <Checkbox
                       checked={
-                        selectedPsychologistIds.length ===
-                          0 ||
+                        selectedPsychologistIds.length === 0 ||
                         allPsychologistsSelected
                       }
                       size="small"
@@ -490,30 +420,15 @@ export default function CoordinatorStageWorkspace({
                   </MenuItem>
 
                   {psychologistOptions.map(
-                    ({
-                      psychologistId,
-                      psychologistName,
-                    }) => {
+                    ({ psychologistId, psychologistName }) => {
                       const checked =
-                        selectedPsychologistIds.includes(
-                          psychologistId,
-                        );
+                        selectedPsychologistIds.includes(psychologistId);
 
                       return (
-                        <MenuItem
-                          key={psychologistId}
-                          value={psychologistId}
-                        >
-                          <Checkbox
-                            checked={checked}
-                            size="small"
-                          />
+                        <MenuItem key={psychologistId} value={psychologistId}>
+                          <Checkbox checked={checked} size="small" />
 
-                          <ListItemText
-                            primary={
-                              psychologistName
-                            }
-                          />
+                          <ListItemText primary={psychologistName} />
                         </MenuItem>
                       );
                     },
@@ -530,22 +445,17 @@ export default function CoordinatorStageWorkspace({
             patients={filteredPatients}
             reportMonth={reportMonth}
             weekStart={selection.weekStart}
-            psychologistColors={
-              psychologistColors
-            }
-            onAppointmentSelect={
-              callbacks.onAppointmentSelect
-            }
-            onPatientSelect={
-              callbacks.onPatientSelect
+            psychologistColors={psychologistColors}
+            onAppointmentSelect={callbacks.onAppointmentSelect}
+            onPatientSelect={callbacks.onPatientSelect}
+            onLastSessionSelect={(sessionId) =>
+              navigate(`/sesion/${sessionId}`)
             }
           />
         </Paper>
 
         <AppointmentDetailsDrawer
-          open={
-            selectedAppointment !== null
-          }
+          open={selectedAppointment !== null}
           appointment={selectedAppointment}
           onClose={onCloseAppointment}
           coordinatorReadOnly
@@ -572,6 +482,7 @@ function CoordinatorStageContent({
   psychologistColors,
   onAppointmentSelect,
   onPatientSelect,
+  onLastSessionSelect,
 }: {
   stage: CoordinatorStage;
   summary: CoordinatorReportPageData["summary"];
@@ -580,18 +491,13 @@ function CoordinatorStageContent({
   reportMonth: string;
   weekStart: string;
   psychologistColors: Map<number, string>;
-  onAppointmentSelect: (
-    appointment: Appointment,
-  ) => void;
-  onPatientSelect: (
-    patientId: number,
-  ) => void;
+  onAppointmentSelect: (appointment: Appointment) => void;
+  onPatientSelect: (patientId: number) => void;
+  onLastSessionSelect: (sessionId: number) => void;
 }) {
   switch (stage) {
     case "summary":
-      return (
-        <SummaryStage rows={summary} />
-      );
+      return <SummaryStage rows={summary} />;
 
     case "patients":
       return (
@@ -599,6 +505,7 @@ function CoordinatorStageContent({
           patients={patients}
           reportMonth={reportMonth}
           onSelect={onPatientSelect}
+          onSelectLastSession={onLastSessionSelect}
         />
       );
 
@@ -607,9 +514,7 @@ function CoordinatorStageContent({
         <AgendaStage
           appointments={agenda}
           weekStart={weekStart}
-          psychologistColors={
-            psychologistColors
-          }
+          psychologistColors={psychologistColors}
           onSelect={onAppointmentSelect}
         />
       );

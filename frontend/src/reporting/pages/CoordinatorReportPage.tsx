@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
 
 import type { Appointment } from "../../appointments/types/appointment.types";
 import {
@@ -52,38 +46,28 @@ function getMonday(value: string) {
 }
 
 export type CoordinatorReportPageData = {
-  summary: NonNullable<
-    ReturnType<typeof useCoordinatorSummary>["data"]
-  >;
-  agenda: NonNullable<
-    ReturnType<typeof useCoordinatorAgenda>["data"]
-  >;
-  patients: NonNullable<
-    ReturnType<typeof useCoordinatorPatients>["data"]
-  >;
+  summary: NonNullable<ReturnType<typeof useCoordinatorSummary>["data"]>;
+  agenda: NonNullable<ReturnType<typeof useCoordinatorAgenda>["data"]>;
+  patients: NonNullable<ReturnType<typeof useCoordinatorPatients>["data"]>;
 };
 
 export default function CoordinatorReportPage() {
   const today = toInputDate(new Date());
   const currentMonth = getCurrentMonth();
 
-  const [stage, setStage] =
-    useState<CoordinatorStage>("summary");
+  const [stage, setStage] = useState<CoordinatorStage>("summary");
 
-  const [reportMonth, setReportMonth] =
-    useState(currentMonth);
+  const [reportMonth, setReportMonth] = useState(currentMonth);
 
-  const [selection, setSelection] =
-    useState<CoordinatorWorkspaceSelection>({
-      psychologistIds: [],
-      weekStart: getMonday(today),
-    });
+  const [selection, setSelection] = useState<CoordinatorWorkspaceSelection>({
+    psychologistIds: [],
+    weekStart: getMonday(today),
+  });
 
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
 
-  const [selectedPatient, setSelectedPatient] =
-    useState<number | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<number | null>(null);
 
   const startDate = getMonthStart(reportMonth);
   const endDate = getMonthEnd(reportMonth);
@@ -94,14 +78,9 @@ export default function CoordinatorReportPage() {
     stage === "summary" && Boolean(reportMonth),
   );
 
-  const agenda = useCoordinatorAgenda(
-    selection.weekStart,
-    stage === "agenda",
-  );
+  const agenda = useCoordinatorAgenda(selection.weekStart, stage === "agenda");
 
-  const patients = useCoordinatorPatients(
-    stage === "patients",
-  );
+  const patients = useCoordinatorPatients(stage === "patients");
 
   const loading =
     stage === "summary"
@@ -133,10 +112,7 @@ export default function CoordinatorReportPage() {
       }}
     >
       <Stack spacing={0.5} sx={{ mb: 3 }}>
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: 800 }}
-        >
+        <Typography variant="h4" sx={{ fontWeight: 800 }}>
           Reporte de coordinación
         </Typography>
 
@@ -151,12 +127,7 @@ export default function CoordinatorReportPage() {
         </Alert>
       )}
 
-      {loading && (
-        <CircularProgress
-          size={24}
-          sx={{ mb: 2 }}
-        />
-      )}
+      {loading && <CircularProgress size={24} sx={{ mb: 2 }} />}
 
       <CoordinatorStageWorkspace
         stage={stage}
@@ -183,12 +154,8 @@ export default function CoordinatorReportPage() {
         onStageChange={setStage}
         selectedAppointment={selectedAppointment}
         selectedPatient={selectedPatient}
-        onCloseAppointment={() =>
-          setSelectedAppointment(null)
-        }
-        onClosePatient={() =>
-          setSelectedPatient(null)
-        }
+        onCloseAppointment={() => setSelectedAppointment(null)}
+        onClosePatient={() => setSelectedPatient(null)}
       />
     </Box>
   );

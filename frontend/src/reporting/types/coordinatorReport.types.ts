@@ -13,13 +13,25 @@ export interface CoordinatorSummary {
 export interface CoordinatorPatient {
   patientId: number;
   patientName: string;
+  age?: number | null;
   psychologistId: number;
   psychologistName: string;
   status: string;
-  fechaInicio?: string | null;
-  motivoInicio?: string | null;
-  fechaCierre?: string | null;
-  motivoCierre?: string | null;
+  startDate?: string | null;
+  startReason?: string | null;
+  closingDate?: string | null;
+  closingReason?: string | null;
+  referralSource?: string | null;
+  ultimaSesionId?: number | null;
+  diagnoses: CoordinatorPatientDiagnosis[];
+}
+
+export interface CoordinatorPatientDiagnosis {
+  diagnosisId: number;
+  code?: string | null;
+  name: string;
+  diagnosisDate?: string | null;
+  initial?: boolean | null;
 }
 
 export type CoordinatorAgendaAppointment = Appointment;

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -8,6 +9,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   ToggleButton,
@@ -15,17 +17,16 @@ import {
   Typography,
 } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import { useState } from "react";
+
 import type { CoordinatorPatient } from "../../types/coordinatorReport.types";
 
-type PatientStatusFilter =
-  | "all"
-  | "active"
-  | "inactive";
+type PatientStatusFilter = "all" | "active" | "inactive";
 
-type ReasonDialogState = {
-  title: string;
-  content: string;
+type AnnotationDialogState = {
+  startReason?: string | null;
+  closingReason?: string | null;
 } | null;
 
 function formatDate(value?: string | null) {
@@ -57,6 +58,14 @@ function formatPsychologistName(name: string) {
   return `${parts[0]} ${parts[2]}`;
 }
 
+function formatAge(age?: number | null) {
+  if (age === null || age === undefined) {
+    return "";
+  }
+
+  return ` (${age} ${age === 1 ? "año" : "años"})`;
+}
+
 function normalizeStatus(value?: string | null) {
   return value
     ?.trim()
@@ -82,10 +91,7 @@ function matchesStatus(
   return status === "inactivo";
 }
 
-function isInSelectedMonth(
-  patient: CoordinatorPatient,
-  selectedMonth: string,
-) {
+function isInSelectedMonth(patient: CoordinatorPatient, selectedMonth: string) {
   if (!selectedMonth) {
     return true;
   }
@@ -94,14 +100,12 @@ function isInSelectedMonth(
 
   const [year, month] = selectedMonth.split("-").map(Number);
 
-  const nextMonthStart = new Date(
-    Date.UTC(year, month, 1),
-  )
+  const nextMonthStart = new Date(Date.UTC(year, month, 1))
     .toISOString()
     .slice(0, 10);
 
-  const startDate = patient.fechaInicio?.slice(0, 10);
-  const closeDate = patient.fechaCierre?.slice(0, 10);
+  const startDate = patient.startDate?.slice(0, 10);
+  const closeDate = patient.closingDate?.slice(0, 10);
 
   return (
     (!startDate || startDate < nextMonthStart) &&
@@ -113,20 +117,44 @@ function hasReason(value?: string | null) {
   return Boolean(value?.trim());
 }
 
+function getStatusAppearance(status?: string | null) {
+  const normalized = normalizeStatus(status);
+
+  if (normalized === "activo") {
+    return {
+      label: "Activo",
+      color: "success" as const,
+    };
+  }
+
+  if (normalized === "inactivo") {
+    return {
+      label: "Inactivo",
+      color: "default" as const,
+    };
+  }
+
+  return {
+    label: status || "Sin estado",
+    color: "default" as const,
+  };
+}
+
 export default function PatientsStage({
   patients,
   reportMonth,
   onSelect,
+  onSelectLastSession,
 }: {
   patients: CoordinatorPatient[];
   reportMonth: string;
   onSelect: (patientId: number) => void;
+  onSelectLastSession: (sessionId: number) => void;
 }) {
-  const [statusFilter, setStatusFilter] =
-    useState<PatientStatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<PatientStatusFilter>("all");
 
-  const [reasonDialog, setReasonDialog] =
-    useState<ReasonDialogState>(null);
+  const [annotationDialog, setAnnotationDialog] =
+    useState<AnnotationDialogState>(null);
 
   const filteredPatients = patients.filter(
     (patient) =>
@@ -143,227 +171,464 @@ export default function PatientsStage({
     }
   };
 
-  const handleOpenReason = (
-    title: string,
-    content: string,
-  ) => {
-    setReasonDialog({
-      title,
-      content,
+  const handleOpenAnnotations = (patient: CoordinatorPatient) => {
+    setAnnotationDialog({
+      startReason: patient.startReason,
+      closingReason: patient.closingReason,
     });
   };
 
-  const handleCloseReason = () => {
-    setReasonDialog(null);
+  const handleCloseAnnotations = () => {
+    setAnnotationDialog(null);
   };
+
+  const hasAnnotations =
+    hasReason(annotationDialog?.startReason) ||
+    hasReason(annotationDialog?.closingReason);
 
   return (
     <Box>
+      {/* Filters */}
+
       <Box
         sx={{
           display: "flex",
-          justifyContent: {
-            xs: "stretch",
-            sm: "flex-end",
-          },
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
+          flexWrap: "wrap",
           mb: 2,
         }}
       >
+        <Typography variant="body2" color="text.secondary" fontWeight={500}>
+          {filteredPatients.length}{" "}
+          {filteredPatients.length === 1 ? "paciente" : "pacientes"}
+        </Typography>
+
         <ToggleButtonGroup
           value={statusFilter}
           exclusive
           onChange={handleStatusChange}
           size="small"
           aria-label="Filtrar pacientes por estado"
+          sx={{
+            "& .MuiToggleButton-root": {
+              px: 1.75,
+              py: 0.75,
+              textTransform: "none",
+              fontWeight: 600,
+              borderColor: "divider",
+            },
+          }}
         >
-          <ToggleButton
-            value="all"
-            aria-label="Todos los pacientes"
-          >
+          <ToggleButton value="all" aria-label="Todos los pacientes">
             Todos
           </ToggleButton>
 
-          <ToggleButton
-            value="active"
-            aria-label="Pacientes activos"
-          >
+          <ToggleButton value="active" aria-label="Pacientes activos">
             Activos
           </ToggleButton>
 
-          <ToggleButton
-            value="inactive"
-            aria-label="Pacientes inactivos"
-          >
+          <ToggleButton value="inactive" aria-label="Pacientes inactivos">
             Inactivos
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
 
-      <Box sx={{ overflowX: "auto" }}>
-        <Table size="small">
+      {/* Table */}
+
+      <TableContainer
+        sx={{
+          border: 1,
+          borderColor: "divider",
+          borderRadius: 2,
+          overflowX: "auto",
+          overflowY: "hidden",
+          backgroundColor: "background.paper",
+        }}
+      >
+        <Table
+          size="small"
+          sx={{
+            minWidth: 900,
+            "& .MuiTableCell-root": {
+              borderColor: "divider",
+            },
+          }}
+        >
           <TableHead>
-            <TableRow>
-              {[
-                "Paciente",
-                "Psicólogo",
-                "Fecha inicio",
-                "Motivo consulta",
-                "Fecha cierre",
-                "Motivo cierre",
-              ].map((heading) => (
-                <TableCell key={heading}>
-                  {heading}
-                </TableCell>
-              ))}
+            <TableRow
+              sx={{
+                backgroundColor: "action.hover",
+                "& .MuiTableCell-root": {
+                  py: 1.5,
+                },
+              }}
+            >
+              <TableCell sx={{ minWidth: 125 }}>
+                <TableHeading>Paciente</TableHeading>
+              </TableCell>
+
+              <TableCell sx={{ minWidth: 150 }}>
+                <TableHeading>Psicólogo</TableHeading>
+              </TableCell>
+
+              <TableCell sx={{ minWidth: 110 }}>
+                <TableHeading>Refiere</TableHeading>
+              </TableCell>
+
+              <TableCell sx={{ minWidth: 110 }}>
+                <TableHeading>Fecha inicio</TableHeading>
+              </TableCell>
+
+              <TableCell sx={{ minWidth: 110 }}>
+                <TableHeading>Fecha cierre</TableHeading>
+              </TableCell>
+
+              <TableCell sx={{ minWidth: 150 }}>
+                <TableHeading>Acciones</TableHeading>
+              </TableCell>
+
+              <TableCell sx={{ minWidth: 150 }}>
+                <TableHeading>Diagnósticos</TableHeading>
+              </TableCell>
+
+              <TableCell sx={{ minWidth: 110 }}>
+                <TableHeading>Estado</TableHeading>
+              </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {filteredPatients.map((patient) => (
-              <TableRow
-                key={patient.patientId}
-                hover
-              >
-                <TableCell>
-                  <Button
-                    variant="text"
-                    onClick={() =>
-                      onSelect(patient.patientId)
-                    }
-                    sx={{
-                      textTransform: "none",
-                      p: 0,
-                      minWidth: 0,
-                    }}
-                  >
-                    {formatInitials(
-                      patient.patientName,
+            {filteredPatients.map((patient) => {
+              const statusAppearance = getStatusAppearance(patient.status);
+
+              const hasPatientAnnotations =
+                hasReason(patient.startReason) ||
+                hasReason(patient.closingReason);
+
+              /*
+               * The exact property name should match CoordinatorPatient.
+               * This check intentionally keeps the action disabled when
+               * there is no last clinical session to open.
+               */
+              const hasLastSession = patient.ultimaSesionId != null;
+
+              return (
+                <TableRow
+                  key={patient.patientId}
+                  hover
+                  sx={{
+                    "&:last-child .MuiTableCell-root": {
+                      borderBottom: 0,
+                    },
+                    "& .MuiTableCell-root": {
+                      py: 1.75,
+                    },
+                  }}
+                >
+                  {/* Patient */}
+
+                  <TableCell>
+                    <Button
+                      variant="text"
+                      onClick={() => onSelect(patient.patientId)}
+                      startIcon={<PersonOutlineRoundedIcon fontSize="small" />}
+                      sx={{
+                        textTransform: "none",
+                        p: 0,
+                        minWidth: 0,
+                        fontWeight: 700,
+                        justifyContent: "flex-start",
+                        "&:hover": {
+                          backgroundColor: "transparent",
+                          textDecoration: "underline",
+                        },
+                      }}
+                    >
+                      {formatInitials(patient.patientName)}
+                      {formatAge(patient.age)}
+                    </Button>
+                  </TableCell>
+
+                  {/* Psychologist */}
+
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600} noWrap>
+                      {formatPsychologistName(patient.psychologistName)}
+                    </Typography>
+                  </TableCell>
+
+                  {/* Start date */}
+
+                  <TableCell>
+                    <Typography variant="body2" color="text.secondary">
+                      {patient.referralSource?.trim() || "—"}
+                    </Typography>
+                  </TableCell>
+
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {formatDate(patient.startDate)}
+                    </Typography>
+                  </TableCell>
+
+                  {/* Closing date */}
+
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      color={
+                        patient.closingDate ? "text.secondary" : "text.disabled"
+                      }
+                      sx={{
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {formatDate(patient.closingDate)}
+                    </Typography>
+                  </TableCell>
+                  {/* Actions */}
+
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: 0.5,
+                      }}
+                    >
+                      {hasPatientAnnotations ? (
+                        <Button
+                          variant="text"
+                          size="small"
+                          color="secondary"
+                          startIcon={
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          }
+                          onClick={() => handleOpenAnnotations(patient)}
+                          sx={{
+                            textTransform: "none",
+                            minWidth: 0,
+                            px: 0,
+                            fontWeight: 600,
+                            "&:hover": {
+                              backgroundColor: "transparent",
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          Anotaciones
+                        </Button>
+                      ) : null}
+
+                      {hasLastSession ? (
+                        <Button
+                          variant="text"
+                          size="small"
+                          color="primary"
+                          startIcon={
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          }
+                          onClick={() =>
+                            onSelectLastSession(patient.ultimaSesionId!)
+                          }
+                          sx={{
+                            textTransform: "none",
+                            minWidth: 0,
+                            px: 0,
+                            fontWeight: 600,
+                            "&:hover": {
+                              backgroundColor: "transparent",
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          Última sesión
+                        </Button>
+                      ) : null}
+                    </Box>
+                  </TableCell>
+
+                  {/* Diagnoses */}
+
+                  <TableCell>
+                    {patient.diagnoses.length > 0 ? (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.5,
+                        }}
+                      >
+                        {patient.diagnoses.map((diagnosis) => (
+                          <Typography
+                            key={diagnosis.diagnosisId}
+                            variant="body2"
+                          >
+                            {diagnosis.code ? `${diagnosis.code} · ` : ""}
+                            {diagnosis.name}
+                          </Typography>
+                        ))}
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" color="text.disabled">
+                        —
+                      </Typography>
                     )}
-                  </Button>
-                </TableCell>
+                  </TableCell>
 
-                <TableCell>
-                  {formatPsychologistName(
-                    patient.psychologistName,
-                  )}
-                </TableCell>
+                  {/* Status */}
 
-                <TableCell>
-                  {formatDate(
-                    patient.fechaInicio,
-                  )}
-                </TableCell>
-
-                <TableCell>
-                  {hasReason(patient.motivoInicio) ? (
-                    <Button
-                      variant="text"
+                  <TableCell>
+                    <Chip
+                      label={statusAppearance.label}
+                      color={statusAppearance.color}
+                      variant="outlined"
                       size="small"
-                      startIcon={
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      }
-                      onClick={() =>
-                        handleOpenReason(
-                          "Motivo de consulta",
-                          patient.motivoInicio!,
-                        )
-                      }
                       sx={{
-                        textTransform: "none",
-                        minWidth: 0,
-                        px: 0,
+                        fontWeight: 600,
                       }}
-                    >
-                      Ver motivo
-                    </Button>
-                  ) : (
-                    "—"
-                  )}
-                </TableCell>
-
-                <TableCell>
-                  {patient.fechaCierre
-                    ? formatDate(
-                        patient.fechaCierre,
-                      )
-                    : "---"}
-                </TableCell>
-
-                <TableCell>
-                  {hasReason(patient.motivoCierre) ? (
-                    <Button
-                      variant="text"
-                      size="small"
-                      startIcon={
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      }
-                      onClick={() =>
-                        handleOpenReason(
-                          "Motivo de cierre",
-                          patient.motivoCierre!,
-                        )
-                      }
-                      sx={{
-                        textTransform: "none",
-                        minWidth: 0,
-                        px: 0,
-                      }}
-                    >
-                      Ver motivo
-                    </Button>
-                  ) : (
-                    "---"
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
 
             {filteredPatients.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={8}
                   align="center"
                   sx={{
-                    py: 4,
-                    color: "text.secondary",
+                    py: 6,
                   }}
                 >
-                  No hay pacientes para el filtro seleccionado.
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontWeight={500}
+                  >
+                    No hay pacientes para el filtro seleccionado.
+                  </Typography>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
-      </Box>
+      </TableContainer>
+
+      {/* Annotations dialog */}
 
       <Dialog
-        open={reasonDialog !== null}
-        onClose={handleCloseReason}
+        open={annotationDialog !== null}
+        onClose={handleCloseAnnotations}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>
-          {reasonDialog?.title}
+        <DialogTitle
+          sx={{
+            fontWeight: 700,
+          }}
+        >
+          Anotaciones del paciente
         </DialogTitle>
 
         <DialogContent dividers>
-          <Typography
-            variant="body1"
-            sx={{
-              whiteSpace: "pre-wrap",
-              overflowWrap: "anywhere",
-            }}
-          >
-            {reasonDialog?.content}
-          </Typography>
+          {!hasAnnotations ? (
+            <Typography variant="body2" color="text.secondary">
+              No hay anotaciones registradas.
+            </Typography>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
+            >
+              {hasReason(annotationDialog?.startReason) && (
+                <Box>
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="text.secondary"
+                    sx={{
+                      mb: 1,
+                    }}
+                  >
+                    Motivo consulta
+                  </Typography>
+
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      whiteSpace: "pre-wrap",
+                      overflowWrap: "anywhere",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {annotationDialog?.startReason}
+                  </Typography>
+                </Box>
+              )}
+
+              {hasReason(annotationDialog?.closingReason) && (
+                <Box>
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="text.secondary"
+                    sx={{
+                      mb: 1,
+                    }}
+                  >
+                    Motivo de cierre
+                  </Typography>
+
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      whiteSpace: "pre-wrap",
+                      overflowWrap: "anywhere",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {annotationDialog?.closingReason}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          )}
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleCloseReason}>
-            Cerrar
-          </Button>
+          <Button onClick={handleCloseAnnotations}>Cerrar</Button>
         </DialogActions>
       </Dialog>
     </Box>
+  );
+}
+
+function TableHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <Typography
+      variant="caption"
+      fontWeight={700}
+      color="text.secondary"
+      sx={{
+        letterSpacing: "0.04em",
+        textTransform: "uppercase",
+      }}
+    >
+      {children}
+    </Typography>
   );
 }
