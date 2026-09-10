@@ -17,11 +17,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import NotesIcon from "@mui/icons-material/Notes";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import EventRepeatOutlinedIcon from "@mui/icons-material/EventRepeatOutlined";
+
+import { useQuery } from "@tanstack/react-query";
 
 import type { Appointment } from "../types/appointment.types";
 import { useAppointmentSession } from "../hooks/useAppointmentSession";
@@ -29,14 +30,11 @@ import { useCancelAppointment } from "../hooks/useCancelAppointment";
 import { useRescheduleAppointment } from "../hooks/useRescheduleAppointment";
 import { APPOINTMENT_STATUS } from "../constants/appointmentStatus";
 import { getApiErrorMessage } from "../../shared/utils/apiError";
+import { getPatientById } from "../../patients/api/patientApi";
+
 import CancellationDialog from "./CancellationDialog";
 import RescheduleDialog from "./RescheduleDialog";
 import PatientDetailsDialog from "../../patients/components/PatientDetailsDialog";
-
-import {
-  APPOINTMENT_STATUS_APPEARANCE,
-  DEFAULT_APPOINTMENT_STATUS_APPEARANCE,
-} from "../constants/appointmentStatusAppearance";
 
 interface AppointmentDetailsDrawerProps {
   open: boolean;
@@ -61,6 +59,15 @@ export default function AppointmentDetailsDrawer({
     isError: isSessionError,
   } = useAppointmentSession(appointment?.id, open);
 
+  const {
+    data: patient,
+    isLoading: isLoadingPatient,
+  } = useQuery({
+    queryKey: ["patient", appointment?.pacienteId],
+    queryFn: () => getPatientById(appointment!.pacienteId),
+    enabled: open && appointment !== null,
+  });
+
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
   const [actionsAnchorEl, setActionsAnchorEl] = useState<HTMLElement | null>(
     null,
@@ -75,14 +82,11 @@ export default function AppointmentDetailsDrawer({
     return null;
   }
 
-  const appearance =
-    APPOINTMENT_STATUS_APPEARANCE[appointment.estadoId] ??
-    DEFAULT_APPOINTMENT_STATUS_APPEARANCE;
-
   const isCancelled = appointment.estadoId === APPOINTMENT_STATUS.CANCELLED;
 
-  const start = new Date(appointment.fechaHoraInicio);
+  const motivoConsulta = patient?.motivoConsulta?.trim() ?? "";
 
+  const start = new Date(appointment.fechaHoraInicio);
   const end = new Date(appointment.fechaHoraFin);
 
   const formattedDate = new Intl.DateTimeFormat("es-GT", {
@@ -245,15 +249,49 @@ export default function AppointmentDetailsDrawer({
               </Stack>
             </Stack>
 
+            {/* Motivo de consulta */}
+
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Motivo de consulta
+              </Typography>
+
+              {isLoadingPatient ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    py: 0.5,
+                  }}
+                >
+                  <CircularProgress size={16} />
+                  <Typography variant="body2" color="text.secondary">
+                    Cargando motivo de consulta...
+                  </Typography>
+                </Box>
+              ) : (
+                <Typography
+                  variant="body1"
+                  fontWeight={500}
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {motivoConsulta || "No hay motivo de consulta registrado."}
+                </Typography>
+              )}
+            </Box>
+
             {/* Reason */}
 
             <Box>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Motivo
+                Objetivo de la sesión
               </Typography>
 
               <Typography variant="body1" fontWeight={500}>
-                {appointment.motivo || "Sin motivo registrado"}
+                {appointment.motivo || "---"}
               </Typography>
             </Box>
 
@@ -276,69 +314,6 @@ export default function AppointmentDetailsDrawer({
                     "Sin motivo de cancelación registrado"}
                 </Typography>
               </Box>
-            )}
-
-            {/* Status */}
-
-            <Box>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Estado
-              </Typography>
-
-              <Box
-                component="span"
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  px: 1.25,
-                  py: 0.5,
-                  borderRadius: 1,
-                  backgroundColor: appearance.backgroundColor,
-                  border: "1px solid",
-                  borderColor: appearance.borderColor,
-                  color: appearance.accentColor,
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
-                }}
-              >
-                {appointment.estado}
-              </Box>
-            </Box>
-
-            <Divider />
-
-            {/* Observations */}
-
-            <Box>
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                sx={{ mb: 1 }}
-              >
-                <NotesIcon fontSize="small" color="action" />
-
-                <Typography variant="body2" color="text.secondary">
-                  Observaciones
-                </Typography>
-              </Stack>
-
-              <Typography
-                variant="body1"
-                sx={{
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {appointment.observaciones || "Sin observaciones registradas."}
-              </Typography>
-            </Box>
-
-            {/* If Session validation fails */}
-
-            {isSessionError && (
-              <Typography variant="body2" color="error">
-                No fue posible verificar si esta cita tiene una sesión clínica.
-              </Typography>
             )}
 
             {/* Actions */}
@@ -367,6 +342,7 @@ export default function AppointmentDetailsDrawer({
                     onOpenSession?.(session.id);
                     return;
                   }
+
                   onStartSession?.(appointment);
                 }}
                 disabled={
