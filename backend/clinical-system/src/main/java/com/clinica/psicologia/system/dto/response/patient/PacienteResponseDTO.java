@@ -20,7 +20,7 @@ public record PacienteResponseDTO(
     Integer edad,
     String refiere,
     java.time.LocalDateTime fechaInicio,
-    String motivoInicio,
+    String motivoConsulta,
     java.time.LocalDateTime fechaCierre,
     String motivoCierre
 ) {

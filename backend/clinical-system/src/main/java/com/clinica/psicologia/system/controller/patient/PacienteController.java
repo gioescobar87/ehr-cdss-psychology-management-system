@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.clinica.psicologia.system.dto.request.patient.PacienteRequestDTO;
 import com.clinica.psicologia.system.dto.request.patient.CerrarCasoRequestDTO;
+import com.clinica.psicologia.system.dto.request.patient.MotivoConsultaRequestDTO;
 import com.clinica.psicologia.system.dto.request.patient.PacienteHistorialRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.AplicacionPruebaResponseDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CancelacionResponseDTO;
@@ -97,20 +98,20 @@ public class PacienteController {
         return service.obtenerPacientes();
     }
 
-        @GetMapping("/asignados")
-        public List<PacienteResponseDTO> listarAsignados() {
+    @GetMapping("/asignados")
+    public List<PacienteResponseDTO> listarAsignados() {
         Integer usuarioId = clinicalAuthorizationService.getAuthenticatedUser().getId();
         List<Integer> patientIds = pacienteAsignacionService
-            .getPacientesActualesByUsuario(usuarioId)
-            .stream()
-            .map(PacienteAsignacionResponseDTO::getPacienteId)
-            .toList();
+                .getPacientesActualesByUsuario(usuarioId)
+                .stream()
+                .map(PacienteAsignacionResponseDTO::getPacienteId)
+                .toList();
 
         return pacienteRepository.findByIdInAndEstadoIdAndFechaCierreIsNull(patientIds, 1)
-            .stream()
-            .map(pacienteMapper::toResponse)
-            .toList();
-        }
+                .stream()
+                .map(pacienteMapper::toResponse)
+                .toList();
+    }
 
     @GetMapping("/{id}")
     public PacienteResponseDTO obtener(@PathVariable Integer id) {
@@ -140,6 +141,12 @@ public class PacienteController {
             @Valid @RequestBody CerrarCasoRequestDTO request) {
 
         return ResponseEntity.ok(service.cerrarCaso(id, request));
+    }
+
+    @PatchMapping("/{id}/motivo-consulta")
+    public ResponseEntity<PacienteResponseDTO> motivoConsulta(@PathVariable Integer id,
+            @RequestBody MotivoConsultaRequestDTO request) {
+        return ResponseEntity.ok(service.actualizarMotivoConsulta(id, request.motivoConsulta()));
     }
 
     @RestControllerAdvice

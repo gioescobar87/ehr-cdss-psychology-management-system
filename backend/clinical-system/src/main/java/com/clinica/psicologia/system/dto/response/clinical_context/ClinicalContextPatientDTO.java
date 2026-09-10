@@ -30,4 +30,6 @@ public class ClinicalContextPatientDTO {
     private String nivelEscolaridad;
 
     private String ocupacion;
+
+    private String motivoConsulta;
 }

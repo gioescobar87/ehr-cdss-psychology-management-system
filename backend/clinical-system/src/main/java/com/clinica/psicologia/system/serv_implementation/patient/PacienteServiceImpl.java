@@ -105,6 +105,15 @@ public class PacienteServiceImpl implements PacienteService {
         return pacienteMapper.toResponse(paciente);
     }
 
+    @Override 
+    public PacienteResponseDTO actualizarMotivoConsulta(Integer id, String motivoConsulta) {
+        Paciente paciente = obtenerPaciente(id);
+
+        paciente.setMotivoInicio(motivoConsulta);
+
+        return pacienteMapper.toResponse(paciente);
+    }
+
     private Paciente obtenerPaciente(Integer id) {
         return pacienteRepository.findById(id)
                 .orElseThrow(() ->

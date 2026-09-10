@@ -37,6 +37,7 @@ public class ClinicalSessionContextMapper {
         dto.setTelefono(paciente.getTelefono());
         dto.setDireccion(paciente.getDireccion());
         dto.setOcupacion(paciente.getOcupacion());
+        dto.setMotivoConsulta(paciente.getMotivoInicio());
 
         if (paciente.getEstadoCivil() != null) {
             dto.setEstadoCivil(paciente.getEstadoCivil().getNombre());

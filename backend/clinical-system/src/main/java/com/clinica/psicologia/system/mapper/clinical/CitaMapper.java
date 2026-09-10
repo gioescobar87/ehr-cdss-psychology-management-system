@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.clinica.psicologia.system.dto.request.clinical.CitaRequestDTO;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.model.clinical.Cita;
+import com.clinica.psicologia.system.repository.clinical.CancelacionRepository;
 import com.clinica.psicologia.system.repository.clinical.SesionRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,17 +17,18 @@ import lombok.RequiredArgsConstructor;
 public class CitaMapper {
 
     private final SesionRepository sesionRepository;
+    private final CancelacionRepository cancelacionRepository;
 
     public CitaResponseDTO toResponseDTO(Cita entity) {
 
         Integer sessionId = sesionRepository.findFirstByCitaId(entity.getId())
-            .map(sesion -> sesion.getId())
-            .orElse(null);
+                .map(sesion -> sesion.getId())
+                .orElse(null);
 
         return toResponseDTO(entity, sessionId);
-        }
+    }
 
-        public CitaResponseDTO toResponseDTO(Cita entity, Integer sessionId) {
+    public CitaResponseDTO toResponseDTO(Cita entity, Integer sessionId) {
 
         CitaResponseDTO dto = new CitaResponseDTO();
 
@@ -55,6 +57,13 @@ public class CitaMapper {
 
         dto.setTieneSesion(sessionId != null);
         dto.setSesionId(sessionId);
+
+        // Cancellation information
+        cancelacionRepository.findByCitaId(entity.getId())
+                .ifPresent(cancelacion -> {
+                    dto.setCancelacionId(cancelacion.getId());
+                    dto.setMotivoCancelacion(cancelacion.getMotivoCancelacion());
+                });
 
         return dto;
     }

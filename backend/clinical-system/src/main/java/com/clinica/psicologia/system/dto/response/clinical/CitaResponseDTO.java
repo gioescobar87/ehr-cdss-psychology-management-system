@@ -28,4 +28,7 @@ public class CitaResponseDTO {
 
     private boolean tieneSesion;
     private Integer sesionId;
+
+    private Integer cancelacionId;
+    private String motivoCancelacion;
 }

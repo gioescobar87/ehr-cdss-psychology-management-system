@@ -17,4 +17,6 @@ public interface PacienteService {
     PacienteResponseDTO actualizarPaciente(Integer id, PacienteRequestDTO dto);
 
     PacienteResponseDTO cerrarCaso(Integer id, CerrarCasoRequestDTO dto);
+
+    PacienteResponseDTO actualizarMotivoConsulta(Integer id, String motivoConsulta);
 }
