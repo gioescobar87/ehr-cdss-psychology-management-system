@@ -1,13 +1,36 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: clinical-system
   profiles:
     active: dev
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  frontend-url: ${APP_FRONTEND_URL:http://localhost:5173}
+  mail:
+    from: ${MAIL_FROM:${MAIL_USERNAME}}
+
+aws:
+  s3:
+    profile: ${AWS_PROFILE:ehr-cdss-s3-dev}
+    bucket: ${AWS_S3_BUCKET:clinical-psychology-documents-clarity-dev}
+    region: ${AWS_S3_REGION:us-east-2}
 
 security:
   jwt:
-    #secret: ${JWT_SECRET}
-    secret: c5rmj6rssag/QzqH8fNoTOPwhTGKNJwfXR3sKN1QKlcU/XJuyVG8RVuND9q//paTj/pTDI/AEDtWbh3fCirWEA==
+    secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION:3600000}
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000}
     issuer: ${JWT_ISSUER:clinical-system}
@@ -15,8 +38,15 @@ security:
     #IF THAT CRITERA IS MET, FORGERY IS COMPUTATIONALLY INFEASIBLE
   encryption:
     key: ${ENCRYPTION_KEY}
+
 logging:
   level:
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    "[org.hibernate.SQL]": DEBUG
+    "[org.hibernate.orm.jdbc.bind]": TRACE
+    "[org.springframework.web.servlet.mvc.method.annotation]": TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings
