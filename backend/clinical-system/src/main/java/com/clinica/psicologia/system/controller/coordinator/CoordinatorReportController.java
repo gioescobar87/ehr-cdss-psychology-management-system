@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.controller.report;
+package com.clinica.psicologia.system.controller.coordinator;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientResponseDTO;
+import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorCancellationResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorSummaryResponseDTO;
-import com.clinica.psicologia.system.service.report.CoordinatorReportService;
+import com.clinica.psicologia.system.service.coordinator.CoordinatorReportService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,5 +43,10 @@ public class CoordinatorReportController {
     public List<CitaResponseDTO> getAgenda(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate) {
         return service.getAgenda(startDate);
+    }
+
+    @GetMapping("/cancellations")
+    public List<CoordinatorCancellationResponseDTO> getCancellations() {
+        return service.getCancellations();
     }
 }

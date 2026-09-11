@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.repository.report;
+package com.clinica.psicologia.system.repository.coordinator;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -14,10 +14,23 @@ import com.clinica.psicologia.system.model.CoordinatorAppointmentSessionProjecti
 import com.clinica.psicologia.system.model.CoordinatorPatientSessionProjection;
 import com.clinica.psicologia.system.model.CoordinatorSummaryMetricsProjection;
 import com.clinica.psicologia.system.model.clinical.Cita;
+import com.clinica.psicologia.system.model.clinical.Cancelacion;
 import com.clinica.psicologia.system.model.patient.PacienteAsignacion;
 import com.clinica.psicologia.system.model.security.Usuario;
 
 public interface CoordinatorReportRepository extends JpaRepository<Cita, Integer> {
+
+  @Query("""
+      SELECT cancellation FROM Cancelacion cancellation
+      JOIN FETCH cancellation.cita appointment
+      JOIN FETCH appointment.paciente patient
+      JOIN FETCH appointment.usuario psychologist
+      LEFT JOIN FETCH cancellation.usuario cancelledBy
+      WHERE psychologist.coordinador.id = :coordinatorId
+      ORDER BY cancellation.fechaCancelacion DESC
+      """)
+  List<Cancelacion> findScopedCancellations(
+      @Param("coordinatorId") Integer coordinatorId);
 
   @Query("""
       SELECT u FROM Usuario u

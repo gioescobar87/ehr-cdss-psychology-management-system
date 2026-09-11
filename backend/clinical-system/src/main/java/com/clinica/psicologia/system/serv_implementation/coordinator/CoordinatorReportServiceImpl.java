@@ -1,4 +1,4 @@
-package com.clinica.psicologia.system.serv_implementation.report;
+package com.clinica.psicologia.system.serv_implementation.coordinator;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientDiagnosisDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientResponseDTO;
+import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorCancellationResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorSummaryResponseDTO;
 import com.clinica.psicologia.system.mapper.clinical.CitaMapper;
 import com.clinica.psicologia.system.model.CoordinatorAppointmentSessionProjection;
@@ -22,11 +23,12 @@ import com.clinica.psicologia.system.model.CoordinatorPatientDiagnosisProjection
 import com.clinica.psicologia.system.model.CoordinatorPatientSessionProjection;
 import com.clinica.psicologia.system.model.CoordinatorSummaryMetricsProjection;
 import com.clinica.psicologia.system.model.clinical.Cita;
+import com.clinica.psicologia.system.model.clinical.Cancelacion;
 import com.clinica.psicologia.system.model.patient.PacienteAsignacion;
 import com.clinica.psicologia.system.model.security.Usuario;
-import com.clinica.psicologia.system.repository.report.CoordinatorReportRepository;
+import com.clinica.psicologia.system.repository.coordinator.CoordinatorReportRepository;
 import com.clinica.psicologia.system.security.model.SecurityUser;
-import com.clinica.psicologia.system.service.report.CoordinatorReportService;
+import com.clinica.psicologia.system.service.coordinator.CoordinatorReportService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -207,6 +209,41 @@ public class CoordinatorReportServiceImpl implements CoordinatorReportService {
                                                 appointment,
                                                 sessionByAppointment.get(appointment.getId())))
                                 .toList();
+        }
+
+        @Override
+        public List<CoordinatorCancellationResponseDTO> getCancellations() {
+
+                Integer coordinatorId = authenticatedUser().getId();
+
+                return repository.findScopedCancellations(coordinatorId).stream()
+                                .map(this::toCancellationResponse)
+                                .toList();
+        }
+
+        private CoordinatorCancellationResponseDTO toCancellationResponse(Cancelacion cancellation) {
+
+                var appointment = cancellation.getCita();
+                var patient = appointment.getPaciente();
+                var psychologist = appointment.getUsuario();
+                var cancelledBy = cancellation.getUsuario();
+                var response = new CoordinatorCancellationResponseDTO();
+
+                response.setId(cancellation.getId());
+                response.setCitaId(appointment.getId());
+                response.setPatientId(patient.getId());
+                response.setPatientName(patient.getNombre() + " " + patient.getApellido());
+                response.setPsychologistId(psychologist.getId());
+                response.setPsychologistName(fullName(psychologist));
+                response.setCancelledByUserId(cancelledBy == null ? null : cancelledBy.getId());
+                response.setCancelledByUserName(cancelledBy == null ? null : fullName(cancelledBy));
+                response.setCancellationDate(cancellation.getFechaCancelacion());
+                response.setReason(cancellation.getMotivoCancelacion());
+                response.setRequestedByPatient(cancellation.getSolicitudPaciente());
+                response.setAppointmentDate(appointment.getFechaHoraInicio());
+                response.setAppointmentReason(appointment.getMotivo());
+
+                return response;
         }
 
         private CoordinatorPatientDiagnosisDTO toDiagnosisResponse(
