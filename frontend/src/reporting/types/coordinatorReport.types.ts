@@ -35,3 +35,19 @@ export interface CoordinatorPatientDiagnosis {
 }
 
 export type CoordinatorAgendaAppointment = Appointment;
+
+export interface CoordinatorCancellation {
+  id: number;
+  citaId: number;
+  patientId: number;
+  patientName: string;
+  psychologistId: number;
+  psychologistName: string;
+  cancelledByUserId?: number | null;
+  cancelledByUserName?: string | null;
+  cancellationDate: string;
+  reason: string;
+  requestedByPatient: boolean;
+  appointmentDate: string;
+  appointmentReason?: string | null;
+}

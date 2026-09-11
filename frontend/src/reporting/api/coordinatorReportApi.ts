@@ -3,6 +3,7 @@ import type {
   CoordinatorAgendaAppointment,
   CoordinatorPatient,
   CoordinatorSummary,
+  CoordinatorCancellation,
 } from "../types/coordinatorReport.types";
 
 export async function getCoordinatorSummary(
@@ -31,6 +32,13 @@ export async function getCoordinatorAgenda(
   const response = await apiClient.get<CoordinatorAgendaAppointment[]>(
     "/coordinator-report/agenda",
     { params: { startDate } },
+  );
+  return response.data;
+}
+
+export async function getCoordinatorCancellations(): Promise<CoordinatorCancellation[]> {
+  const response = await apiClient.get<CoordinatorCancellation[]>(
+    "/coordinator-report/cancellations",
   );
   return response.data;
 }

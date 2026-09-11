@@ -12,12 +12,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 
 import AppointmentDetailsDrawer from "../../appointments/components/AppointmentDetailsDrawer";
 import type { Appointment } from "../../appointments/types/appointment.types";
@@ -26,6 +28,7 @@ import { COORDINATOR_STAGE_LABELS } from "../constants/coordinatorStage.constant
 import AgendaStage from "./stages/AgendaStage";
 import PatientsStage from "./stages/PatientsStage";
 import SummaryStage from "./stages/SummaryStage";
+import CancellationsStage from "./stages/CancellationsStage";
 import CoordinatorReportStepper from "./CoordinatorReportStepper";
 import type {
   CoordinatorReportPageData,
@@ -122,6 +125,12 @@ function getPsychologistOptions(
     }
   });
 
+  data.cancellations.forEach((cancellation) => {
+    if (!options.has(cancellation.psychologistId)) {
+      options.set(cancellation.psychologistId, cancellation.psychologistName);
+    }
+  });
+
   return [...options.entries()]
     .map(([psychologistId, psychologistName]) => ({
       psychologistId,
@@ -158,6 +167,8 @@ export default function CoordinatorStageWorkspace({
 }: CoordinatorStageWorkspaceProps) {
   const navigate = useNavigate();
   const psychologistOptions = getPsychologistOptions(data);
+  const [cancellationKeyword, setCancellationKeyword] = useState("");
+  const [cancellationPatientId, setCancellationPatientId] = useState<number | "">("");
 
   const selectedPsychologistIds = selection.psychologistIds;
 
@@ -185,6 +196,38 @@ export default function CoordinatorStageWorkspace({
       : data.patients.filter((patient) =>
           selectedPsychologistIds.includes(patient.psychologistId),
         );
+
+  const cancellationPatients = [...new Map(
+    data.cancellations.map((cancellation) => [
+      cancellation.patientId,
+      cancellation.patientName,
+    ]),
+  ).entries()].sort((left, right) => left[1].localeCompare(right[1], "es"));
+
+  const normalizedCancellationKeyword = cancellationKeyword.trim().toLowerCase();
+  const filteredCancellations = data.cancellations.filter((cancellation) => {
+    const matchesPsychologist =
+      selectedPsychologistIds.length === 0 ||
+      selectedPsychologistIds.includes(cancellation.psychologistId);
+    const matchesPatient =
+      cancellationPatientId === "" || cancellation.patientId === cancellationPatientId;
+    const searchableText = [
+      cancellation.patientName,
+      cancellation.psychologistName,
+      cancellation.cancelledByUserName,
+      cancellation.reason,
+      cancellation.appointmentReason,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return (
+      matchesPsychologist &&
+      matchesPatient &&
+      searchableText.includes(normalizedCancellationKeyword)
+    );
+  });
 
   const psychologistColors = getPsychologistColors(psychologistOptions);
 
@@ -262,6 +305,10 @@ export default function CoordinatorStageWorkspace({
               )}
 
               {stage === "agenda" && <EventNoteOutlinedIcon color="primary" />}
+
+              {stage === "cancellations" && (
+                <HistoryOutlinedIcon color="primary" />
+              )}
 
               {stage === "patients" && (
                 <PeopleAltOutlinedIcon color="primary" />
@@ -346,6 +393,35 @@ export default function CoordinatorStageWorkspace({
                   >
                     <ChevronRightIcon />
                   </Button>
+                </Stack>
+              ) : stage === "cancellations" ? (
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                  <TextField
+                    label="Paciente"
+                    select
+                    size="small"
+                    value={cancellationPatientId}
+                    onChange={(event) =>
+                      setCancellationPatientId(
+                        event.target.value ? Number(event.target.value) : "",
+                      )
+                    }
+                    sx={{ minWidth: 210 }}
+                  >
+                    <MenuItem value="">Todos los pacientes</MenuItem>
+                    {cancellationPatients.map(([patientId, patientName]) => (
+                      <MenuItem key={patientId} value={patientId}>
+                        {patientName}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    label="Buscar"
+                    size="small"
+                    value={cancellationKeyword}
+                    onChange={(event) => setCancellationKeyword(event.target.value)}
+                    placeholder="Motivo o persona"
+                  />
                 </Stack>
               ) : (
                 <TextField
@@ -443,6 +519,7 @@ export default function CoordinatorStageWorkspace({
             summary={filteredSummary}
             agenda={filteredAgenda}
             patients={filteredPatients}
+            cancellations={filteredCancellations}
             reportMonth={reportMonth}
             weekStart={selection.weekStart}
             psychologistColors={psychologistColors}
@@ -477,6 +554,7 @@ function CoordinatorStageContent({
   summary,
   agenda,
   patients,
+  cancellations,
   reportMonth,
   weekStart,
   psychologistColors,
@@ -488,6 +566,7 @@ function CoordinatorStageContent({
   summary: CoordinatorReportPageData["summary"];
   agenda: CoordinatorReportPageData["agenda"];
   patients: CoordinatorReportPageData["patients"];
+  cancellations: CoordinatorReportPageData["cancellations"];
   reportMonth: string;
   weekStart: string;
   psychologistColors: Map<number, string>;
@@ -518,6 +597,9 @@ function CoordinatorStageContent({
           onSelect={onAppointmentSelect}
         />
       );
+
+    case "cancellations":
+      return <CancellationsStage cancellations={cancellations} />;
 
     default:
       return null;

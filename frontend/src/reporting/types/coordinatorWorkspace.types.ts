@@ -3,9 +3,14 @@ import type {
   CoordinatorAgendaAppointment,
   CoordinatorPatient,
   CoordinatorSummary,
+  CoordinatorCancellation,
 } from "./coordinatorReport.types";
 
-export type CoordinatorStage = "summary" | "agenda" | "patients";
+export type CoordinatorStage =
+  | "summary"
+  | "agenda"
+  | "patients"
+  | "cancellations";
 
 export interface CoordinatorStageNavigationItem {
   id: CoordinatorStage;
@@ -16,6 +21,7 @@ export interface CoordinatorWorkspaceData {
   summary: CoordinatorSummary[];
   agenda: CoordinatorAgendaAppointment[];
   patients: CoordinatorPatient[];
+  cancellations: CoordinatorCancellation[];
 }
 
 export type CoordinatorReportPageData = CoordinatorWorkspaceData;

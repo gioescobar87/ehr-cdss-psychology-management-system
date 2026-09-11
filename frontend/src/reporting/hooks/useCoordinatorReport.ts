@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   getCoordinatorAgenda,
+  getCoordinatorCancellations,
   getCoordinatorPatients,
   getCoordinatorSummary,
 } from "../api/coordinatorReportApi";
@@ -32,6 +33,15 @@ export function useCoordinatorAgenda(startDate: string, enabled = true) {
   return useQuery({
     queryKey: ["coordinator-report", "agenda", startDate],
     queryFn: () => getCoordinatorAgenda(startDate),
+    enabled,
+    staleTime: 60_000,
+  });
+}
+
+export function useCoordinatorCancellations(enabled = true) {
+  return useQuery({
+    queryKey: ["coordinator-report", "cancellations"],
+    queryFn: getCoordinatorCancellations,
     enabled,
     staleTime: 60_000,
   });

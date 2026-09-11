@@ -6,6 +6,7 @@ import {
   useCoordinatorAgenda,
   useCoordinatorPatients,
   useCoordinatorSummary,
+  useCoordinatorCancellations,
 } from "../hooks/useCoordinatorReport";
 import CoordinatorStageWorkspace from "../components/CoordinatorStageWorkspace";
 import type {
@@ -49,6 +50,7 @@ export type CoordinatorReportPageData = {
   summary: NonNullable<ReturnType<typeof useCoordinatorSummary>["data"]>;
   agenda: NonNullable<ReturnType<typeof useCoordinatorAgenda>["data"]>;
   patients: NonNullable<ReturnType<typeof useCoordinatorPatients>["data"]>;
+  cancellations: NonNullable<ReturnType<typeof useCoordinatorCancellations>["data"]>;
 };
 
 export default function CoordinatorReportPage() {
@@ -81,25 +83,31 @@ export default function CoordinatorReportPage() {
   const agenda = useCoordinatorAgenda(selection.weekStart, stage === "agenda");
 
   const patients = useCoordinatorPatients(stage === "patients");
+  const cancellations = useCoordinatorCancellations(stage === "cancellations");
 
   const loading =
     stage === "summary"
       ? summary.isLoading
       : stage === "agenda"
         ? agenda.isLoading
-        : patients.isLoading;
+        : stage === "patients"
+          ? patients.isLoading
+          : cancellations.isLoading;
 
   const error =
     stage === "summary"
       ? summary.isError
       : stage === "agenda"
         ? agenda.isError
-        : patients.isError;
+        : stage === "patients"
+          ? patients.isError
+          : cancellations.isError;
 
   const data: CoordinatorReportPageData = {
     summary: summary.data ?? [],
     agenda: agenda.data ?? [],
     patients: patients.data ?? [],
+    cancellations: cancellations.data ?? [],
   };
 
   return (
