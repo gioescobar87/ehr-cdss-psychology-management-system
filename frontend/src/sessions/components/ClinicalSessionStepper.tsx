@@ -10,6 +10,7 @@ interface ClinicalSessionStepperProps {
   activeStep: ClinicalSessionStep;
   onStepChange: (step: ClinicalSessionStep) => void;
   onBack: () => void;
+  disabledSteps?: boolean;
 }
 
 interface StepDefinition {
@@ -77,6 +78,7 @@ export default function ClinicalSessionStepper({
   activeStep,
   onStepChange,
   onBack,
+  disabledSteps = false,
 }: ClinicalSessionStepperProps) {
   return (
     <Box
@@ -143,6 +145,7 @@ export default function ClinicalSessionStepper({
       <Stack spacing={0}>
         {STEPS.map((step, index) => {
           const isActive = step.id === activeStep;
+          const isDisabled = disabledSteps && step.id !== "context";
 
           const isLast = index === STEPS.length - 1;
 
@@ -156,7 +159,12 @@ export default function ClinicalSessionStepper({
               <Box
                 component="button"
                 type="button"
-                onClick={() => onStepChange(step.id)}
+                onClick={() => {
+                  if (!isDisabled) {
+                    onStepChange(step.id);
+                  }
+                }}
+                disabled={isDisabled}
                 aria-current={isActive ? "step" : undefined}
                 sx={{
                   width: "100%",
@@ -175,7 +183,8 @@ export default function ClinicalSessionStepper({
                   textAlign: "left",
                   font: "inherit",
 
-                  cursor: "pointer",
+                  cursor: isDisabled ? "not-allowed" : "pointer",
+                  opacity: isDisabled ? 0.45 : 1,
 
                   borderRadius: 1.5,
 

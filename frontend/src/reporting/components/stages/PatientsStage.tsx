@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -16,9 +17,11 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
+import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
-import { useState } from "react";
 
 import type { CoordinatorPatient } from "../../types/coordinatorReport.types";
 
@@ -28,6 +31,14 @@ type AnnotationDialogState = {
   startReason?: string | null;
   closingReason?: string | null;
 } | null;
+
+type PatientSortKey =
+  | "patientName"
+  | "psychologistName"
+  | "referralSource"
+  | "startDate"
+  | "closingDate"
+  | "status";
 
 function formatDate(value?: string | null) {
   return value
@@ -140,6 +151,31 @@ function getStatusAppearance(status?: string | null) {
   };
 }
 
+function getSortValue(
+  patient: CoordinatorPatient,
+  sortKey: PatientSortKey,
+): string {
+  switch (sortKey) {
+    case "patientName":
+      return patient.patientName?.trim() ?? "";
+
+    case "psychologistName":
+      return patient.psychologistName?.trim() ?? "";
+
+    case "referralSource":
+      return patient.referralSource?.trim() ?? "";
+
+    case "startDate":
+      return patient.startDate ?? "";
+
+    case "closingDate":
+      return patient.closingDate ?? "";
+
+    case "status":
+      return patient.status?.trim() ?? "";
+  }
+}
+
 export default function PatientsStage({
   patients,
   reportMonth,
@@ -151,7 +187,13 @@ export default function PatientsStage({
   onSelect: (patientId: number) => void;
   onSelectLastSession: (sessionId: number) => void;
 }) {
-  const [statusFilter, setStatusFilter] = useState<PatientStatusFilter>("all");
+  const [statusFilter, setStatusFilter] =
+    useState<PatientStatusFilter>("all");
+
+  const [sortKey, setSortKey] =
+    useState<PatientSortKey>("patientName");
+
+  const [ascending, setAscending] = useState(true);
 
   const [annotationDialog, setAnnotationDialog] =
     useState<AnnotationDialogState>(null);
@@ -162,6 +204,22 @@ export default function PatientsStage({
       matchesStatus(patient, statusFilter),
   );
 
+  const sortedPatients = useMemo(
+    () =>
+      [...filteredPatients].sort((left, right) => {
+        const a = getSortValue(left, sortKey);
+        const b = getSortValue(right, sortKey);
+
+        const result = a.localeCompare(b, "es", {
+          numeric: true,
+          sensitivity: "base",
+        });
+
+        return ascending ? result : -result;
+      }),
+    [ascending, filteredPatients, sortKey],
+  );
+
   const handleStatusChange = (
     _: React.MouseEvent<HTMLElement>,
     value: PatientStatusFilter | null,
@@ -170,6 +228,83 @@ export default function PatientsStage({
       setStatusFilter(value);
     }
   };
+
+  const sort = (key: PatientSortKey) => {
+    if (key === sortKey) {
+      setAscending((value) => !value);
+    } else {
+      setSortKey(key);
+      setAscending(true);
+    }
+  };
+
+  const getSortIcon = (key: PatientSortKey) => {
+    if (sortKey !== key) {
+      return (
+        <UnfoldMoreRoundedIcon
+          sx={{
+            fontSize: 17,
+            color: "text.disabled",
+          }}
+        />
+      );
+    }
+
+    return ascending ? (
+      <ArrowUpwardRoundedIcon
+        sx={{
+          fontSize: 17,
+          color: "primary.main",
+        }}
+      />
+    ) : (
+      <ArrowDownwardRoundedIcon
+        sx={{
+          fontSize: 17,
+          color: "primary.main",
+        }}
+      />
+    );
+  };
+
+  const heading = (label: string, key: PatientSortKey) => (
+    <Box
+      component="button"
+      type="button"
+      onClick={() => sort(key)}
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        gap: 0.5,
+        border: 0,
+        background: "transparent",
+        color: "inherit",
+        cursor: "pointer",
+        p: 0,
+        font: "inherit",
+        fontWeight: 700,
+        textAlign: "left",
+        "&:hover": {
+          color: "primary.main",
+        },
+      }}
+    >
+      <Typography
+        component="span"
+        variant="caption"
+        fontWeight={700}
+        sx={{
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+        }}
+      >
+        {label}
+      </Typography>
+
+      {getSortIcon(key)}
+    </Box>
+  );
 
   const handleOpenAnnotations = (patient: CoordinatorPatient) => {
     setAnnotationDialog({
@@ -266,23 +401,23 @@ export default function PatientsStage({
               }}
             >
               <TableCell sx={{ minWidth: 125 }}>
-                <TableHeading>Paciente</TableHeading>
+                {heading("Paciente", "patientName")}
               </TableCell>
 
               <TableCell sx={{ minWidth: 150 }}>
-                <TableHeading>Psicólogo</TableHeading>
+                {heading("Psicólogo", "psychologistName")}
               </TableCell>
 
               <TableCell sx={{ minWidth: 110 }}>
-                <TableHeading>Refiere</TableHeading>
+                {heading("Refiere", "referralSource")}
               </TableCell>
 
               <TableCell sx={{ minWidth: 110 }}>
-                <TableHeading>Fecha inicio</TableHeading>
+                {heading("Fecha inicio", "startDate")}
               </TableCell>
 
               <TableCell sx={{ minWidth: 110 }}>
-                <TableHeading>Fecha cierre</TableHeading>
+                {heading("Fecha cierre", "closingDate")}
               </TableCell>
 
               <TableCell sx={{ minWidth: 150 }}>
@@ -294,24 +429,19 @@ export default function PatientsStage({
               </TableCell>
 
               <TableCell sx={{ minWidth: 110 }}>
-                <TableHeading>Estado</TableHeading>
+                {heading("Estado", "status")}
               </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {filteredPatients.map((patient) => {
+            {sortedPatients.map((patient) => {
               const statusAppearance = getStatusAppearance(patient.status);
 
               const hasPatientAnnotations =
                 hasReason(patient.startReason) ||
                 hasReason(patient.closingReason);
 
-              /*
-               * The exact property name should match CoordinatorPatient.
-               * This check intentionally keeps the action disabled when
-               * there is no last clinical session to open.
-               */
               const hasLastSession = patient.ultimaSesionId != null;
 
               return (
@@ -359,13 +489,15 @@ export default function PatientsStage({
                     </Typography>
                   </TableCell>
 
-                  {/* Start date */}
+                  {/* Referral */}
 
                   <TableCell>
                     <Typography variant="body2" color="text.secondary">
                       {patient.referralSource?.trim() || "—"}
                     </Typography>
                   </TableCell>
+
+                  {/* Start date */}
 
                   <TableCell>
                     <Typography
@@ -385,7 +517,9 @@ export default function PatientsStage({
                     <Typography
                       variant="body2"
                       color={
-                        patient.closingDate ? "text.secondary" : "text.disabled"
+                        patient.closingDate
+                          ? "text.secondary"
+                          : "text.disabled"
                       }
                       sx={{
                         fontVariantNumeric: "tabular-nums",
@@ -394,6 +528,7 @@ export default function PatientsStage({
                       {formatDate(patient.closingDate)}
                     </Typography>
                   </TableCell>
+
                   {/* Actions */}
 
                   <TableCell>
@@ -502,7 +637,7 @@ export default function PatientsStage({
               );
             })}
 
-            {filteredPatients.length === 0 && (
+            {sortedPatients.length === 0 && (
               <TableRow>
                 <TableCell
                   colSpan={8}

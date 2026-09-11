@@ -14,6 +14,7 @@ import type { SessionStage } from "../types/sessionWorkspace.types";
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
 import { useSessionTypes } from "../hooks/useSessionTypes";
 import { useUpdateSession } from "../hooks/useUpdateSession";
+import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
 
 import ClinicalSessionStepper from "./ClinicalSessionStepper";
 import ClinicalStageWorkspace from "./stages/ClinicalStageWorkspace";
@@ -66,6 +67,11 @@ export default function ClinicalSessionWorkspace({
   onStageChange,
   onBack,
 }: ClinicalSessionWorkspaceProps) {
+  const { data: currentUser, isLoading: isCurrentUserLoading } =
+    useCurrentUser();
+  const isCoordinator = currentUser?.roles.includes("COORDINADOR") === true;
+  const restrictedToContext = isCoordinator || isCurrentUserLoading;
+  const visibleStage = restrictedToContext ? "context" : activeStage;
   const {
     data: context,
     isLoading,
@@ -179,9 +185,10 @@ export default function ClinicalSessionWorkspace({
           }}
         >
           <ClinicalSessionStepper
-            activeStep={activeStage}
+            activeStep={visibleStage}
             onStepChange={onStageChange}
             onBack={onBack}
+            disabledSteps={restrictedToContext}
           />
         </Box>
 
@@ -193,7 +200,7 @@ export default function ClinicalSessionWorkspace({
             flex: 1,
           }}
         >
-          <ClinicalStageWorkspace session={session} stage={activeStage} />
+          <ClinicalStageWorkspace session={session} stage={visibleStage} />
         </Box>
       </Box>
     </Box>

@@ -28,6 +28,8 @@ import type { Appointment } from "../types/appointment.types";
 import { useAppointmentSession } from "../hooks/useAppointmentSession";
 import { useCancelAppointment } from "../hooks/useCancelAppointment";
 import { useRescheduleAppointment } from "../hooks/useRescheduleAppointment";
+import { usePatientSessions } from "../../sessions/hooks/usePatientClinicalContext";
+import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
 import { APPOINTMENT_STATUS } from "../constants/appointmentStatus";
 import { getApiErrorMessage } from "../../shared/utils/apiError";
 import { getPatientById } from "../../patients/api/patientApi";
@@ -58,11 +60,11 @@ export default function AppointmentDetailsDrawer({
     isLoading: isLoadingSession,
     isError: isSessionError,
   } = useAppointmentSession(appointment?.id, open);
+  const { data: patientSessions, isLoading: isLoadingPatientSessions } =
+    usePatientSessions(appointment?.pacienteId);
+  const { data: currentUser } = useCurrentUser();
 
-  const {
-    data: patient,
-    isLoading: isLoadingPatient,
-  } = useQuery({
+  const { data: patient, isLoading: isLoadingPatient } = useQuery({
     queryKey: ["patient", appointment?.pacienteId],
     queryFn: () => getPatientById(appointment!.pacienteId),
     enabled: open && appointment !== null,
@@ -83,8 +85,8 @@ export default function AppointmentDetailsDrawer({
   }
 
   const isCancelled = appointment.estadoId === APPOINTMENT_STATUS.CANCELLED;
-
   const motivoConsulta = patient?.motivoConsulta?.trim() ?? "";
+  const objetivoSesion = appointment.motivo?.trim() ?? "";
 
   const start = new Date(appointment.fechaHoraInicio);
   const end = new Date(appointment.fechaHoraFin);
@@ -106,6 +108,28 @@ export default function AppointmentDetailsDrawer({
     minute: "2-digit",
     hour12: false,
   }).format(end);
+
+  const canOpenAppointmentSession = Boolean(session && onOpenSession);
+  const canStartSession = Boolean(!session && onStartSession);
+  const latestPatientSession = patientSessions?.[0];
+  const isCoordinator =
+    coordinatorReadOnly || currentUser?.roles.includes("COORDINADOR") === true;
+  const canOpenLatestSession = Boolean(latestPatientSession && onOpenSession);
+
+  const handleSessionAction = () => {
+    if (session) {
+      onOpenSession?.(session.id);
+      return;
+    }
+
+    onStartSession?.(appointment);
+  };
+
+  const handleLatestSessionAction = () => {
+    if (latestPatientSession) {
+      onOpenSession?.(latestPatientSession.id);
+    }
+  };
 
   const handleCancelConfirm = async (
     reason: string,
@@ -249,57 +273,119 @@ export default function AppointmentDetailsDrawer({
               </Stack>
             </Stack>
 
-            {/* Motivo de consulta */}
+            <Divider />
 
-            <Box>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Motivo de consulta
+            {/* Clinical context */}
+
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: "action.hover",
+                border: 1,
+                borderColor: "divider",
+              }}
+            >
+              <Typography
+                variant="overline"
+                color="primary"
+                fontWeight={800}
+                sx={{
+                  display: "block",
+                  mb: 1.5,
+                  letterSpacing: 1,
+                }}
+              >
+                Contexto clínico
               </Typography>
 
-              {isLoadingPatient ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    py: 0.5,
-                  }}
-                >
-                  <CircularProgress size={16} />
-                  <Typography variant="body2" color="text.secondary">
-                    Cargando motivo de consulta...
+              <Stack spacing={2}>
+                {/* Motivo de consulta */}
+
+                <Box>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontWeight={600}
+                    gutterBottom
+                  >
+                    Motivo de consulta
+                  </Typography>
+
+                  {isLoadingPatient ? (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        py: 0.5,
+                      }}
+                    >
+                      <CircularProgress size={16} />
+                      <Typography variant="body2" color="text.secondary">
+                        Cargando motivo de consulta...
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Typography
+                      variant="body1"
+                      fontWeight={500}
+                      sx={{
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {motivoConsulta ||
+                        "No hay motivo de consulta registrado."}
+                    </Typography>
+                  )}
+                </Box>
+
+                <Divider />
+
+                {/* Objetivo de la sesión */}
+
+                <Box>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontWeight={600}
+                    gutterBottom
+                  >
+                    Objetivo de la sesión
+                  </Typography>
+
+                  <Typography
+                    variant="body1"
+                    fontWeight={500}
+                    sx={{
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {objetivoSesion ||
+                      "No hay objetivo de sesión registrado."}
                   </Typography>
                 </Box>
-              ) : (
-                <Typography
-                  variant="body1"
-                  fontWeight={500}
-                  sx={{
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {motivoConsulta || "No hay motivo de consulta registrado."}
-                </Typography>
-              )}
-            </Box>
-
-            {/* Reason */}
-
-            <Box>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Objetivo de la sesión
-              </Typography>
-
-              <Typography variant="body1" fontWeight={500}>
-                {appointment.motivo || "---"}
-              </Typography>
+              </Stack>
             </Box>
 
             {/* Cancellation reason */}
 
             {isCancelled && (
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "error.50",
+                  border: 1,
+                  borderColor: "error.light",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  color="error.main"
+                  fontWeight={700}
+                  gutterBottom
+                >
                   Motivo de cancelación
                 </Typography>
 
@@ -316,9 +402,17 @@ export default function AppointmentDetailsDrawer({
               </Box>
             )}
 
+            {/* Session validation */}
+
+            {isSessionError && (
+              <Typography variant="body2" color="error">
+                No fue posible verificar si esta cita tiene una sesión clínica.
+              </Typography>
+            )}
+
             {/* Actions */}
 
-            <Stack spacing={1.5} sx={{ pt: 1 }}>
+            <Stack spacing={1.5} sx={{ pt: 0.5 }}>
               <Button
                 variant="outlined"
                 startIcon={<PersonIcon />}
@@ -328,41 +422,50 @@ export default function AppointmentDetailsDrawer({
                 Ver paciente
               </Button>
 
-              <Button
-                variant="contained"
-                startIcon={
-                  isLoadingSession ? (
-                    <CircularProgress size={18} color="inherit" />
-                  ) : (
-                    <OpenInNewIcon />
-                  )
-                }
-                onClick={() => {
-                  if (session) {
-                    onOpenSession?.(session.id);
-                    return;
-                  }
+              {/* View last patient session */}
 
-                  onStartSession?.(appointment);
-                }}
-                disabled={
-                  isLoadingSession ||
-                  isSessionError ||
-                  (coordinatorReadOnly
-                    ? !session || !onOpenSession
-                    : (!session && !onStartSession) ||
-                      (session !== null && !onOpenSession))
-                }
-                fullWidth
-              >
-                {isLoadingSession
-                  ? "Verificando sesión..."
-                  : coordinatorReadOnly
-                    ? "Ver última sesión terapéutica"
+              {(!isCoordinator ? !session : true) && (
+                <Button
+                  variant="outlined"
+                  startIcon={
+                    isLoadingPatientSessions ? (
+                      <CircularProgress size={18} color="inherit" />
+                    ) : (
+                      <OpenInNewIcon />
+                    )
+                  }
+                  onClick={handleLatestSessionAction}
+                  disabled={
+                    isLoadingPatientSessions || !canOpenLatestSession
+                  }
+                  fullWidth
+                >
+                  {isLoadingPatientSessions ? "Cargando última sesión..." : "Ver última sesión"}
+                </Button>
+              )}
+
+              {/* Start or view appointment session */}
+
+              {!isCoordinator && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<OpenInNewIcon />}
+                  onClick={handleSessionAction}
+                  disabled={
+                    isLoadingSession ||
+                    isSessionError ||
+                    (session ? !canOpenAppointmentSession : !canStartSession)
+                  }
+                  fullWidth
+                >
+                  {isLoadingSession
+                    ? "Verificando sesión..."
                     : session
-                      ? "Abrir sesión terapéutica"
+                      ? "Ver sesión terapéutica"
                       : "Iniciar sesión terapéutica"}
-              </Button>
+                </Button>
+              )}
 
               {!coordinatorReadOnly && (
                 <Button
@@ -444,7 +547,7 @@ export default function AppointmentDetailsDrawer({
             }
             onClose={() => {
               setRescheduleDialogOpen(false);
-              rescheduleMutation.reset();
+              cancelMutation.reset();
             }}
             onConfirm={handleRescheduleConfirm}
           />
