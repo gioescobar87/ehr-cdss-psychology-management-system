@@ -21,6 +21,6 @@ public class Diagnostico extends BaseCatalog {
     @JoinColumn(name = "categoria_diagnostica_id", nullable = false)
     private CategoriaDiagnostica categoriaDiagnostica;
 
-    @Column(name = "codigo_dsm", length = 50)
-    private String codigoDsm;
+    @Column(name = "codigo_icd10cm", length = 50)
+    private String codigoIcd10cm;
 }

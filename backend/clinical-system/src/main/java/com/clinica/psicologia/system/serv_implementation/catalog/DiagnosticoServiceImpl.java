@@ -81,7 +81,7 @@ public class DiagnosticoServiceImpl
                 new Diagnostico();
 
         entity.setNombre(request.getNombre());
-        entity.setCodigoDsm(request.getCodigoDsm());
+        entity.setCodigoIcd10cm(request.getCodigoIcd());
         entity.setDescripcion(request.getDescripcion());
         entity.setCategoriaDiagnostica(categoria);
         entity.setEstado(estado);
@@ -117,7 +117,7 @@ public class DiagnosticoServiceImpl
                                         "Diagnostic category not found"));
 
         entity.setNombre(request.getNombre());
-        entity.setCodigoDsm(request.getCodigoDsm());
+        entity.setCodigoIcd10cm(request.getCodigoIcd());
         entity.setDescripcion(request.getDescripcion());
         entity.setCategoriaDiagnostica(categoria);
 

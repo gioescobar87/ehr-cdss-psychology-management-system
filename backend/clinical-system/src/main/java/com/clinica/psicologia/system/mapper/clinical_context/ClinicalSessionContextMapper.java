@@ -57,7 +57,7 @@ public class ClinicalSessionContextMapper {
 
         dto.setId(diagnostico.getId());
         dto.setDiagnosticoId(diagnostico.getDiagnostico().getId());
-        dto.setCodigoDsm(diagnostico.getDiagnostico().getCodigoDsm());
+        dto.setCodigoIcd(diagnostico.getDiagnostico().getCodigoIcd10cm());
         dto.setNombre(diagnostico.getDiagnostico().getNombre());
         dto.setFechaDiagnostico(diagnostico.getFechaDiagnostico());
         dto.setSesionId(diagnostico.getSesion().getId());

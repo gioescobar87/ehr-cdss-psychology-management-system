@@ -22,7 +22,7 @@ public class PacienteDiagnosticoMapper {
         dto.setDiagnosticoId(entity.getDiagnostico().getId());
         dto.setDiagnostico(entity.getDiagnostico().getNombre());
 
-        dto.setCodigoDsm(entity.getDiagnostico().getCodigoDsm());
+        dto.setCodigoIcd(entity.getDiagnostico().getCodigoIcd10cm());
 
         dto.setCategoriaDiagnosticaId(entity.getDiagnostico().getCategoriaDiagnostica().getId());
         dto.setCategoriaDiagnostica(entity.getDiagnostico().getCategoriaDiagnostica().getNombre());

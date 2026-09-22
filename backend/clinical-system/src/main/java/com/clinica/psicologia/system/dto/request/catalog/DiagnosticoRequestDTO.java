@@ -15,7 +15,7 @@ public class DiagnosticoRequestDTO {
     private String nombre;
 
     @Size(max = 50)
-    private String codigoDsm;
+    private String codigoIcd;
 
     private String descripcion;
 

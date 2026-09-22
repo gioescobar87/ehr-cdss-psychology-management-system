@@ -140,7 +140,7 @@ public interface CoordinatorReportRepository extends JpaRepository<Cita, Integer
       SELECT
           pd.paciente.id AS patientId,
           d.id AS diagnosisId,
-          d.codigoDsm AS code,
+          d.codigoIcd10cm AS code,
           d.nombre AS name,
           pd.fechaDiagnostico AS diagnosisDate,
           pd.diagnosticoInicial AS initial

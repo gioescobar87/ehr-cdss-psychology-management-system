@@ -18,7 +18,7 @@ public class DiagnosticoMapper implements CatalogoMapper<Diagnostico, Diagnostic
 
         dto.setId(entity.getId());
         dto.setNombre(entity.getNombre());
-        dto.setCodigoDsm(entity.getCodigoDsm());
+        dto.setCodigoIcd(entity.getCodigoIcd10cm());
         dto.setDescripcion(entity.getDescripcion());
 
         dto.setCategoriaDiagnosticaId(entity.getCategoriaDiagnostica().getId());
@@ -44,7 +44,7 @@ public class DiagnosticoMapper implements CatalogoMapper<Diagnostico, Diagnostic
     @Override
     public void updateEntity(Diagnostico entity, DiagnosticoRequestDTO dto) {
         entity.setNombre(dto.getNombre());
-        entity.setCodigoDsm(dto.getCodigoDsm());
+        entity.setCodigoIcd10cm(dto.getCodigoIcd());
         entity.setDescripcion(dto.getDescripcion());
     }
 }

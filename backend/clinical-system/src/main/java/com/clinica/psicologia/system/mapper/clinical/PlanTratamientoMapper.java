@@ -28,7 +28,7 @@ public class PlanTratamientoMapper {
 
         dto.setDiagnostico(entity.getPacienteDiagnostico().getDiagnostico().getNombre());
 
-        dto.setCodigoDsm(entity.getPacienteDiagnostico().getDiagnostico().getCodigoDsm());
+        dto.setCodigoIcd(entity.getPacienteDiagnostico().getDiagnostico().getCodigoIcd10cm());
 
         dto.setDescripcionGeneral(entity.getDescripcionGeneral());
 

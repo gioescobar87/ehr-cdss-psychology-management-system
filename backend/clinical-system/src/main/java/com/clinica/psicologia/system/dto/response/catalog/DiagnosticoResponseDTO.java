@@ -11,7 +11,7 @@ public class DiagnosticoResponseDTO {
 
     private String nombre;
 
-    private String codigoDsm;
+    private String codigoIcd;
 
     private String descripcion;
 

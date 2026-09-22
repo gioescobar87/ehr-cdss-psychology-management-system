@@ -21,7 +21,7 @@ public class PlanTratamientoResponseDTO {
 
     private String diagnostico;
 
-    private String codigoDsm;
+    private String codigoIcd;
 
     private String descripcionGeneral;
 

@@ -19,7 +19,7 @@ public class PacienteDiagnosticoResponseDTO {
 
     private String diagnostico;
 
-    private String codigoDsm;
+    private String codigoIcd;
 
     private Integer categoriaDiagnosticaId;
 

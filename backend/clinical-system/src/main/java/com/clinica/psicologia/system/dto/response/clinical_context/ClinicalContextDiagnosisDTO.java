@@ -13,7 +13,7 @@
 
         private Integer diagnosticoId;
 
-        private String codigoDsm;
+        private String codigoIcd;
 
         private String nombre;
 
