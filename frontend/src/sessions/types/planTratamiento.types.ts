@@ -5,7 +5,7 @@ export interface PlanTratamiento {
   pacienteNombre: string;
   diagnosticoId: number;
   diagnostico: string;
-  codigoDsm?: string | null;
+  codigoIcd?: string | null;
   descripcionGeneral?: string | null;
   fechaInicio: string;
   fechaFin?: string | null;

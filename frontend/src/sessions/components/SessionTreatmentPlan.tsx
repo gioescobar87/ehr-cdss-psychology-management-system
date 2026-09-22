@@ -192,7 +192,7 @@ function TreatmentPlanCard({
             <Box>
               <Typography variant="subtitle1" fontWeight={700}>
                 {plan.diagnostico}
-                {plan.codigoDsm ? ` (${plan.codigoDsm})` : ""}
+                {plan.codigoIcd ? ` (${plan.codigoIcd})` : ""}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {formatDate(plan.fechaInicio)} -{" "}

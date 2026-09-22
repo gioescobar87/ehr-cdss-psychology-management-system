@@ -122,7 +122,7 @@ export default function SessionDiagnoses({ session }: SessionDiagnosesProps) {
                     {diagnosis.diagnostico}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {diagnosis.codigoDsm}
+                    {diagnosis.codigoIcd}
                     {diagnosis.categoriaDiagnostica
                       ? ` · ${diagnosis.categoriaDiagnostica}`
                       : ""}

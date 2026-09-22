@@ -1,7 +1,7 @@
 export interface Response {
   id: number;
   nombre: string;
-  codigoDsm: string;
+  codigoIcd: string;
   descripcion?: string | null;
   categoriaDiagnosticaId: number;
   categoriaDiagnostica: string;
@@ -20,7 +20,7 @@ export interface PatientDiagnosis {
   pacienteId: number;
   diagnosticoId: number;
   diagnostico: string;
-  codigoDsm: string;
+  codigoIcd: string;
   categoriaDiagnosticaId: number;
   categoriaDiagnostica: string;
   sesionId: number | null;

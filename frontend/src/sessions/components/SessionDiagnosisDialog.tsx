@@ -86,7 +86,7 @@ export default function SessionDiagnosisDialog({
         selectedCategories.length === 0 ||
         selectedCategories.includes(diagnosis.categoriaDiagnostica);
       const searchableText = [
-        diagnosis.codigoDsm,
+        diagnosis.codigoIcd,
         diagnosis.nombre,
         diagnosis.descripcion,
         diagnosis.categoriaDiagnostica,
@@ -217,7 +217,7 @@ export default function SessionDiagnosisDialog({
                     }
                     sx={{ cursor: "pointer" }}
                   >
-                    <TableCell>{diagnosis.codigoDsm}</TableCell>
+                    <TableCell>{diagnosis.codigoIcd}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>
                       {diagnosis.nombre}
                     </TableCell>

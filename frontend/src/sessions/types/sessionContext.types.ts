@@ -13,7 +13,7 @@ export interface DiagnosticoPaciente {
   pacienteNombre: string;
   diagnosticoId: number;
   diagnostico: string;
-  codigoDsm: string;
+  codigoIcd: string;
   categoriaDiagnosticaId: number;
   categoriaDiagnostica: string;
   sesionId: number | null;

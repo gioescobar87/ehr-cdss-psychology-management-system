@@ -25,7 +25,7 @@ export interface ClinicalContextDiagnosis {
   id: number;
   diagnosticoId: number;
   nombre: string;
-  codigoDsm: string | null;
+  codigoIcd: string | null;
   categoriaDiagnostica: string | null;
   fechaDiagnostico: string;
   sesionId: number;
