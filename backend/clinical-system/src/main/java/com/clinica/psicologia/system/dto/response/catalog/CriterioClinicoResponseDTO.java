@@ -11,8 +11,6 @@ public class CriterioClinicoResponseDTO {
 
     private String nombre;
 
-    private String codigo;
-
     private String descripcion;
 
     private Integer categoriaCriterioClinicoId;

@@ -66,7 +66,6 @@ public class CriterioClinicoServiceImpl implements CriterioClinicoService {
         CriterioClinico entity = new CriterioClinico();
 
         entity.setNombre(request.getNombre());
-        entity.setCodigo(request.getCodigo());
         entity.setDescripcion(request.getDescripcion());
         entity.setCategoriaCriterioClinico(categoria);
         entity.setEstado(estado);
@@ -90,7 +89,6 @@ public class CriterioClinicoServiceImpl implements CriterioClinicoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Clinical criterion category not found"));
 
         entity.setNombre(request.getNombre());
-        entity.setCodigo(request.getCodigo());
         entity.setDescripcion(request.getDescripcion());
         entity.setCategoriaCriterioClinico(categoria);
 

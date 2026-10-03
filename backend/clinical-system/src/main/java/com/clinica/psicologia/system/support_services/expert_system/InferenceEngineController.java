@@ -16,18 +16,18 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/inference")
 public class InferenceEngineController {
 
-    private final InferenceEngineService inferenceService;
-    private final EvaluacionDiagnosticaRepository evaluacionRepository;
-    private final InferenceMapper mapper;
+    // private final InferenceEngineService inferenceService;
+    // private final EvaluacionDiagnosticaRepository evaluacionRepository;
+    // private final InferenceMapper mapper;
 
-    @PostMapping("/evaluacion/{evaluacionId}")
-    public InferenceResponseDTO inferir(@PathVariable Integer evaluacionId) {
+    // @PostMapping("/evaluacion/{evaluacionId}")
+    // public InferenceResponseDTO inferir(@PathVariable Integer evaluacionId) {
 
-        InferenceResult result = inferenceService.inferir(evaluacionId);
+    //     InferenceResult result = inferenceService.inferir(evaluacionId);
 
-        EvaluacionDiagnostica evaluacion = evaluacionRepository.findById(evaluacionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Diagnostic evaluation not found"));
+    //     EvaluacionDiagnostica evaluacion = evaluacionRepository.findById(evaluacionId)
+    //             .orElseThrow(() -> new ResourceNotFoundException("Diagnostic evaluation not found"));
 
-        return mapper.toResponse(result, evaluacion.getDiagnosticoConfirmado());
-    }
+    //     return mapper.toResponse(result, evaluacion.getDiagnosticoConfirmado());
+    // }
 }

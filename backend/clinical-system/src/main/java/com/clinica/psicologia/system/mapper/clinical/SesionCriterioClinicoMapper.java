@@ -17,7 +17,6 @@ public class SesionCriterioClinicoMapper {
         dto.setId(entity.getId());
         dto.setSesionId(entity.getSesion().getId());
         dto.setCriterioClinicoId(entity.getCriterioClinico().getId());
-        dto.setCriterioCodigo(entity.getCriterioClinico().getCodigo());
         dto.setCriterioNombre(entity.getCriterioClinico().getNombre());
         dto.setCategoriaCriterioClinicoId(
                 entity.getCriterioClinico().getCategoriaCriterioClinico().getId());

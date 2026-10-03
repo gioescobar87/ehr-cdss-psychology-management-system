@@ -1,24 +1,31 @@
-#server:
-#    port: 8081
 spring:
-    config:
-        import: optional:file:.env[.properties]
-    datasource:
-        url: ${DB_URL}
-        username: ${DB_USERNAME}
-        password: ${DB_PASSWORD}
-    jpa:
-        hibernate:
-            ddl-auto: validate
-        show-sql: true
-        properties:
-            hibernate:
-                "[physical_naming_strategy]": org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-    flyway:
-        enabled: true
-        locations: classpath:db/migration
-        baseline-on-migrate: true
-    servlet:
-        multipart:
-            max-file-size: 50MB
-            max-request-size: 55MB
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        "[physical_naming_strategy]": org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 55MB
+
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET:clinical-psychology-documents-clarity-dev}
+      region: ${AWS_S3_REGION:us-east-2}

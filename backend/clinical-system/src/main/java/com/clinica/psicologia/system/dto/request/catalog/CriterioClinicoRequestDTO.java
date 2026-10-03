@@ -14,10 +14,6 @@ public class CriterioClinicoRequestDTO {
     @Size(max = 200)
     private String nombre;
 
-    @NotBlank(message = "El código es obligatorio")
-    @Size(max = 50)
-    private String codigo;
-
     private String descripcion;
 
     @NotNull(message = "La categoría es obligatoria")

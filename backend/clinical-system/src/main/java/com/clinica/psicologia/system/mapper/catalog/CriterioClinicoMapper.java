@@ -20,7 +20,6 @@ public class CriterioClinicoMapper implements CatalogoMapper<CriterioClinico,Cri
 
         dto.setId(entity.getId());
         dto.setNombre(entity.getNombre());
-        dto.setCodigo(entity.getCodigo());
         dto.setDescripcion(entity.getDescripcion());
 
         dto.setCategoriaCriterioClinicoId(
@@ -50,7 +49,6 @@ public class CriterioClinicoMapper implements CatalogoMapper<CriterioClinico,Cri
             CriterioClinicoRequestDTO dto) {
 
         entity.setNombre(dto.getNombre());
-        entity.setCodigo(dto.getCodigo());
         entity.setDescripcion(dto.getDescripcion());
     }
 }

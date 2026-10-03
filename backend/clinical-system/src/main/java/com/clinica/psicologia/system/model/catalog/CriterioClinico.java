@@ -19,7 +19,4 @@ public class CriterioClinico extends BaseCatalog {
     @ManyToOne
     @JoinColumn(name = "categoria_criterio_clinico_id", nullable = false)
     private CategoriaCriterioClinico categoriaCriterioClinico;
-
-    @Column(name = "codigo", length = 50, nullable = false)
-    private String codigo;
 }

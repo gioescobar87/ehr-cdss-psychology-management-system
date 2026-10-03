@@ -79,7 +79,8 @@ public class SecurityConfig {
                                                                 "/api/auth/forgot-password",
                                                                 "/api/auth/reset-password",
                                                                 "/actuator/mappings",
-                                                                "/api/auth/navigation")
+                                                                "/api/auth/navigation",
+                                                                "/actuator/health")
                                                 .permitAll()
 
                                                 // =========================

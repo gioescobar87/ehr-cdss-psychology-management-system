@@ -25,9 +25,6 @@ public class EvaluacionCriterioClinicoMapper {
         dto.setCriterioClinicoId(
                 entity.getCriterioClinico().getId());
 
-        dto.setCriterioCodigo(
-                entity.getCriterioClinico().getCodigo());
-
         dto.setCriterioNombre(
                 entity.getCriterioClinico().getNombre());
 

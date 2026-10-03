@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @ConfigurationProperties(prefix = "aws.s3")
 public class AwsS3Properties {
-
-    private String profile;
     private String bucket;
     private String region;
 }
