@@ -14,8 +14,9 @@ permissions:
 env:
   AWS_REGION: us-east-2
   ECR_REPOSITORY: clarityehr-prod-backend
-  ECR_CLUSTER: clarityehr-prod-cluster
+  ECS_CLUSTER: clarityehr-prod-cluster
   ECS_SERVICE: clarityehr-prod-backend-service
+  BACKEND_IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   build-test-deploy:
