@@ -2,7 +2,6 @@ package com.clinica.psicologia.system.model.catalog;
 
 import com.clinica.psicologia.system.model.base.BaseCatalog;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
