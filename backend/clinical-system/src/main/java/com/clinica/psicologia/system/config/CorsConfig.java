@@ -10,13 +10,13 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter(){
         CorsConfiguration config = new CorsConfiguration();
-        //config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOriginPattern("*");
+        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("https://clarityehr.app");
+        //config.addAllowedOriginPattern("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", config);
 
