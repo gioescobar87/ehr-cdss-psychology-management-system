@@ -89,7 +89,7 @@ jobs:
         working-directory: infrastructure
         env:
           BACKEND_IMAGE_TAG: ${{ env.BACKEND_IMAGE_TAG }}
-          run: |
+        run: |
             npx cdk synth \
               -c backendImageTag=$BACKEND_IMAGE_TAG
       # Deploy infrastructure
