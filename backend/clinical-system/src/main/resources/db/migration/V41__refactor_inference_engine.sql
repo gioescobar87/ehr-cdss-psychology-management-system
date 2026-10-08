@@ -39,7 +39,7 @@ CREATE TABLE criterio_clinico (
 
     id SERIAL PRIMARY KEY,
 
-    categoria_criterio_clinico_id INTEGER NOT NULL,
+    categoria_criterio_clinico_id INTEGER, --NOT NULL,
 
     codigo VARCHAR(50) NOT NULL,
 
@@ -165,7 +165,7 @@ DROP COLUMN ponderacion;
 -------------------------------------------
 
 ALTER TABLE regla_nodo
-ADD COLUMN criterio_clinico_id INTEGER NOT NULL;
+ADD COLUMN criterio_clinico_id INTEGER; -- NOT NULL;
 
 ALTER TABLE regla_nodo
 ADD CONSTRAINT fk_regla_nodo_criterio_clinico
