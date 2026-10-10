@@ -4,124 +4,231 @@ on:
   push:
     branches:
       - main
-
+    paths:
+      - "backend/clinical-system/**"
+      - ".github/workflows/backend-ci-cd.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
   id-token: write
 
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
 env:
   AWS_REGION: us-east-2
   ECR_REPOSITORY: clarityehr-prod-backend
-  ECS_CLUSTER: clarityehr-prod-cluster
-  ECS_SERVICE: clarityehr-prod-backend-service
+  CDK_STACK_NAME: ClarityEhrProductionStack
   BACKEND_IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   build-test-deploy:
     name: Build, Test, Push and Deploy Backend
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
-      # Checkout source code
       - name: Checkout repository
         uses: actions/checkout@v4
-      # Configure Java
+
       - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: maven
-      # Run backend tests (if any)
+          cache-dependency-path: backend/clinical-system/pom.xml
+
       - name: Run backend tests
         working-directory: backend/clinical-system
         run: ./mvnw test
-      # Build Spring Boot application
+
       - name: Build backend application
         working-directory: backend/clinical-system
         run: ./mvnw clean package -DskipTests
-      # Configure AWS using GitHub OIDC
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: infrastructure/package-lock.json
+
+      - name: Install infrastructure dependencies
+        working-directory: infrastructure
+        run: npm ci
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_DEPLOYMENT_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-      # Verify AWS identity
+
       - name: Verify AWS identity
         run: aws sts get-caller-identity
-      # Login to Amazon ECR
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      # Build DOcker image
+
+      
+      - name: Check whether immutable image tag already exists
+        id: image-check
+        shell: bash
+        run: |
+          error_file=$(mktemp)
+
+          if aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids "imageTag=$BACKEND_IMAGE_TAG" \
+            >/dev/null 2>"$error_file"; then
+
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Image tag already exists; reusing it."
+
+          elif grep -q "ImageNotFoundException" "$error_file"; then
+
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Image tag does not exist; it will be built and pushed."
+
+          else
+            cat "$error_file"
+            rm -f "$error_file"
+            echo "Unable to determine whether the image tag exists."
+            exit 1
+          fi
+
+          rm -f "$error_file"
+
       - name: Build Docker image
+        if: steps.image-check.outputs.exists == 'false'
         working-directory: backend/clinical-system
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           docker build \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$BACKEND_IMAGE_TAG \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$BACKEND_IMAGE_TAG" \
             .
-      # Push Docker image
+
       - name: Push Docker image to ECR
+        if: steps.image-check.outputs.exists == 'false'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$BACKEND_IMAGE_TAG
-      # Set up Node.js for CDK
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with: 
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: infrastructure/package-lock.json
-      # Install CDK dependencies
-      - name: Install infrastructure dependencies
+            "$ECR_REGISTRY/$ECR_REPOSITORY:$BACKEND_IMAGE_TAG"
+
+      - name: Synthesize production infrastructure
         working-directory: infrastructure
-        run: npm ci
-      # Install AWS CDK CLI
-      - name: Install AWS CDK CLI
-        run: npm install -g aws-cdk
-      # Verify CDK synthesis
-      - name: CDK synth
-        working-directory: infrastructure
-        env:
-          BACKEND_IMAGE_TAG: ${{ env.BACKEND_IMAGE_TAG }}
         run: |
-            npx cdk synth \
-              -c backendImageTag=$BACKEND_IMAGE_TAG
-      # Deploy infrastructure
-      - name: CDK deploy
+          npx cdk synth "$CDK_STACK_NAME" \
+            -c backendImageTag="$BACKEND_IMAGE_TAG"
+
+      - name: Deploy backend through CDK
         working-directory: infrastructure
-        env:
-          BACKEND_IMAGE_TAG: ${{ env.BACKEND_IMAGE_TAG }}
         run: |
-          npx cdk deploy \
+          npx cdk deploy "$CDK_STACK_NAME" \
             --require-approval never \
-            -c backendImageTag=$BACKEND_IMAGE_TAG
-      # Veify ECS service
-      - name: Wait for ECS deployment
+            -c backendImageTag="$BACKEND_IMAGE_TAG"
+
+      - name: Verify ECS service stability
         run: |
           aws ecs wait services-stable \
-            --cluster "$ECS_CLUSTER" \
-            --services "$ECS_SERVICE"
-      # Verify production HTTPS API
-      - name: Verify production API
+            --cluster clarityehr-prod-cluster \
+            --services clarityehr-prod-backend-service
+
+      - name: Verify production HTTPS API
         run: |
-          response=$(curl \
-            --fail \
-            --silent \
-            --show-error \
-            https://api.clarityehr.app/actuator/health)
-          echo "$response"
-          echo "$response" | grep -q '"status":"UP"'
-      # Deployment summary
+          for attempt in {1..12}; do
+            if response=$(curl \
+              --fail \
+              --silent \
+              --show-error \
+              --max-time 10 \
+              https://api.clarityehr.app/actuator/health); then
+
+              echo "$response"
+
+              if echo "$response" | jq -e '.status == "UP"' >/dev/null; then
+                exit 0
+              fi
+            fi
+
+            echo "API health check attempt $attempt failed."
+            sleep 10
+          done
+
+          echo "Production API health check failed."
+          exit 1
+
       - name: Deployment summary
         run: |
-          echo "Backend deployment completed succesfully."
+          echo "Backend deployment completed successfully."
           echo "Image tag: $BACKEND_IMAGE_TAG"
+          echo "CDK stack: $CDK_STACK_NAME"
           echo "API: https://api.clarityehr.app"
-      
+
+      # SEPARATION OF CONCERNS:  (+)BACKEND (-)INFRASTRUCTURE
+
+      # - name: Set up Node.js for CDK
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: "22"
+      #     cache: npm
+      #     cache-dependency-path: infrastructure/package-lock.json
+
+      # - name: Install infrastructure dependencies
+      #   working-directory: infrastructure
+      #   run: npm ci
+
+      # - name: Synthesize production infrastructure
+      #   working-directory: infrastructure
+      #   run: |
+      #     npx cdk synth ClarityEhrProductionStack \
+      #       -c backendImageTag="$BACKEND_IMAGE_TAG"
+
+      # - name: Deploy production backend stack
+      #   working-directory: infrastructure
+      #   run: |
+      #     npx cdk deploy ClarityEhrProductionStack \
+      #       --require-approval never \
+      #       -c backendImageTag="$BACKEND_IMAGE_TAG"
+
+      # - name: Wait for ECS deployment
+      #   run: |
+      #     aws ecs wait services-stable \
+      #       --cluster "$ECS_CLUSTER" \
+      #       --services "$ECS_SERVICE"
+
+      # - name: Verify production HTTPS API
+      #   run: |
+      #     for attempt in {1..12}; do
+      #       if response=$(curl \
+      #         --fail \
+      #         --silent \
+      #         --show-error \
+      #         --max-time 10 \
+      #         https://api.clarityehr.app/actuator/health); then
+
+      #         echo "$response"
+
+      #         if echo "$response" | jq -e '.status == "UP"' >/dev/null; then
+      #           exit 0
+      #         fi
+      #       fi
+
+      #       echo "API health check attempt $attempt failed."
+      #       sleep 10
+      #     done
+
+      #     echo "Production API health check failed."
+      #     exit 1
+
+      # - name: Deployment summary
+      #   run: |
+      #     echo "Backend deployment completed successfully."
+      #     echo "Image tag: $BACKEND_IMAGE_TAG"
+      #     echo "API: https://api.clarityehr.app"
+        
