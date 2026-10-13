@@ -1,0 +1,16 @@
+{
+  "ClarityEhrProductionStack": {
+    "DatabasePort": "5432",
+    "VpcId": "vpc-0bf3063b819e2f013",
+    "DatabaseSecretArn": "arn:aws:secretsmanager:us-east-2:799722407231:secret:clarityehr/prod/database-anIZvA",
+    "ApplicationSecretArn": "arn:aws:secretsmanager:us-east-2:799722407231:secret:clarityehr/prod/application",
+    "ApiCertificateArn": "arn:aws:acm:us-east-2:799722407231:certificate/9379834b-3fa3-40a4-a564-6b864491cd7b",
+    "BackendRepositoryUri": "799722407231.dkr.ecr.us-east-2.amazonaws.com/clarityehr-prod-backend",
+    "EcsClusterName": "clarityehr-prod-cluster",
+    "ApiDomainName": "api.clarityehr.app",
+    "EcsServiceName": "clarityehr-prod-backend-service",
+    "LoadBalancerDnsName": "clarityehr-prod-alb-1322099970.us-east-2.elb.amazonaws.com",
+    "DatabaseEndpoint": "clarityehr-prod-postgresql.cpkimo8a60on.us-east-2.rds.amazonaws.com",
+    "ClinicalDocumentsBucketName": "clarityehr-prod-clinical-documents-799722407231"
+  }
+}

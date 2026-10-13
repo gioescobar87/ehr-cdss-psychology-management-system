@@ -12,6 +12,8 @@ import {
   aws_route53_targets as targets,
   aws_s3 as s3,
   aws_secretsmanager as secretmanager,
+  aws_cloudfront as cloudfront,
+  aws_cloudfront_origins as origins,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
@@ -20,6 +22,7 @@ export class InfrastructureStack extends cdk.Stack {
   public readonly applicationSecurityGroup: ec2.SecurityGroup;
   public readonly database: rds.DatabaseInstance;
   public readonly clinicalDocumentsBucket: s3.Bucket;
+  public readonly frontendBucket: s3.Bucket;
   public readonly backendRepository: ecr.Repository;
   public readonly applicationSecret: secretmanager.ISecret;
   public readonly ecsCluster: ecs.Cluster;
@@ -210,6 +213,97 @@ export class InfrastructureStack extends cdk.Stack {
     );
 
     /*
+    * ------------------------------------------------------------
+    * 6.1. Frontend S3 bucket
+    * ------------------------------------------------------------
+    *
+    * This bucket stores the compiled React application.
+    *
+    * It is intentionally separate from the clinical-document
+    * bucket and remains private. CloudFront accesses it through
+    * Origin Access Control (OAC).
+    */
+    
+    this.frontendBucket = new s3.Bucket(
+      this,
+      'FrontendBucket',
+      {
+        bucketName: `clarityehr-prod-frontend-${this.account}`,
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        enforceSSL: true,
+        versioned: true,
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+      },
+    );
+
+    /*
+    * ------------------------------------------------------------
+    * 6.2. CloudFront distribution
+    * ------------------------------------------------------------
+    * CloudFront is the public entry point for the React
+    * application.
+    *
+    * The S3 bucket remains private and is accessed through
+    * Origin Access Control.
+    */
+
+    const frontendCertificateArn = this.node.tryGetContext('frontendCertificateArn');
+
+    if (!frontendCertificateArn) {
+      throw new Error(
+        'Missing CDK context value: frontendCertificateArn',
+      );
+    }
+
+    const frontendCertificate = acm.Certificate.fromCertificateArn(
+      this,
+      'FrontendCertificate',
+      frontendCertificateArn,
+    );
+
+    const frontendDistribution = new cloudfront.Distribution(
+      this,
+      'FrontendDistribution',
+      {
+        comment: 'Clarity EHR production frontend',
+
+        domainNames: [
+          'clarityehr.app',
+          'www.clarityehr.app',
+        ],
+        certificate: frontendCertificate,
+
+        defaultRootObject: 'index.html',
+        defaultBehavior: {
+          origin: origins.S3BucketOrigin.withOriginAccessControl(
+            this.frontendBucket,
+          ),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+          cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
+          compress: true,
+          cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        },
+        errorResponses: [
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+            ttl: cdk.Duration.seconds(0),
+          },
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+            ttl: cdk.Duration.seconds(0),
+          },
+        ],
+        enableIpv6: true,
+      },
+    );
+
+    /*
      * ------------------------------------------------------------
      * 7. ECR repository
      * ------------------------------------------------------------
@@ -363,10 +457,21 @@ export class InfrastructureStack extends cdk.Stack {
     * latest database/Flyway deployment fixes.
     */
 
-    const backendImageTag = 
+    // THIS FUNCTIONALITY WILL BE DELEGATED TO CI/CD THROUGH GITHUB ACTIONS
+    // const backendImageTag = 
+    //   this.node.tryGetContext('backendImageTag') ??
+    //   process.env.BACKEND_IMAGE_TAG ??
+    //   'milestone-2-db-fix';
+
+    const backendImageTag =
       this.node.tryGetContext('backendImageTag') ??
-      process.env.BACKEND_IMAGE_TAG ??
-      'milestone-2-db-fix';
+      process.env.BACKEND_IMAGE_TAG;
+
+    if (!backendImageTag) {
+      throw new Error(
+        'Missing backend image tag. Provide -c backendImageTag=<git-sha> or BACKEND_IMAGE_TAG.',
+      );
+    }
 
     const backendContainer = taskDefinition.addContainer(
       'BackendContainer',
@@ -637,8 +742,38 @@ export class InfrastructureStack extends cdk.Stack {
     );
 
     /*
+    * ------------------------------------------------------------
+    * 20. Production frontend DNS records
+    * ------------------------------------------------------------
+    */
+
+    new route53.ARecord(
+      this,
+      'FrontendAliasRecord',
+      {
+        zone: hostedZone,
+        recordName: '',
+        target: route53.RecordTarget.fromAlias(
+          new targets.CloudFrontTarget(frontendDistribution),
+        ),
+      },
+    );
+
+    new route53.ARecord(
+      this,
+      'FrontendWwwAliasRecord',
+      {
+        zone: hostedZone,
+        recordName: 'www',
+        target: route53.RecordTarget.fromAlias(
+          new targets.CloudFrontTarget(frontendDistribution)
+        )
+      }
+    )
+
+    /*
      * ------------------------------------------------------------
-     * 17. CloudFormation outputs
+     * 21. CloudFormation outputs
      * ------------------------------------------------------------
      */
 
