@@ -1,0 +1,119 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci-cd.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: frontend-production-deployment
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-2
+  NODE_VERSION: "22"
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy frontend
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build production application
+        working-directory: frontend
+        run: npm run build
+
+      - name: Verify build output
+        run: test -f frontend/dist/index.html
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOYMENT_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
+
+      - name: Verify frontend deployment configuration
+        env:
+          FRONTEND_BUCKET_NAME: ${{ vars.FRONTEND_BUCKET_NAME }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          test -n "$FRONTEND_BUCKET_NAME"
+          test -n "$CLOUDFRONT_DISTRIBUTION_ID"
+
+      - name: Deploy frontend assets to S3
+        run: |
+          aws s3 sync frontend/dist/ \
+            "s3://${{ vars.FRONTEND_BUCKET_NAME }}" \
+            --delete
+
+      - name: Invalidate CloudFront cache
+        id: invalidate
+        run: |
+          invalidation_id=$(aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+
+          echo "invalidation_id=$invalidation_id" \
+            >> "$GITHUB_OUTPUT"
+
+      - name: Wait for CloudFront invalidation
+        run: |
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --id "${{ steps.invalidate.outputs.invalidation_id }}"
+
+      - name: Verify production frontend
+        run: |
+          distribution_domain=$(aws cloudfront get-distribution \
+            --id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --query 'Distribution.DomainName' \
+            --output text)
+
+          if [ -z "$distribution_domain" ] || \
+            [ "$distribution_domain" = "None" ]; then
+            echo "Unable to determine the CloudFront domain."
+            exit 1
+          fi
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 5 \
+            --retry-delay 5 \
+            --retry-all-errors \
+            "https://$distribution_domain/" \
+            -o index.html
+
+          grep -qi '<html' index.html
+
+          echo "Frontend deployment completed successfully."
+          echo "CloudFront domain: https://$distribution_domain"
