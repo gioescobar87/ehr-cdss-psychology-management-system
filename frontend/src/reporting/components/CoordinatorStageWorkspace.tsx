@@ -599,7 +599,12 @@ function CoordinatorStageContent({
       );
 
     case "cancellations":
-      return <CancellationsStage cancellations={cancellations} />;
+      return (
+        <CancellationsStage
+          cancellations={cancellations}
+          onPatientSelect={onPatientSelect}
+        />
+      );
 
     default:
       return null;

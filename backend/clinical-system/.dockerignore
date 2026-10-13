@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+.vscode
+.env
+.env.*
+target/*.original
+target/*-sources.jar
+target/*-javadoc.jar
+src/
+pom.xml
+mvnw
+mvnw.cmd
+.mvn/
+README.md

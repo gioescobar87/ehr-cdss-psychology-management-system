@@ -10,6 +10,7 @@ export interface ClinicalContextPatient {
   ocupacion: string | null;
   estadoCivil: string | null;
   nivelEscolaridad: string | null;
+  motivoConsulta: string | null;
 }
 
 export interface ClinicalContextSession {

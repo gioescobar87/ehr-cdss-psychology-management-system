@@ -96,7 +96,6 @@ export default function SessionSymptomDialog({
         selectedCategories.length === 0 ||
         selectedCategories.includes(category);
       const searchableText = [
-        criterion.codigo,
         criterion.nombre,
         criterion.descripcion,
         category,
@@ -169,7 +168,7 @@ export default function SessionSymptomDialog({
           <TextField
             size="small"
             label="Buscar síntomas"
-            placeholder="Código, nombre o descripción"
+            placeholder="Categoría, nombre o descripción"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             sx={{ minWidth: { xs: "100%", sm: 320 }, flex: 1 }}
@@ -238,7 +237,6 @@ export default function SessionSymptomDialog({
               <TableRow>
                 <TableCell padding="checkbox" />
                 <TableCell>Categoría</TableCell>
-                <TableCell>Código</TableCell>
                 <TableCell>Síntoma</TableCell>
                 <TableCell>Descripción</TableCell>
               </TableRow>
@@ -270,7 +268,6 @@ export default function SessionSymptomDialog({
                     <TableCell>
                       {criterion.categoriaCriterioClinico || EMPTY_CATEGORY}
                     </TableCell>
-                    <TableCell>{criterion.codigo}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>
                       {criterion.nombre}
                     </TableCell>
