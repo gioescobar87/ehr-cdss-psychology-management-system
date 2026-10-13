@@ -58,9 +58,10 @@ jobs:
       - name: Diagnose CloudFront distribution
         shell: bash
         run: |
-          echo "AWS identity:" aws sts get-caller-identity
+          echo "AWS identity:"
+          aws sts get-caller-identity
 
-          echo "Avalable CloudFront distributions:"
+          echo "Available CloudFront distributions:"
           aws cloudfront list-distributions \
             --query 'DistributionList.Items[].{Id:Id,Domain:DomainName,Aliases:Aliases.Items}' \
             --output table
