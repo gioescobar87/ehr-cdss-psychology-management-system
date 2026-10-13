@@ -22,7 +22,7 @@ export class InfrastructureStack extends cdk.Stack {
   public readonly applicationSecurityGroup: ec2.SecurityGroup;
   public readonly database: rds.DatabaseInstance;
   public readonly clinicalDocumentsBucket: s3.Bucket;
-  public readonly frontendBucket: s3.Bucket;
+  public readonly frontendBucket: s3.IBucket;
   public readonly backendRepository: ecr.Repository;
   public readonly applicationSecret: secretmanager.ISecret;
   public readonly ecsCluster: ecs.Cluster;
@@ -224,17 +224,24 @@ export class InfrastructureStack extends cdk.Stack {
     * Origin Access Control (OAC).
     */
     
-    this.frontendBucket = new s3.Bucket(
+    // THIS BUCKET WAS RETAINED FROM A PREVIOUS DEPLOYMENT.
+    // this.frontendBucket = new s3.Bucket(
+    //   this,
+    //   'FrontendBucket',
+    //   {
+    //     bucketName: `clarityehr-prod-frontend-${this.account}`,
+    //     blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+    //     encryption: s3.BucketEncryption.S3_MANAGED,
+    //     enforceSSL: true,
+    //     versioned: true,
+    //     removalPolicy: cdk.RemovalPolicy.RETAIN,
+    //   },
+    // );
+
+    this.frontendBucket = s3.Bucket.fromBucketName(
       this,
       'FrontendBucket',
-      {
-        bucketName: `clarityehr-prod-frontend-${this.account}`,
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        enforceSSL: true,
-        versioned: true,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
-      },
+      `clarityehr-prod-frontend-${this.account}`,
     );
 
     /*
@@ -302,6 +309,44 @@ export class InfrastructureStack extends cdk.Stack {
         enableIpv6: true,
       },
     );
+
+    /*
+    * ------------------------------------------------------------
+    * 6.3. Allow CloudFront OAC to read the frontend bucket
+    * ------------------------------------------------------------
+    *
+    * Only this CloudFront distribution can read objects.
+    * The bucket remains private.
+    */
+
+    new s3.CfnBucketPolicy(this, 'FrontendBucketPolicy', {
+      bucket: this.frontendBucket.bucketName,
+
+      policyDocument: {
+        Version: '2012-10-17',
+
+        Statement: [
+          {
+            Sid: 'AllowCloudFrontServicePrincipalReadOnly',
+            Effect: 'Allow',
+
+            Principal: {
+              Service: 'cloudfront.amazonaws.com',
+            },
+
+            Action: 's3:GetObject',
+
+            Resource: `${this.frontendBucket.bucketArn}/*`,
+
+            Condition: {
+              StringEquals: {
+                'AWS:SourceArn': frontendDistribution.distributionArn,
+              },
+            },
+          },
+        ],
+      },
+    });
 
     /*
      * ------------------------------------------------------------
