@@ -128,3 +128,4 @@ jobs:
 
           echo "Frontend deployment completed successfully."
           echo "CloudFront domain: https://$distribution_domain"
+          
