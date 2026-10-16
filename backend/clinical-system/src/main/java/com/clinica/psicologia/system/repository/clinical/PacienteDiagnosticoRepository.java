@@ -1,6 +1,7 @@
 package com.clinica.psicologia.system.repository.clinical;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,6 @@ public interface PacienteDiagnosticoRepository
 
     List<PacienteDiagnostico> findByPacienteId(
             Integer pacienteId);
+
+        Optional<PacienteDiagnostico> findBySesionIdAndDiagnosticoId(Integer sesionId, Integer diagnosticoId);
 }

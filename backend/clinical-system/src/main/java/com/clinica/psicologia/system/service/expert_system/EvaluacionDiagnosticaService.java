@@ -19,7 +19,5 @@ public interface EvaluacionDiagnosticaService {
 
     EvaluacionDiagnosticaResponseDTO update(Integer id, EvaluacionDiagnosticaRequestDTO request);
 
-    void changeStatus(Integer id, Integer estadoId);
-
     void delete(Integer id);
 }

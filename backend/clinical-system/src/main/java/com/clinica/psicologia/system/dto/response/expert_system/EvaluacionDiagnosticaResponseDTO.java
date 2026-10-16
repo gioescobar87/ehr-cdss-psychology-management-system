@@ -13,35 +13,25 @@ public class EvaluacionDiagnosticaResponseDTO {
 
     private Integer sesionId;
 
-    private Integer arbolDiagnosticoId;
+    private Integer diagnosticoSugeridoId;
 
-    private String arbolDiagnostico;
+    private String diagnosticoSugerido;
+
+    private Integer diagnosticoSeleccionadoId;
+
+    private String diagnosticoSeleccionado;
 
     private Integer diagnosticoFinalId;
 
     private String diagnosticoFinal;
 
-    private Integer diagnosticoSugeridoId;
-
-    private String diagnosticoSugerido;
-
     private Integer usuarioId;
 
     private String usuario;
 
-    private Integer versionArbol;
-
     private Boolean diagnosticoConfirmado;
 
-    private String observacionesSistema;
+    private Integer concordanciaDiagnostica;
 
-    private LocalDateTime fechaEvaluacion;
-
-    private LocalDateTime fechaInferencia;
-
-    private Integer tiempoInferenciaMs;
-
-    private Integer estadoId;
-
-    private String estado;
+    private LocalDateTime fechaHoraInferencia;
 }

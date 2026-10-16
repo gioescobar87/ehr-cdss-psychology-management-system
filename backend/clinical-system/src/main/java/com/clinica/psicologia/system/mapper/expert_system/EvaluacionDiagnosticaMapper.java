@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.clinica.psicologia.system.dto.request.expert_system.EvaluacionDiagnosticaRequestDTO;
 import com.clinica.psicologia.system.dto.response.expert_system.EvaluacionDiagnosticaResponseDTO;
 import com.clinica.psicologia.system.model.expert_system.EvaluacionDiagnostica;
 
@@ -19,17 +18,6 @@ public class EvaluacionDiagnosticaMapper {
 
         dto.setSesionId(entity.getSesion().getId());
 
-        dto.setArbolDiagnosticoId(entity.getArbolDiagnostico().getId());
-
-        dto.setArbolDiagnostico(entity.getArbolDiagnostico().getNombre());
-
-        if (entity.getDiagnosticoFinal() != null) {
-
-            dto.setDiagnosticoFinalId(entity.getDiagnosticoFinal().getId());
-
-            dto.setDiagnosticoFinal(entity.getDiagnosticoFinal().getNombre());
-        }
-
         if (entity.getDiagnosticoSugerido() != null) {
 
             dto.setDiagnosticoSugeridoId(entity.getDiagnosticoSugerido().getId());
@@ -37,25 +25,21 @@ public class EvaluacionDiagnosticaMapper {
             dto.setDiagnosticoSugerido(entity.getDiagnosticoSugerido().getNombre());
         }
 
+        if (entity.getDiagnosticoSeleccionado() != null) {
+            dto.setDiagnosticoSeleccionadoId(entity.getDiagnosticoSeleccionado().getId());
+            dto.setDiagnosticoSeleccionado(entity.getDiagnosticoSeleccionado().getNombre());
+            dto.setDiagnosticoFinalId(entity.getDiagnosticoSeleccionado().getId());
+            dto.setDiagnosticoFinal(entity.getDiagnosticoSeleccionado().getNombre());
+        }
+
         dto.setUsuarioId(entity.getUsuario().getId());
 
         dto.setUsuario(entity.getUsuario().getNombre());
 
-        dto.setVersionArbol(entity.getVersionArbol());
-
-        dto.setDiagnosticoConfirmado(entity.getDiagnosticoConfirmado());
-
-        dto.setObservacionesSistema(entity.getObservacionesSistema());
-
-        dto.setFechaEvaluacion(entity.getFechaEvaluacion());
-
-        dto.setFechaInferencia(entity.getFechaInferencia());
-
-        dto.setTiempoInferenciaMs(entity.getTiempoInferenciaMs());
-
-        dto.setEstadoId(entity.getEstado().getId());
-
-        dto.setEstado(entity.getEstado().getNombre());
+        Integer concordance = entity.getConcordanciaDiagnostica();
+        dto.setConcordanciaDiagnostica(concordance);
+        dto.setDiagnosticoConfirmado(concordance == null ? null : concordance == 1);
+        dto.setFechaHoraInferencia(entity.getFechaHoraInferencia());
 
         return dto;
     }
@@ -67,8 +51,4 @@ public class EvaluacionDiagnosticaMapper {
                 .toList();
     }
 
-    public void updateEntity(EvaluacionDiagnostica entity, EvaluacionDiagnosticaRequestDTO dto) {
-
-        // Relationships are managed by the service.
-    }
 }

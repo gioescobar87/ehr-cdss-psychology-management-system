@@ -8,11 +8,11 @@ import com.clinica.psicologia.system.model.expert_system.EvaluacionDiagnostica;
 
 public interface EvaluacionDiagnosticaRepository extends JpaRepository<EvaluacionDiagnostica, Integer> {
 
-    List<EvaluacionDiagnostica> findBySesionPacienteIdOrderByFechaEvaluacionDesc(Integer pacienteId);
+    List<EvaluacionDiagnostica> findBySesionPacienteIdOrderByFechaHoraInferenciaDesc(Integer pacienteId);
 
-    List<EvaluacionDiagnostica> findBySesionIdOrderByFechaEvaluacionDesc(Integer sesionId);
+    List<EvaluacionDiagnostica> findBySesionIdOrderByFechaHoraInferenciaDesc(Integer sesionId);
 
-    List<EvaluacionDiagnostica> findByUsuarioIdOrderByFechaEvaluacionDesc(Integer usuarioId);
+    List<EvaluacionDiagnostica> findByUsuarioIdOrderByFechaHoraInferenciaDesc(Integer usuarioId);
 
     boolean existsBySesionId(Integer sesionId);
 
