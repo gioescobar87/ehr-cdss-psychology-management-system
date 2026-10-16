@@ -14,4 +14,6 @@ public class InferenceResult {
     private String observacionesSistema;
 
     private Integer executionTimeMs;
+
+    private Boolean diagnosticoConfirmado;
 }

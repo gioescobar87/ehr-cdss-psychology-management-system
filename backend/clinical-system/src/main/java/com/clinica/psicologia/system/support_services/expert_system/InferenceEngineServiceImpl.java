@@ -1,21 +1,30 @@
 package com.clinica.psicologia.system.support_services.expert_system;
 
-// import java.time.LocalDateTime;
-// import java.util.ArrayList;
-// import java.util.HashSet;
-// import java.util.List;
-// import java.util.Set;
-// import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-// import com.clinica.psicologia.system.model.expert_system.EvaluacionDiagnostica;
-// import com.clinica.psicologia.system.model.expert_system.NodoArbol;
-// import com.clinica.psicologia.system.repository.expert_system.EvaluacionCriterioClinicoRepository;
-// import com.clinica.psicologia.system.repository.expert_system.EvaluacionDiagnosticaRepository;
-// import com.clinica.psicologia.system.repository.expert_system.NodoArbolRepository;
-// import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
-// import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
+import com.clinica.psicologia.system.model.catalog.Diagnostico;
+import com.clinica.psicologia.system.model.clinical.Sesion;
+import com.clinica.psicologia.system.model.expert_system.EvaluacionDiagnostica;
+import com.clinica.psicologia.system.dto.request.clinical.PacienteDiagnosticoRequestDTO;
+import com.clinica.psicologia.system.repository.catalog.DiagnosticoRepository;
+import com.clinica.psicologia.system.repository.clinical.SesionCriterioClinicoRepository;
+import com.clinica.psicologia.system.repository.clinical.SesionRepository;
+import com.clinica.psicologia.system.repository.expert_system.EvaluacionDiagnosticaRepository;
+import com.clinica.psicologia.system.repository.expert_system.InferenceRuleRepository;
+import com.clinica.psicologia.system.security.exception.custom.BusinessRuleException;
+import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
+import com.clinica.psicologia.system.service.clinical.PacienteDiagnosticoService;
+import com.clinica.psicologia.system.support_services.app_support.ApplicationSupportService;
+import com.clinica.psicologia.system.support_services.authorization.ClinicalAuthorizationService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,171 +34,322 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class InferenceEngineServiceImpl implements InferenceEngineService {
 
-//     private final EvaluacionDiagnosticaRepository evaluacionRepository;
-//     private final EvaluacionCriterioClinicoRepository evaluacionCriterioRepository;
-//     private final NodoArbolRepository nodoRepository;
-//     private final InferenceExplanationBuilder explanationBuilder;
+    private final EvaluacionDiagnosticaRepository evaluationRepository;
+    private final SesionRepository sessionRepository;
+    private final SesionCriterioClinicoRepository sessionCriteriaRepository;
+    private final DiagnosticoRepository diagnosisRepository;
+    private final InferenceRuleRepository ruleRepository;
+    private final DiagnosticInferenceEvaluator inferenceEvaluator;
+        private final DiagnosticRuleEvaluator ruleEvaluator;
+    private final InferenceExplanationBuilder explanationBuilder;
+    private final ClinicalAuthorizationService authorizationService;
+    private final ApplicationSupportService supportService;
+        private final PacienteDiagnosticoService patientDiagnosisService;
 
-//     @Override
-//     public InferenceResult inferir(Integer evaluacionId) {
+    @Override
+    public InferenceResult inferir(Integer evaluationId) {
+        EvaluacionDiagnostica evaluation = evaluationRepository.findById(evaluationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Diagnostic evaluation not found"));
+        authorize(evaluation.getSesion());
+        return infer(evaluation);
+    }
 
-//         long start = System.nanoTime();
+    @Override
+    public InferenceResult inferirParaSesion(Integer sessionId, Integer selectedDiagnosisId) {
+        Sesion session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
+        authorize(session);
 
-//         EvaluacionDiagnostica evaluacion = evaluacionRepository.findById(evaluacionId)
-//                 .orElseThrow(() -> new ResourceNotFoundException("Diagnostic evaluation not found"));
+        EvaluacionDiagnostica evaluation = evaluationRepository
+                .findBySesionIdOrderByFechaHoraInferenciaDesc(sessionId)
+                .stream()
+                .findFirst()
+                .orElseGet(() -> {
+                    EvaluacionDiagnostica created = new EvaluacionDiagnostica();
+                    created.setSesion(session);
+                    created.setUsuario(authorizationService.getAuthenticatedUser());
+                    return created;
+                });
+        evaluation.setUsuario(authorizationService.getAuthenticatedUser());
 
-//         NodoArbol rootNode = nodoRepository
-//                 .findRootNode(evaluacion.getArbolDiagnostico().getId())
-//                 .orElseThrow(
-//                         () -> new ResourceNotFoundException("Root node not found for the selected diagnostic tree"));
+        if (selectedDiagnosisId != null) {
+            Diagnostico selectedDiagnosis = diagnosisRepository.findById(selectedDiagnosisId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Diagnosis not found"));
+            evaluation.setDiagnosticoSeleccionado(selectedDiagnosis);
+        }
 
-//         Set<Integer> selectedCriteria = loadSelectedCriteria(evaluacion.getId());
+        return infer(evaluation);
+    }
 
-//         List<InferenceStep> steps = new ArrayList<>();
+        @Override
+        public InferenceWorkflowDTO.PreparationResponse prepararParaSesion(Integer sessionId) {
+        Sesion session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
+        authorize(session);
+        PreparedCandidates prepared = prepareCandidates(session);
+        return new InferenceWorkflowDTO.PreparationResponse(
+            prepared.candidates().stream().map(this::toCandidate).toList(),
+            collectQuestions(prepared));
+        }
 
-//         NodoArbol terminalNode = traverse(rootNode, selectedCriteria, steps);
+        @Override
+        public InferenceWorkflowDTO.FinalResponse finalizarParaSesion(
+            Integer sessionId, InferenceWorkflowDTO.FinalizeRequest request) {
+        Sesion session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
+        authorize(session);
+        if (request == null || request.diagnosticoSeleccionadoId() == null
+            || request.diagnosticoInicial() == null) {
+            throw new BusinessRuleException("A selected diagnosis and its initial status are required.");
+        }
 
-//         String explanation = explanationBuilder.build(steps, terminalNode.getDiagnostico());
+        PreparedCandidates prepared = prepareCandidates(session);
+        Map<Integer, Integer> answers = validateAnswers(prepared, request.answers());
+        List<Diagnostico> finalCandidates = prepared.candidates().stream()
+            .filter(candidate -> passesExclusions(candidate, prepared.rulesByDiagnosis(), answers))
+            .toList();
 
-//         Integer elapsed = Math.toIntExact((System.nanoTime() - start) / 1_000_000);
+        Diagnostico selectedDiagnosis = diagnosisRepository.findById(request.diagnosticoSeleccionadoId())
+            .orElseThrow(() -> new ResourceNotFoundException("Diagnosis not found"));
+        Integer activeStateId = supportService.getActiveState().getId();
+        if (selectedDiagnosis.getEstado() == null
+            || !activeStateId.equals(selectedDiagnosis.getEstado().getId())) {
+            throw new BusinessRuleException("The selected diagnosis is inactive.");
+        }
 
-//         InferenceResult result = buildResult(terminalNode, explanation, elapsed);
+        Diagnostico suggestedDiagnosis = finalCandidates.size() == 1 ? finalCandidates.getFirst() : null;
+        Integer concordance = suggestedDiagnosis != null
+            && suggestedDiagnosis.getId().equals(selectedDiagnosis.getId()) ? 1 : 0;
 
-//         updateEvaluation(evaluacion, result);
+        PacienteDiagnosticoRequestDTO patientDiagnosisRequest = new PacienteDiagnosticoRequestDTO();
+        patientDiagnosisRequest.setSesionId(sessionId);
+        patientDiagnosisRequest.setDiagnosticoId(selectedDiagnosis.getId());
+        patientDiagnosisRequest.setDiagnosticoInicial(request.diagnosticoInicial());
+        patientDiagnosisService.create(patientDiagnosisRequest);
 
-//         evaluacionRepository.save(evaluacion);
+        EvaluacionDiagnostica evaluation = evaluationRepository
+            .findBySesionIdOrderByFechaHoraInferenciaDesc(sessionId)
+            .stream()
+            .findFirst()
+            .orElseGet(EvaluacionDiagnostica::new);
+        evaluation.setSesion(session);
+        evaluation.setUsuario(authorizationService.getAuthenticatedUser());
+        evaluation.setDiagnosticoSugerido(suggestedDiagnosis);
+        evaluation.setDiagnosticoSeleccionado(selectedDiagnosis);
+        evaluation.setConcordanciaDiagnostica(concordance);
+        evaluation.setFechaHoraInferencia(LocalDateTime.now());
+        evaluationRepository.save(evaluation);
 
-//         return result;
-//     }
+        return new InferenceWorkflowDTO.FinalResponse(
+            finalCandidates.stream().map(this::toCandidate).toList(),
+            suggestedDiagnosis == null ? null : suggestedDiagnosis.getId(),
+            selectedDiagnosis.getId(),
+            concordance);
+        }
 
-//     /**
-//      * Loads every selected clinical criterion into memory.
-//      */
-//     private Set<Integer> loadSelectedCriteria(
-//             Integer evaluacionId) {
+    private InferenceResult infer(EvaluacionDiagnostica evaluation) {
+        long start = System.nanoTime();
 
-//         return evaluacionCriterioRepository
-//                 .findByEvaluacionDiagnosticaId(evaluacionId)
-//                 .stream()
-//                 .map(item -> item.getCriterioClinico().getId())
-//                 .collect(Collectors.toSet());
-//     }
+        Set<Integer> presentCriterionIds = sessionCriteriaRepository
+                .findBySesionIdOrderByIdAsc(evaluation.getSesion().getId())
+                .stream()
+                .filter(criteria -> Boolean.TRUE.equals(criteria.getPresente()))
+                .map(criteria -> criteria.getCriterioClinico().getId())
+                .collect(Collectors.toSet());
 
-//     /**
-//      * Recursive traversal.
-//      * Implemented in Part 2.
-//      */
-//     private NodoArbol traverse(
-//             NodoArbol currentNode,
-//             Set<Integer> selectedCriteria,
-//             List<InferenceStep> steps) {
+        Integer activeStateId = supportService.getActiveState().getId();
+        List<Diagnostico> activeDiagnoses = diagnosisRepository.findAll().stream()
+                .filter(diagnosis -> diagnosis.getEstado() != null
+                        && activeStateId.equals(diagnosis.getEstado().getId()))
+                .toList();
 
-//         Set<Integer> visitedNodes = new HashSet<>();
+        Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis =
+            ruleRepository.findRulesByDiagnosis();
+        Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis =
+            ruleRepository.findCriterionReferencesByDiagnosis();
+        boolean hasUnansweredExclusion = activeDiagnoses.stream()
+            .filter(diagnosis -> hasPresentCriterion(
+                referencesByDiagnosis.get(diagnosis.getId()), presentCriterionIds))
+            .filter(diagnosis -> rulesByDiagnosis.containsKey(diagnosis.getId()))
+            .anyMatch(diagnosis -> rulesByDiagnosis.get(diagnosis.getId()).stream()
+                .anyMatch(ruleEvaluator::isExclusionRule));
+        if (hasUnansweredExclusion) {
+            throw new BusinessRuleException(
+                "Exclusion answers are required; use the session inference workflow.");
+        }
 
-//         while (currentNode.getDiagnostico() == null) {
+        DiagnosticInferenceEvaluator.Outcome outcome = inferenceEvaluator.infer(
+                activeDiagnoses,
+            rulesByDiagnosis,
+            referencesByDiagnosis,
+                presentCriterionIds);
 
-//             /*
-//              * Loop protection.
-//              */
-//             if (!visitedNodes.add(currentNode.getId())) {
+        Diagnostico suggestedDiagnosis = outcome.suggestedDiagnosis();
+        evaluation.setDiagnosticoSugerido(suggestedDiagnosis);
+        evaluation.setFechaHoraInferencia(LocalDateTime.now());
+        evaluation.setConcordanciaDiagnostica(calculateConcordance(
+                suggestedDiagnosis, evaluation.getDiagnosticoSeleccionado()));
+        evaluationRepository.save(evaluation);
 
-//                 throw new BusinessRuleException(
-//                         "Circular reference detected in diagnostic tree at node: "
-//                                 + currentNode.getId());
-//             }
+        InferenceResult result = new InferenceResult();
+        result.setDiagnostico(suggestedDiagnosis);
+        result.setObservacionesSistema(explanationBuilder.build(outcome));
+        result.setExecutionTimeMs(Math.toIntExact((System.nanoTime() - start) / 1_000_000));
+        result.setDiagnosticoConfirmado(evaluation.getConcordanciaDiagnostica() == null
+                ? null
+                : evaluation.getConcordanciaDiagnostica() == 1);
+        return result;
+    }
 
-//             /*
-//              * Decision node validation.
-//              */
-//             if (currentNode.getCriterioClinico() == null) {
+    private Integer calculateConcordance(Diagnostico suggested, Diagnostico selected) {
+        if (suggested == null || selected == null) {
+            return null;
+        }
+        return suggested.getId().equals(selected.getId()) ? 1 : 0;
+    }
 
-//                 throw new BusinessRuleException(
-//                         "Decision node without clinical criterion: "
-//                                 + currentNode.getId());
-//             }
+    private void authorize(Sesion session) {
+        authorizationService.validateSessionOwner(session);
+        authorizationService.validateAssignedPsychologist(session.getPaciente());
+    }
 
-//             /*
-//              * Both branches are mandatory.
-//              */
-//             if (currentNode.getNodoPresente() == null
-//                     || currentNode.getNodoAusente() == null) {
+    private PreparedCandidates prepareCandidates(Sesion session) {
+        Integer activeStateId = supportService.getActiveState().getId();
+        Set<Integer> presentCriterionIds = sessionCriteriaRepository
+                .findBySesionIdOrderByIdAsc(session.getId())
+                .stream()
+                .filter(criteria -> Boolean.TRUE.equals(criteria.getPresente()))
+                .filter(criteria -> criteria.getCriterioClinico() != null
+                        && criteria.getCriterioClinico().getEstado() != null
+                        && activeStateId.equals(criteria.getCriterioClinico().getEstado().getId()))
+                .map(criteria -> criteria.getCriterioClinico().getId())
+                .collect(Collectors.toSet());
+        List<Diagnostico> activeDiagnoses = diagnosisRepository.findAll().stream()
+                .filter(diagnosis -> diagnosis.getEstado() != null
+                        && activeStateId.equals(diagnosis.getEstado().getId()))
+                .sorted((left, right) -> left.getId().compareTo(right.getId()))
+                .toList();
+        Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis =
+                ruleRepository.findRulesByDiagnosis();
+        Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis =
+                ruleRepository.findCriterionReferencesByDiagnosis();
+        List<Diagnostico> candidates = new ArrayList<>();
 
-//                 throw new BusinessRuleException(
-//                         "Decision node without complete branches: "
-//                                 + currentNode.getId());
-//             }
+        for (Diagnostico diagnosis : activeDiagnoses) {
+            Integer diagnosisId = diagnosis.getId();
+            List<DiagnosticRuleEvaluator.Rule> rules = rulesByDiagnosis.get(diagnosisId);
+            List<DiagnosticRuleEvaluator.CriterionReference> references =
+                    referencesByDiagnosis.getOrDefault(diagnosisId, List.of());
+            if (rules == null || rules.isEmpty() || !hasPresentCriterion(references, presentCriterionIds)) {
+                continue;
+            }
+            DiagnosticRuleEvaluator.Result result = ruleEvaluator.evaluate(rules, references, presentCriterionIds);
+            if (!result.supported()) {
+                throw new BusinessRuleException(
+                        "Invalid inference rule for diagnosis " + diagnosis.getNombre() + ": " + result.detail());
+            }
+            if (result.satisfied()) {
+                candidates.add(diagnosis);
+            }
+        }
+        return new PreparedCandidates(candidates, rulesByDiagnosis, referencesByDiagnosis, presentCriterionIds);
+    }
 
-//             boolean criterionPresent = selectedCriteria.contains(
-//                     currentNode.getCriterioClinico().getId());
+    private List<InferenceWorkflowDTO.Question> collectQuestions(PreparedCandidates prepared) {
+        Map<String, QuestionAssociations> questions = new LinkedHashMap<>();
+        for (Diagnostico candidate : prepared.candidates()) {
+            for (DiagnosticRuleEvaluator.Rule rule : prepared.rulesByDiagnosis()
+                    .getOrDefault(candidate.getId(), List.of())) {
+                if (!ruleEvaluator.isExclusionRule(rule)) {
+                    continue;
+                }
+                if (rule.ruleId() == null) {
+                    throw new BusinessRuleException("An exclusion rule is missing its identifier.");
+                }
+                QuestionAssociations association = questions.computeIfAbsent(
+                        rule.parameter(), ignored -> new QuestionAssociations());
+                association.ruleIds().add(rule.ruleId());
+                association.diagnosisIds().add(candidate.getId());
+            }
+        }
+        return questions.entrySet().stream()
+                .map(entry -> new InferenceWorkflowDTO.Question(
+                        entry.getKey(),
+                        List.copyOf(entry.getValue().ruleIds()),
+                        List.copyOf(entry.getValue().diagnosisIds())))
+                .toList();
+    }
 
-//             steps.add(
-//                     new InferenceStep(
-//                             currentNode.getCriterioClinico().getCodigo(),
-//                             currentNode.getCriterioClinico().getNombre(),
-//                             criterionPresent));
+    private Map<Integer, Integer> validateAnswers(
+            PreparedCandidates prepared, List<InferenceWorkflowDTO.Answer> submittedAnswers) {
+        Set<Integer> requiredRuleIds = prepared.candidates().stream()
+                .flatMap(candidate -> prepared.rulesByDiagnosis().getOrDefault(candidate.getId(), List.of()).stream())
+                .filter(ruleEvaluator::isExclusionRule)
+                .map(DiagnosticRuleEvaluator.Rule::ruleId)
+                .collect(Collectors.toSet());
+        Map<Integer, Integer> answers = new LinkedHashMap<>();
+        if (submittedAnswers != null) {
+            for (InferenceWorkflowDTO.Answer answer : submittedAnswers) {
+                if (answer == null || answer.ruleId() == null || answer.value() == null
+                        || (answer.value() != 0 && answer.value() != 1)
+                        || answers.putIfAbsent(answer.ruleId(), answer.value()) != null) {
+                    throw new BusinessRuleException("Every exclusion question requires one explicit Sí/No answer.");
+                }
+            }
+        }
+        if (!answers.keySet().equals(requiredRuleIds)) {
+            throw new BusinessRuleException("Answers must be provided for every required exclusion question.");
+        }
+        return answers;
+    }
 
-//             currentNode = criterionPresent
-//                     ? currentNode.getNodoPresente()
-//                     : currentNode.getNodoAusente();
+    private boolean passesExclusions(
+            Diagnostico candidate,
+            Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis,
+            Map<Integer, Integer> answers) {
+        for (DiagnosticRuleEvaluator.Rule rule : rulesByDiagnosis.getOrDefault(candidate.getId(), List.of())) {
+            if (!ruleEvaluator.isExclusionRule(rule)) {
+                continue;
+            }
+            DiagnosticRuleEvaluator.Result result = ruleEvaluator.evaluateExclusion(rule, answers.get(rule.ruleId()));
+            if (!result.supported()) {
+                throw new BusinessRuleException(result.detail());
+            }
+            if (!result.satisfied()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-//             if (currentNode == null) {
+    private boolean hasPresentCriterion(
+            List<DiagnosticRuleEvaluator.CriterionReference> references, Set<Integer> presentCriterionIds) {
+        return references != null && references.stream()
+                .anyMatch(reference -> reference != null && reference.criterionId() != null
+                        && presentCriterionIds.contains(reference.criterionId()));
+    }
 
-//                 throw new BusinessRuleException(
-//                         "Diagnostic tree contains incomplete branch.");
-//             }
-//         }
+    private InferenceWorkflowDTO.Candidate toCandidate(Diagnostico diagnosis) {
+        return new InferenceWorkflowDTO.Candidate(diagnosis.getId(), diagnosis.getNombre());
+    }
 
-//         /*
-//          * Terminal validation.
-//          */
-//         if (currentNode.getDiagnostico() == null) {
+    private record PreparedCandidates(
+            List<Diagnostico> candidates,
+            Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis,
+            Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis,
+            Set<Integer> presentCriterionIds) {
+    }
 
-//             throw new BusinessRuleException(
-//                     "Inference finished without reaching diagnosis.");
-//         }
+    private static class QuestionAssociations {
+        private final Set<Integer> ruleIds = new LinkedHashSet<>();
+        private final Set<Integer> diagnosisIds = new LinkedHashSet<>();
 
-//         return currentNode;
-//     }
+        Set<Integer> ruleIds() {
+            return ruleIds;
+        }
 
-//     /**
-//      * Updates the diagnostic evaluation with
-//      * the inference result.
-//      */
-//     private void updateEvaluation(EvaluacionDiagnostica evaluacion, InferenceResult result) {
-
-//         evaluacion.setDiagnosticoSugerido(result.getDiagnostico());
-
-//         evaluacion.setDiagnosticoConfirmado(evaluacion.getDiagnosticoFinal()
-//                 .getId()
-//                 .equals(result.getDiagnostico().getId()));
-
-//         evaluacion.setObservacionesSistema(result.getObservacionesSistema());
-
-//         evaluacion.setFechaInferencia(LocalDateTime.now());
-
-//         evaluacion.setTiempoInferenciaMs(result.getExecutionTimeMs());
-//     }
-
-//     /**
-//      * Creates the inference result.
-//      */
-//     private InferenceResult buildResult(
-//         NodoArbol terminalNode,
-//         String explanation,
-//         Integer executionTime) {
-
-//         if (terminalNode.getDiagnostico() == null) {
-//             throw new BusinessRuleException("Inference did not reach a terminal diagnosis node.");
-//         }
-
-//         InferenceResult result = new InferenceResult();
-
-//         result.setDiagnostico(terminalNode.getDiagnostico());
-
-//         result.setExecutionTimeMs(executionTime);
-
-//         result.setObservacionesSistema(explanation);
-
-//         return result;
-//     }
+        Set<Integer> diagnosisIds() {
+            return diagnosisIds;
+        }
+    }
 }

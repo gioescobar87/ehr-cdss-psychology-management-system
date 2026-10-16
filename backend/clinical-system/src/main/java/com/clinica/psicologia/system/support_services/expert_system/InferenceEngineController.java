@@ -1,13 +1,10 @@
 package com.clinica.psicologia.system.support_services.expert_system;
 
-// import org.springframework.web.bind.annotation.PathVariable;
-// import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-// import com.clinica.psicologia.system.model.expert_system.EvaluacionDiagnostica;
-// import com.clinica.psicologia.system.repository.expert_system.EvaluacionDiagnosticaRepository;
-// import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,18 +13,23 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/inference")
 public class InferenceEngineController {
 
-    // private final InferenceEngineService inferenceService;
-    // private final EvaluacionDiagnosticaRepository evaluacionRepository;
-    // private final InferenceMapper mapper;
+    private final InferenceEngineService inferenceService;
+    private final InferenceMapper mapper;
 
-    // @PostMapping("/evaluacion/{evaluacionId}")
-    // public InferenceResponseDTO inferir(@PathVariable Integer evaluacionId) {
+    @PostMapping("/evaluacion/{evaluacionId}")
+    public InferenceResponseDTO inferir(@PathVariable Integer evaluacionId) {
+        return mapper.toResponse(inferenceService.inferir(evaluacionId));
+    }
 
-    //     InferenceResult result = inferenceService.inferir(evaluacionId);
+    @PostMapping("/sesion/{sesionId}/preguntas")
+    public InferenceWorkflowDTO.PreparationResponse preparar(@PathVariable Integer sesionId) {
+        return inferenceService.prepararParaSesion(sesionId);
+    }
 
-    //     EvaluacionDiagnostica evaluacion = evaluacionRepository.findById(evaluacionId)
-    //             .orElseThrow(() -> new ResourceNotFoundException("Diagnostic evaluation not found"));
-
-    //     return mapper.toResponse(result, evaluacion.getDiagnosticoConfirmado());
-    // }
+    @PostMapping("/sesion/{sesionId}/finalizar")
+    public InferenceWorkflowDTO.FinalResponse finalizar(
+            @PathVariable Integer sesionId,
+            @RequestBody InferenceWorkflowDTO.FinalizeRequest request) {
+        return inferenceService.finalizarParaSesion(sesionId, request);
+    }
 }

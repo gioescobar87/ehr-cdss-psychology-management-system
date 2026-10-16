@@ -5,18 +5,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class InferenceMapper {
 
-    public InferenceResponseDTO toResponse(InferenceResult result, Boolean confirmado) {
+    public InferenceResponseDTO toResponse(InferenceResult result) {
 
         InferenceResponseDTO dto = new InferenceResponseDTO();
 
-        dto.setDiagnosticoId(result.getDiagnostico().getId());
-        dto.setDiagnostico(result.getDiagnostico().getNombre());
+        if (result.getDiagnostico() != null) {
+            dto.setDiagnosticoId(result.getDiagnostico().getId());
+            dto.setDiagnostico(result.getDiagnostico().getNombre());
+        }
 
         dto.setExecutionTimeMs(result.getExecutionTimeMs());
 
         dto.setObservacionesSistema(result.getObservacionesSistema());
 
-        dto.setDiagnosticoConfirmado(confirmado);
+        dto.setDiagnosticoConfirmado(result.getDiagnosticoConfirmado());
 
         return dto;
     }
