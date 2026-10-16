@@ -8,7 +8,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   InputAdornment,
+  Radio,
+  RadioGroup,
   Table,
   TableBody,
   TableCell,
@@ -20,8 +25,13 @@ import {
 } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
-import { useCreatePatientDiagnosis } from "../hooks/useSessionDiagnoses";
+import {
+  useFinalizeSessionInference,
+  usePrepareSessionInference,
+} from "../hooks/useSessionDiagnoses";
 import type {
+  FinalizeInferenceResponse,
+  InferencePreparation,
   PatientDiagnosis,
   Response as CatalogDiagnosis,
 } from "../types/sessionDiagnosis.types";
@@ -50,8 +60,16 @@ export default function SessionDiagnosisDialog({
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const mutation = useCreatePatientDiagnosis();
+  const [preparation, setPreparation] = useState<InferencePreparation | null>(
+    null,
+  );
+  const [answers, setAnswers] = useState<Record<number, 0 | 1>>({});
+  const [finalResult, setFinalResult] =
+    useState<FinalizeInferenceResponse | null>(null);
+  const preparationMutation = usePrepareSessionInference();
+  const finalizeMutation = useFinalizeSessionInference();
   const { showSuccess } = useNotification();
+  const isPending = preparationMutation.isPending || finalizeMutation.isPending;
 
   const assignedIds = useMemo(
     () =>
@@ -98,29 +116,68 @@ export default function SessionDiagnosisDialog({
     });
   }, [availableDiagnoses, search, selectedCategories]);
   const handleClose = () => {
-    if (mutation.isPending) return;
+    if (isPending) return;
     setSearch("");
     setSelectedCategories([]);
     setSelectedId(null);
+    setPreparation(null);
+    setAnswers({});
+    setFinalResult(null);
     onClose();
   };
 
-  const handleSave = () => {
-    if (selectedId === null || mutation.isPending) return;
-    mutation.mutate(
+  const submitFinal = (
+    candidatePreparation: InferencePreparation,
+    currentAnswers: Record<number, 0 | 1>,
+  ) => {
+    if (selectedId === null) return;
+    finalizeMutation.mutate(
       {
-        sesionId: sessionId,
-        diagnosticoId: selectedId,
-        diagnosticoInicial: false,
+        sessionId,
+        request: {
+          diagnosticoSeleccionadoId: selectedId,
+          diagnosticoInicial: false,
+          answers: candidatePreparation.questions.flatMap((question) =>
+            question.ruleIds.map((ruleId) => ({
+              ruleId,
+              value: currentAnswers[ruleId],
+            })),
+          ),
+        },
       },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
+          setFinalResult(result);
           showSuccess("El diagnóstico fue registrado correctamente.");
-          handleClose();
         },
       },
     );
   };
+
+  const hasAllAnswers =
+    preparation !== null &&
+    preparation.questions.every((question) =>
+      question.ruleIds.every((ruleId) => answers[ruleId] !== undefined),
+    );
+
+  const handleSave = () => {
+    if (selectedId === null || isPending || finalResult) return;
+    if (!preparation) {
+      preparationMutation.mutate(sessionId, {
+        onSuccess: (result) => {
+          setPreparation(result);
+          if (result.questions.length === 0) submitFinal(result, {});
+        },
+      });
+      return;
+    }
+    if (hasAllAnswers) submitFinal(preparation, answers);
+  };
+
+  const error = preparationMutation.error || finalizeMutation.error;
+  const selectedDiagnosis = diagnoses.find(
+    (diagnosis) => diagnosis.id === finalResult?.diagnosticoSeleccionadoId,
+  );
 
   return (
     <Dialog
@@ -153,6 +210,7 @@ export default function SessionDiagnosisDialog({
             placeholder="Código, nombre o descripción"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
+            disabled={Boolean(finalResult)}
             sx={{ minWidth: { xs: "100%", sm: 320 }, flex: 1 }}
             slotProps={{
               input: {
@@ -171,6 +229,7 @@ export default function SessionDiagnosisDialog({
             value={selectedCategories}
             onChange={(_, values) => setSelectedCategories(values)}
             disableCloseOnSelect
+            disabled={Boolean(finalResult)}
             sx={{ minWidth: { xs: "100%", sm: 300 }, flex: 1 }}
             renderInput={(params) => (
               <TextField
@@ -186,10 +245,91 @@ export default function SessionDiagnosisDialog({
             {filteredDiagnoses.length} diagnósticos disponibles
           </Typography>
         </Box>
-        {mutation.error && (
+        {error && (
           <Alert severity="error" sx={{ mx: 2, mb: 1 }}>
-            {getApiErrorMessage(mutation.error)}
+            {getApiErrorMessage(error)}
           </Alert>
+        )}
+        {preparation && !finalResult && (
+          <Box sx={{ px: 2, pb: 1 }}>
+            {preparation.candidates.length === 0 ? (
+              <Alert severity="info">
+                No hay diagnósticos candidatos que cumplan los criterios
+                clínicos presentes.
+              </Alert>
+            ) : (
+              <Alert severity="info">
+                Candidatos después de evaluar los criterios básicos:{" "}
+                {preparation.candidates
+                  .map((candidate) => candidate.diagnosis)
+                  .join(", ")}
+                {". La sugerencia final se determinará con las respuestas."}
+              </Alert>
+            )}
+            {preparation.questions.length > 0 && (
+              <Box sx={{ mt: 1.5, display: "grid", gap: 1.5 }}>
+                {preparation.questions.map((question) => {
+                  const answer = answers[question.ruleIds[0]];
+                  return (
+                    <FormControl key={question.question}>
+                      <FormLabel>{question.question}</FormLabel>
+                      <RadioGroup
+                        row
+                        value={answer === undefined ? "" : String(answer)}
+                        onChange={(_, value) => {
+                          const selectedAnswer = Number(value) as 0 | 1;
+                          setAnswers((current) => ({
+                            ...current,
+                            ...Object.fromEntries(
+                              question.ruleIds.map((ruleId) => [
+                                ruleId,
+                                selectedAnswer,
+                              ]),
+                            ),
+                          }));
+                        }}
+                      >
+                        <FormControlLabel
+                          value="1"
+                          control={<Radio size="small" />}
+                          label="Sí"
+                        />
+                        <FormControlLabel
+                          value="0"
+                          control={<Radio size="small" />}
+                          label="No"
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  );
+                })}
+              </Box>
+            )}
+          </Box>
+        )}
+        {finalResult && (
+          <Box sx={{ px: 2, pb: 1 }}>
+            {finalResult.candidates.length === 0 ? (
+              <Alert severity="info">
+                El sistema no encontró candidatos finales. No se generó una
+                sugerencia.
+              </Alert>
+            ) : finalResult.candidates.length === 1 ? (
+              <Alert severity="success">
+                Sugerencia única del sistema: {finalResult.candidates[0].diagnosis}.
+              </Alert>
+            ) : (
+              <Alert severity="warning">
+                Hay varios candidatos y no existe una sugerencia única:{" "}
+                {finalResult.candidates
+                  .map((candidate) => candidate.diagnosis)
+                  .join(", ")}.
+              </Alert>
+            )}
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Diagnóstico seleccionado por el psicólogo: {selectedDiagnosis?.nombre}
+            </Typography>
+          </Box>
         )}
         <TableContainer sx={{ flex: 1, overflowY: "auto" }}>
           <Table
@@ -213,9 +353,10 @@ export default function SessionDiagnosisDialog({
                     key={diagnosis.id}
                     selected={selected}
                     onClick={() =>
+                      !finalResult &&
                       setSelectedId(selected ? null : diagnosis.id)
                     }
-                    sx={{ cursor: "pointer" }}
+                    sx={{ cursor: finalResult ? "default" : "pointer" }}
                   >
                     <TableCell>{diagnosis.codigoIcd}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>
@@ -247,18 +388,33 @@ export default function SessionDiagnosisDialog({
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2, justifyContent: "space-between" }}>
         <Typography variant="body2" color="text.secondary">
-          El diagnóstico seleccionado se asociará a esta sesión.
+          {finalResult
+            ? "La evaluación diagnóstica fue guardada."
+            : "La selección del psicólogo se conservará independientemente de la sugerencia."}
         </Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
-          <Button onClick={handleClose} disabled={mutation.isPending}>
-            Cancelar
+          <Button onClick={handleClose} disabled={isPending}>
+            {finalResult ? "Cerrar" : "Cancelar"}
           </Button>
           <Button
             variant="contained"
-            onClick={handleSave}
-            disabled={selectedId === null || mutation.isPending}
+            onClick={finalResult ? handleClose : handleSave}
+            disabled={
+              isPending ||
+              (!finalResult &&
+                (selectedId === null ||
+                  (preparation !== null && !hasAllAnswers)))
+            }
           >
-            {mutation.isPending ? "Guardando..." : "Guardar"}
+            {preparationMutation.isPending
+              ? "Evaluando..."
+              : finalizeMutation.isPending
+                ? "Guardando..."
+                : finalResult
+                  ? "Listo"
+                  : preparation
+                    ? "Guardar diagnóstico"
+                    : "Guardar"}
           </Button>
         </Box>
       </DialogActions>
