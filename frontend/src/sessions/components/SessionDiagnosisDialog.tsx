@@ -147,6 +147,39 @@ export default function SessionDiagnosisDialog({
       },
       {
         onSuccess: (result) => {
+          if (!result.complete) {
+            setPreparation((current) => {
+              if (!current) return current;
+              const mergedQuestions = new Map(
+                current.questions.map((question) => [question.question, question]),
+              );
+              for (const question of result.questions) {
+                const existing = mergedQuestions.get(question.question);
+                mergedQuestions.set(
+                  question.question,
+                  existing
+                    ? {
+                        ...existing,
+                        ruleIds: Array.from(
+                          new Set([...existing.ruleIds, ...question.ruleIds]),
+                        ),
+                        diagnosisIds: Array.from(
+                          new Set([
+                            ...existing.diagnosisIds,
+                            ...question.diagnosisIds,
+                          ]),
+                        ),
+                      }
+                    : question,
+                );
+              }
+              return {
+                candidates: result.candidates,
+                questions: Array.from(mergedQuestions.values()),
+              };
+            });
+            return;
+          }
           setFinalResult(result);
           showSuccess("El diagnóstico fue registrado correctamente.");
         },
@@ -163,12 +196,15 @@ export default function SessionDiagnosisDialog({
   const handleSave = () => {
     if (selectedId === null || isPending || finalResult) return;
     if (!preparation) {
-      preparationMutation.mutate(sessionId, {
+      preparationMutation.mutate(
+        { sessionId, diagnosticoSeleccionadoId: selectedId },
+        {
         onSuccess: (result) => {
           setPreparation(result);
           if (result.questions.length === 0) submitFinal(result, {});
         },
-      });
+        },
+      );
       return;
     }
     if (hasAllAnswers) submitFinal(preparation, answers);
@@ -309,14 +345,19 @@ export default function SessionDiagnosisDialog({
         )}
         {finalResult && (
           <Box sx={{ px: 2, pb: 1 }}>
-            {finalResult.candidates.length === 0 ? (
+            {finalResult.candidates.length === 0 &&
+            finalResult.suggestedDiagnosis ? (
+              <Alert severity="warning">
+                Resultado del sistema: {finalResult.suggestedDiagnosis.diagnosis}.
+              </Alert>
+            ) : finalResult.candidates.length === 0 ? (
               <Alert severity="info">
                 El sistema no encontró candidatos finales. No se generó una
                 sugerencia.
               </Alert>
             ) : finalResult.candidates.length === 1 ? (
               <Alert severity="success">
-                Sugerencia única del sistema: {finalResult.candidates[0].diagnosis}.
+                Sugerencia única del sistema: {finalResult.suggestedDiagnosis?.diagnosis}.
               </Alert>
             ) : (
               <Alert severity="warning">
@@ -352,11 +393,15 @@ export default function SessionDiagnosisDialog({
                     hover
                     key={diagnosis.id}
                     selected={selected}
-                    onClick={() =>
-                      !finalResult &&
-                      setSelectedId(selected ? null : diagnosis.id)
-                    }
-                    sx={{ cursor: finalResult ? "default" : "pointer" }}
+                    onClick={() => {
+                      if (isPending || finalResult) return;
+                      setSelectedId(selected ? null : diagnosis.id);
+                      setPreparation(null);
+                      setAnswers({});
+                    }}
+                    sx={{
+                      cursor: isPending || finalResult ? "default" : "pointer",
+                    }}
                   >
                     <TableCell>{diagnosis.codigoIcd}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>

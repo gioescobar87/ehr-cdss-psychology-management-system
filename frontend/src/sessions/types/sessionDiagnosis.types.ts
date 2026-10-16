@@ -57,7 +57,10 @@ export interface FinalizeInferenceRequest {
 }
 
 export interface FinalizeInferenceResponse {
+  complete: boolean;
   candidates: InferenceCandidate[];
+  questions: InferenceQuestion[];
+  suggestedDiagnosis: InferenceCandidate | null;
   diagnosticoSugeridoId: number | null;
   diagnosticoSeleccionadoId: number;
   concordanciaDiagnostica: 0 | 1;

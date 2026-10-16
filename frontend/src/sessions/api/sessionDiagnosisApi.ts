@@ -24,9 +24,11 @@ export async function createPatientDiagnosis(
 
 export async function prepareSessionInference(
   sessionId: number,
+  diagnosticoSeleccionadoId: number,
 ): Promise<InferencePreparation> {
   const response = await apiClient.post<InferencePreparation>(
     `/inference/sesion/${sessionId}/preguntas`,
+    { diagnosticoSeleccionadoId },
   );
   return response.data;
 }

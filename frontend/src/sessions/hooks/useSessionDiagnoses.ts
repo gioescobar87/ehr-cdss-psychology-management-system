@@ -39,7 +39,13 @@ export function useCreatePatientDiagnosis() {
 
 export function usePrepareSessionInference() {
   return useMutation({
-    mutationFn: (sessionId: number) => prepareSessionInference(sessionId),
+    mutationFn: ({
+      sessionId,
+      diagnosticoSeleccionadoId,
+    }: {
+      sessionId: number;
+      diagnosticoSeleccionadoId: number;
+    }) => prepareSessionInference(sessionId, diagnosticoSeleccionadoId),
   });
 }
 
