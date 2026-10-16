@@ -5,7 +5,8 @@ public interface InferenceEngineService {
 
     InferenceResult inferirParaSesion(Integer sesionId, Integer diagnosticoSeleccionadoId);
 
-    InferenceWorkflowDTO.PreparationResponse prepararParaSesion(Integer sesionId);
+        InferenceWorkflowDTO.PreparationResponse prepararParaSesion(
+            Integer sesionId, InferenceWorkflowDTO.PreparationRequest request);
 
     InferenceWorkflowDTO.FinalResponse finalizarParaSesion(
             Integer sesionId, InferenceWorkflowDTO.FinalizeRequest request);

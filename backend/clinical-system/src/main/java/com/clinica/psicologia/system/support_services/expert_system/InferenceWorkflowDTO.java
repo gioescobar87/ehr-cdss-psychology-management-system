@@ -16,6 +16,9 @@ public final class InferenceWorkflowDTO {
     public record PreparationResponse(List<Candidate> candidates, List<Question> questions) {
     }
 
+    public record PreparationRequest(Integer diagnosticoSeleccionadoId) {
+    }
+
     public record Answer(Integer ruleId, Integer value) {
     }
 
@@ -26,7 +29,10 @@ public final class InferenceWorkflowDTO {
     }
 
     public record FinalResponse(
+            boolean complete,
             List<Candidate> candidates,
+            List<Question> questions,
+            Candidate suggestedDiagnosis,
             Integer diagnosticoSugeridoId,
             Integer diagnosticoSeleccionadoId,
             Integer concordanciaDiagnostica) {

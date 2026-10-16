@@ -22,8 +22,10 @@ public class InferenceEngineController {
     }
 
     @PostMapping("/sesion/{sesionId}/preguntas")
-    public InferenceWorkflowDTO.PreparationResponse preparar(@PathVariable Integer sesionId) {
-        return inferenceService.prepararParaSesion(sesionId);
+    public InferenceWorkflowDTO.PreparationResponse preparar(
+            @PathVariable Integer sesionId,
+            @RequestBody InferenceWorkflowDTO.PreparationRequest request) {
+        return inferenceService.prepararParaSesion(sesionId, request);
     }
 
     @PostMapping("/sesion/{sesionId}/finalizar")
