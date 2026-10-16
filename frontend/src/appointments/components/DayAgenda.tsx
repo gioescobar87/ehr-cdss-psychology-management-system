@@ -3,6 +3,7 @@ import type { Appointment } from "../types/appointment.types";
 import { useCurrentTime } from "../../shared/hooks/useCurrentTime";
 import { isToday } from "../../shared/utils/dateUtils";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { APPOINTMENT_STATUS } from "../constants/appointmentStatus";
 
 import {
   APPOINTMENT_STATUS_APPEARANCE,
@@ -280,6 +281,10 @@ function AppointmentBlock({ appointment, onClick }: AppointmentBlockProps) {
     APPOINTMENT_STATUS_APPEARANCE[appointment.estadoId] ??
     DEFAULT_APPOINTMENT_STATUS_APPEARANCE;
 
+  const isCompleted = appointment.estadoId === APPOINTMENT_STATUS.COMPLETED;
+
+  const isCancelled = appointment.estadoId === APPOINTMENT_STATUS.CANCELLED;
+
   return (
     <Box
       onClick={(event) => {
@@ -304,7 +309,11 @@ function AppointmentBlock({ appointment, onClick }: AppointmentBlockProps) {
 
         borderLeftColor: appearance.accentColor,
 
-        backgroundColor: appearance.backgroundColor,
+        backgroundColor: isCompleted
+          ? "#e4f4ff"
+          : isCancelled
+            ? "#ffa1af"
+            : appearance.backgroundColor,
 
         cursor: "pointer",
 
