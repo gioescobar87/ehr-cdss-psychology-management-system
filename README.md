@@ -1,4 +1,4 @@
-# Clinical Psychology Management System with Diagnostic Decision Support
+# Clinical Psychology Management System with Clinical Decision Support
 
 A full-stack Electronic Health Record (EHR) and Clinical Decision Support System (CDSS) designed to support psychological care workflows, clinical documentation, patient management, and rule-based diagnostic decision support.
 
@@ -115,13 +115,11 @@ flowchart TB
     API --> DOCS
 ```
 
-*This diagram represents the intended deployment architecture. Refer to the deployment documentation for the resources currently provisioned and operational.*
-
 ### Architectural Characteristics
 
 - **Modular monolith:** Organized application responsibilities within a single backend deployment.
 - **REST API:** Separates frontend presentation from backend business logic.
-- **Relational persistence:** Uses PostgreSQL and database migrations to manage schema evolution.
+- **Relational persistence:** Uses PostgreSQL and Flyway database migrations to manage schema evolution.
 - **Layered backend:** Separates controllers, services, persistence, and data-transfer concerns.
 - **Cloud infrastructure as code:** Uses AWS CDK to define and manage infrastructure.
 - **Containerized backend:** Uses Docker and Amazon ECS Fargate for application deployment.
