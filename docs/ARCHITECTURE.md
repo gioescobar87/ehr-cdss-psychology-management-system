@@ -212,63 +212,115 @@ This mechanism is distinct from encryption at rest provided by the underlying da
 
 ## 8. Clinical Decision Support System
 
-The CDSS uses a deterministic rule engine to evaluate documented clinical information against modeled diagnostic criteria.
+The Clinical Decision Support System (CDSS) uses a deterministic rule engine to evaluate documented clinical criteria against configured diagnostic rules. It supports the psychologist's diagnostic decision by evaluating a selected diagnosis first when that diagnosis is modeled in the rule catalog, followed by the normal inference workflow when necessary.
 
-It is designed to provide suggestions for professional review rather than autonomously establish diagnoses.
+The system provides diagnostic suggestions and rule-based evaluation outcomes for professional review. It does not autonomously establish diagnoses or replace the psychologist's clinical judgment.
 
 ### 8.1 Rule Model
 
-The diagnostic knowledge model is organized around the following relationships:
+The diagnostic knowledge model is organized around the following entities and relationships:
 
 ```mermaid
 flowchart TD
     CATEGORY[Diagnostic Category]
     DIAGNOSIS[Diagnosis]
-    TREE[Diagnostic Decision Tree]
-    NODE[Decision Tree Node]
-    RULE[Node Rule]
-    CRITERIA[Diagnostic Criteria]
-    EVAL[Rule Evaluation]
-    RESULT[Diagnostic Suggestion]
+    CRITERION[Clinical Criterion]
+    SESSION_CRITERION[Session Clinical Criterion]
+    DIAGNOSIS_CRITERION[Diagnosis-Criterion Association]
+    RULE[Diagnostic Rule]
+    RULE_TYPE[Rule Type]
+    OPERATOR[Comparison Operator]
+    EVALUATION[Diagnostic Evaluation]
+    RESULT[Inference Outcome]
+    SELECTED[Psychologist-Selected Diagnosis]
 
     CATEGORY --> DIAGNOSIS
-    DIAGNOSIS --> TREE
-    TREE --> NODE
-    NODE --> RULE
-    RULE --> CRITERIA
-    CRITERIA --> EVAL
-    EVAL --> RESULT
+    DIAGNOSIS --> DIAGNOSIS_CRITERION
+    CRITERION --> DIAGNOSIS_CRITERION
+    CRITERION --> SESSION_CRITERION
+    SESSION_CRITERION --> EVALUATION
+    DIAGNOSIS --> RULE
+    RULE --> RULE_TYPE
+    RULE --> OPERATOR
+    RULE --> EVALUATION
+    SELECTED --> EVALUATION
+    EVALUATION --> RESULT
 ```
 
-This model separates the diagnostic catalog from the rules used to evaluate documented clinical information.
+The model distinguishes the diagnostic catalog, clinical criteria documented during a session, the rules associated with each diagnosis, and the resulting diagnostic evaluation.
 
-The diagram represents the logical rule model. The exact relationships and execution sequence depend on the implemented schema and service logic.
+Rules are interpreted using their configured types, parameters, comparison operators, and expected values. The principal rule types used in the inference workflow are `BASICA`, which evaluates the presence of clinical criteria, and `EXCLUSION`, which evaluates answers to configured exclusion questions.
 
 ### 8.2 Evaluation Workflow
 
-The intended workflow is:
+The inference workflow consists of four stages, with an initial selected-diagnosis evaluation when applicable.
 
-1. The professional documents relevant clinical information.
-2. The application evaluates applicable diagnostic rules.
-3. When a rule matches, the system presents a diagnostic suggestion.
-4. The professional reviews the suggestion and decides whether to confirm it or select another diagnosis.
-5. The original system suggestion and the professional's decision can be compared for concordance evaluation.
+**Selected-diagnosis prioritization**
 
-When no rule matches, the system should not fabricate a suggestion.
+When the psychologist selects a diagnosis and clicks **Guardar**, the system first checks whether the selected diagnosis is represented in the diagnostic rule catalog.
+
+- If the diagnosis is modeled, the system evaluates its basic rules first, followed by its exclusion rules when applicable.
+- If the selected diagnosis passes all applicable rules, the system completes the diagnostic evaluation and stops inference without evaluating other diagnoses.
+- If the selected diagnosis fails its rules, the system resumes the normal inference process from Stage 1.
+- If the selected diagnosis is not modeled, the system starts the normal inference process directly.
+
+**Stage 1 — Candidate filtering**
+
+The system retrieves the clinical criteria recorded for the current session and retains criteria marked as present. It identifies diagnoses associated with at least one present criterion and having at least one configured diagnostic rule.
+
+Duplicate diagnoses and duplicate criterion counts are avoided. If no applicable candidates remain, the system returns an explicit empty result rather than inventing a diagnosis.
+
+**Stage 2 — Basic rule evaluation**
+
+For each candidate diagnosis, the system evaluates its applicable `BASICA` rules. Each rule identifies a criterion group through its configured parameter and reference.
+
+The system counts distinct associated criteria present in the session and compares the count against the rule's expected value using its configured operator.
+
+A diagnosis passes this stage only when all applicable basic rules pass. A failed rule rejects that candidate, allowing evaluation to continue with the next candidate. Unsupported or malformed rules and operators must be handled explicitly rather than treated as successful evaluations.
+
+**Stage 3 — Exclusion questions and answers**
+
+For candidates that pass Stage 2, the system retrieves applicable `EXCLUSION` rules. Each rule's parameter provides the question displayed to the psychologist, preserving the configured Spanish wording.
+
+The frontend presents the required questions with explicit answers, such as **Sí** and **No**. Every required answer must be supplied before the corresponding exclusion rules can be evaluated and the diagnostic evaluation finalized.
+
+Answers are evaluated using the configured operator and expected value. A failed exclusion rule rejects only its associated diagnosis. Candidates without exclusion rules can proceed without additional questions.
+
+When a selected diagnosis fails after its exclusion answers have been evaluated, the system resumes normal inference. Previously supplied answers may be reused when they apply to the same question and rule context.
+
+Missing answers are not interpreted as negative responses or successful rule evaluations.
+
+**Stage 4 — Persistence**
+
+After all required rule evaluations have been completed, the system persists the diagnostic evaluation and the psychologist's selected diagnosis using the existing persistence services and authorization rules.
+
+The evaluation records the session, authenticated user, suggested diagnosis when applicable, selected diagnosis, inference timestamp, and diagnostic concordance.
+
+When the selected diagnosis passes its rules, the system persists that outcome and stops inference. Otherwise, the system preserves the results of the subsequent normal inference process.
+
+If a modeled selected diagnosis fails its rules and normal inference finds no applicable diagnosis, the system can record a configured explanatory outcome. This outcome uses the existing diagnosis record whose name is exactly:
+
+`El diagnóstico seleccionado ya fue modelado, pero no cumple con las reglas definidas`
+
+The explanatory outcome must be retrieved from the database. It is not a new diagnosis, must not be created automatically, and must not be treated as a concordant diagnostic suggestion merely because it is recorded as the system's outcome. If the required catalog record is missing, the system must report the configuration problem.
+
+If normal inference identifies one or more applicable diagnoses, its results take precedence over this fallback outcome.
 
 ### 8.3 Deterministic Behavior
 
-The engine uses explicit conditions and rules rather than machine learning, natural language processing, fuzzy logic, or probabilistic prediction.
+The inference engine uses explicit rules, configured comparison operators, and documented clinical criteria. It does not rely on machine learning, natural language processing, fuzzy logic, probabilistic prediction, or statistical scoring.
 
-Given the same applicable rules and equivalent input data, the evaluation is intended to produce reproducible results.
+Given the same applicable rules, equivalent session criteria, the same selected diagnosis, and equivalent exclusion answers, the engine is intended to produce reproducible results.
 
-The reliability of the output depends on the completeness of the modeled criteria, the correctness of the implementation, and the quality of the documented information.
+The reliability of its output depends on the completeness and correctness of the modeled rules, the integrity of the clinical data, and the validity of the implementation. Missing answers or invalid rule configurations must not be silently interpreted as successful evaluations.
 
 ### 8.4 Diagnostic Concordance
 
-Diagnostic concordance measures whether the system's original suggestion matches the diagnosis confirmed by the psychologist.
+Diagnostic concordance measures whether the system's diagnostic suggestion agrees with the diagnosis selected by the psychologist.
 
-This measure is distinct from other forms of diagnostic consistency evaluated internally by the rule engine.
+Concordance is recorded as `1` only when exactly one diagnosis is suggested and it matches the psychologist's selected diagnosis. Otherwise, it is recorded as `0`, following the defined evaluation rules.
+
+When multiple diagnoses pass the inference rules, the system must preserve all applicable candidates rather than arbitrarily selecting the first one. When no diagnosis passes, the system must not fabricate a diagnostic suggestion. An explanatory fallback outcome is a system-generated evaluation result, not a clinical diagnosis confirmed by the psychologist.
 
 Concordance is an evaluation measure and should not be interpreted as proof of clinical accuracy, diagnostic validity, or improved patient outcomes.
 
