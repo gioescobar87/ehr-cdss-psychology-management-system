@@ -11,7 +11,7 @@ export default function Footer() {
       }}
     >
       <Typography variant="body2" color="text.secondary" align="center">
-        Psychological EHR © 2026
+        Clarity EHR © 2026
       </Typography>
     </Box>
   );

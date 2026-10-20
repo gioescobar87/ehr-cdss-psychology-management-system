@@ -66,7 +66,7 @@ export default function TopBar() {
             flexGrow: 1,
           }}
         >
-          Psychological EHR
+          Clarity EHR
         </Typography>
 
         {user && (
