@@ -53,8 +53,6 @@ flowchart TD
     ECS --> LOGS
 ```
 
-The diagram represents the intended backend architecture. Frontend hosting through Amazon S3 and CloudFront should be documented as operational only after its resources and deployment workflow have been verified.
-
 ## 3. Prerequisites
 
 Before deploying the application, ensure that the following tools and resources are available.
@@ -102,8 +100,6 @@ ehr-cdss-psychology-management-system/
 └── .github/
     └── workflows/
 ```
-
-Verify the exact directory names and workflow filenames against the current repository before running commands.
 
 ## 5. Infrastructure Provisioning
 
