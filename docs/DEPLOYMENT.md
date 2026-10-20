@@ -447,7 +447,8 @@ Never remove production resources without understanding their data-retention and
 
 For related technical information, see:
 
+- [Project README](../README.md)
 - [System Architecture](ARCHITECTURE.md)
 - [Development Guide](DEVELOPMENT.md)
 - [Feature Reference](FEATURES.md)
-- [Project README](../README.md)
+- [Security Documentation](SECURITY.md)
