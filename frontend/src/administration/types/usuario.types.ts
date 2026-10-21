@@ -9,6 +9,8 @@ export interface Response {
   fechaCreacion?: string | null;
   fechaModificacion?: string | null;
   roles: UsuarioRol[];
+  coordinadorId?: number | null;
+  coordinadorNombre?: string | null;
 }
 
 export interface Request {
@@ -16,6 +18,7 @@ export interface Request {
   nombre: string;
   apellido: string;
   correo: string;
+  coordinadorId?: number | null;
 }
 
 export interface UsuarioRol {

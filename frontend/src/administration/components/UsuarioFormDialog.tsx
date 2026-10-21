@@ -10,7 +10,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  MenuItem,
   Stack,
+  TextField,
 } from "@mui/material";
 
 import FormTextField from "../../shared/components/forms/FormTextField";
@@ -24,7 +26,9 @@ import {
   useAssignRol,
   useRemoveRol,
   useUsuarioRoles,
+  useGetAll as useGetAllUsuarios,
 } from "../hooks/useUsuario";
+import { useGetAll as useGetAllRoles } from "../hooks/useRol";
 
 import type { Response, Request } from "../types/usuario.types";
 
@@ -42,6 +46,10 @@ export default function UsuarioFormDialog({
   onSuccess,
 }: UsuarioFormDialogProps) {
   const { data: states = [] } = useGetAllEstados();
+  const { data: usuarios = [], isLoading: isLoadingUsuarios } =
+    useGetAllUsuarios();
+  const { data: roles = [], isLoading: isLoadingRoleCatalog } =
+    useGetAllRoles();
 
   const createUsuario = useCreate();
   const updateUsuario = useUpdate();
@@ -49,10 +57,17 @@ export default function UsuarioFormDialog({
   const removeRol = useRemoveRol();
 
   const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([]);
+  const [coordinadorId, setCoordinadorId] = useState<number | "">("");
   const [isSavingRoles, setIsSavingRoles] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isEditing = !!editingUsuario;
+  const requiresCoordinator = selectedRoleIds.some((roleId) =>
+    roles.some((role) => role.id === roleId && role.nombre === "PSICOLOGO"),
+  );
+  const coordinadores = usuarios.filter((usuario) =>
+    usuario.roles?.some((role) => role.nombre === "COORDINADOR"),
+  );
 
   const { data: existingRoles = [], isLoading: isLoadingRoles } =
     useUsuarioRoles(editingUsuario?.id ?? 0);
@@ -82,6 +97,7 @@ export default function UsuarioFormDialog({
     if (!open) {
       reset();
       setSelectedRoleIds([]);
+      setCoordinadorId("");
       return;
     }
 
@@ -92,6 +108,7 @@ export default function UsuarioFormDialog({
         apellido: editingUsuario.apellido,
         correo: editingUsuario.correo,
       });
+      setCoordinadorId(editingUsuario.coordinadorId ?? "");
 
       /*
        * Existing roles are loaded asynchronously by useUsuarioRoles.
@@ -105,6 +122,7 @@ export default function UsuarioFormDialog({
         apellido: "",
         correo: "",
       });
+      setCoordinadorId("");
 
       setSelectedRoleIds([]);
     }
@@ -173,11 +191,17 @@ export default function UsuarioFormDialog({
       return;
     }
 
+    if (requiresCoordinator && !coordinadorId) {
+      setSubmitError("Debe seleccionar un coordinador para el psicólogo.");
+      return;
+    }
+
     const request: Request = {
       username: values.username,
       nombre: values.nombre,
       apellido: values.apellido,
       correo: values.correo,
+      coordinadorId: requiresCoordinator ? coordinadorId || null : null,
     };
 
     try {
@@ -320,6 +344,38 @@ export default function UsuarioFormDialog({
             onChange={setSelectedRoleIds}
             loading={isSaving || isLoadingRoles}
           />
+
+          {requiresCoordinator && (
+            <TextField
+              select
+              label="Coordinador"
+              value={coordinadorId}
+              onChange={(event) =>
+                setCoordinadorId(
+                  event.target.value ? Number(event.target.value) : "",
+                )
+              }
+              required
+              disabled={isSaving || isLoadingUsuarios}
+              error={coordinadorId === ""}
+              helperText={
+                coordinadorId === ""
+                  ? coordinadores.length === 0 && !isLoadingUsuarios
+                    ? "No hay usuarios con el rol COORDINADOR."
+                    : "Debe seleccionar un coordinador."
+                  : undefined
+              }
+              fullWidth
+            >
+              <MenuItem value="">Seleccione un coordinador</MenuItem>
+              {coordinadores.map((coordinador) => (
+                <MenuItem key={coordinador.id} value={coordinador.id}>
+                  {coordinador.apellido}, {coordinador.nombre} (
+                  {coordinador.username})
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
         </Stack>
       </DialogContent>
 
@@ -336,7 +392,9 @@ export default function UsuarioFormDialog({
           disabled={
             isSaving ||
             isLoadingRoles ||
+            isLoadingRoleCatalog ||
             (!isEditing && selectedRoleIds.length === 0) ||
+            (requiresCoordinator && !coordinadorId) ||
             hasErrors
           }
         >
