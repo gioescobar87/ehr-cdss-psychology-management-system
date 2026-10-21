@@ -54,7 +54,7 @@ export default function InterventionStage({ session }: InterventionStageProps) {
         {selectedId === "objectives" ? (
           <SessionObjectives session={session} />
         ) : selectedId === "interventions" ? (
-          <SessionInterventions session={session} allowCreate={false} />
+          <SessionInterventions session={session} />
         ) : (
           <SessionTreatmentPlan session={session} />
         )}

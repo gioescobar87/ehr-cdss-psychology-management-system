@@ -20,6 +20,7 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
 
 import AppointmentDetailsDrawer from "../../appointments/components/AppointmentDetailsDrawer";
 import type { Appointment } from "../../appointments/types/appointment.types";
@@ -29,6 +30,7 @@ import AgendaStage from "./stages/AgendaStage";
 import PatientsStage from "./stages/PatientsStage";
 import SummaryStage from "./stages/SummaryStage";
 import CancellationsStage from "./stages/CancellationsStage";
+import DiagnosticAgreementStage from "./stages/DiagnosticAgreementStage";
 import CoordinatorReportStepper from "./CoordinatorReportStepper";
 import type {
   CoordinatorReportPageData,
@@ -131,6 +133,12 @@ function getPsychologistOptions(
     }
   });
 
+  data.diagnosticAgreement.forEach((evaluation) => {
+    if (!options.has(evaluation.psychologistId)) {
+      options.set(evaluation.psychologistId, evaluation.psychologistName);
+    }
+  });
+
   return [...options.entries()]
     .map(([psychologistId, psychologistName]) => ({
       psychologistId,
@@ -229,6 +237,13 @@ export default function CoordinatorStageWorkspace({
     );
   });
 
+  const filteredDiagnosticAgreement =
+    selectedPsychologistIds.length === 0
+      ? data.diagnosticAgreement
+      : data.diagnosticAgreement.filter((evaluation) =>
+          selectedPsychologistIds.includes(evaluation.psychologistId),
+        );
+
   const psychologistColors = getPsychologistColors(psychologistOptions);
 
   const selectedPsychologistNames = psychologistOptions
@@ -312,6 +327,10 @@ export default function CoordinatorStageWorkspace({
 
               {stage === "patients" && (
                 <PeopleAltOutlinedIcon color="primary" />
+              )}
+
+              {stage === "diagnosticAgreement" && (
+                <FactCheckOutlinedIcon color="primary" />
               )}
 
               <Box sx={{ minWidth: 0 }}>
@@ -520,6 +539,7 @@ export default function CoordinatorStageWorkspace({
             agenda={filteredAgenda}
             patients={filteredPatients}
             cancellations={filteredCancellations}
+            diagnosticAgreement={filteredDiagnosticAgreement}
             reportMonth={reportMonth}
             weekStart={selection.weekStart}
             psychologistColors={psychologistColors}
@@ -555,6 +575,7 @@ function CoordinatorStageContent({
   agenda,
   patients,
   cancellations,
+  diagnosticAgreement,
   reportMonth,
   weekStart,
   psychologistColors,
@@ -567,6 +588,7 @@ function CoordinatorStageContent({
   agenda: CoordinatorReportPageData["agenda"];
   patients: CoordinatorReportPageData["patients"];
   cancellations: CoordinatorReportPageData["cancellations"];
+  diagnosticAgreement: CoordinatorReportPageData["diagnosticAgreement"];
   reportMonth: string;
   weekStart: string;
   psychologistColors: Map<number, string>;
@@ -605,6 +627,9 @@ function CoordinatorStageContent({
           onPatientSelect={onPatientSelect}
         />
       );
+
+    case "diagnosticAgreement":
+      return <DiagnosticAgreementStage evaluations={diagnosticAgreement} />;
 
     default:
       return null;

@@ -51,3 +51,16 @@ export interface CoordinatorCancellation {
   appointmentDate: string;
   appointmentReason?: string | null;
 }
+
+export interface CoordinatorDiagnosticAgreement {
+  id: number;
+  sessionId: number;
+  patientId: number;
+  patientName: string;
+  psychologistId: number;
+  psychologistName: string;
+  suggestedDiagnosis?: string | null;
+  selectedDiagnosis?: string | null;
+  concordanciaDiagnostica: 0 | 1 | null;
+  fechaHoraInferencia: string;
+}

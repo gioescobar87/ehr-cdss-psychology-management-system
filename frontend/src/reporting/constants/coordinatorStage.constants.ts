@@ -8,6 +8,7 @@ export const COORDINATOR_STAGE_ITEMS: CoordinatorStageNavigationItem[] = [
   { id: "patients", label: "Pacientes / ciclo de servicio" },
   { id: "agenda", label: "Agenda semanal" },
   { id: "cancellations", label: "Cancelaciones" },
+  { id: "diagnosticAgreement", label: "Concordancia diagnóstica" },
 ];
 
 export const COORDINATOR_STAGE_LABELS: Record<CoordinatorStage, string> = {
@@ -15,4 +16,5 @@ export const COORDINATOR_STAGE_LABELS: Record<CoordinatorStage, string> = {
   patients: "Pacientes / ciclo de servicio",
   agenda: "Agenda semanal",
   cancellations: "Cancelaciones",
+  diagnosticAgreement: "Concordancia diagnóstica",
 };

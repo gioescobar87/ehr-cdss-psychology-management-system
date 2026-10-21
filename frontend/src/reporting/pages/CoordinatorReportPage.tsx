@@ -7,6 +7,7 @@ import {
   useCoordinatorPatients,
   useCoordinatorSummary,
   useCoordinatorCancellations,
+  useCoordinatorDiagnosticAgreement,
 } from "../hooks/useCoordinatorReport";
 import CoordinatorStageWorkspace from "../components/CoordinatorStageWorkspace";
 import type {
@@ -51,6 +52,9 @@ export type CoordinatorReportPageData = {
   agenda: NonNullable<ReturnType<typeof useCoordinatorAgenda>["data"]>;
   patients: NonNullable<ReturnType<typeof useCoordinatorPatients>["data"]>;
   cancellations: NonNullable<ReturnType<typeof useCoordinatorCancellations>["data"]>;
+  diagnosticAgreement: NonNullable<
+    ReturnType<typeof useCoordinatorDiagnosticAgreement>["data"]
+  >;
 };
 
 export default function CoordinatorReportPage() {
@@ -84,6 +88,11 @@ export default function CoordinatorReportPage() {
 
   const patients = useCoordinatorPatients(stage === "patients");
   const cancellations = useCoordinatorCancellations(stage === "cancellations");
+  const diagnosticAgreement = useCoordinatorDiagnosticAgreement(
+    startDate,
+    endDate,
+    stage === "diagnosticAgreement" && Boolean(reportMonth),
+  );
 
   const loading =
     stage === "summary"
@@ -92,7 +101,9 @@ export default function CoordinatorReportPage() {
         ? agenda.isLoading
         : stage === "patients"
           ? patients.isLoading
-          : cancellations.isLoading;
+          : stage === "cancellations"
+            ? cancellations.isLoading
+            : diagnosticAgreement.isLoading;
 
   const error =
     stage === "summary"
@@ -101,13 +112,16 @@ export default function CoordinatorReportPage() {
         ? agenda.isError
         : stage === "patients"
           ? patients.isError
-          : cancellations.isError;
+          : stage === "cancellations"
+            ? cancellations.isError
+            : diagnosticAgreement.isError;
 
   const data: CoordinatorReportPageData = {
     summary: summary.data ?? [],
     agenda: agenda.data ?? [],
     patients: patients.data ?? [],
     cancellations: cancellations.data ?? [],
+    diagnosticAgreement: diagnosticAgreement.data ?? [],
   };
 
   return (

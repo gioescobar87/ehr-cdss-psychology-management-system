@@ -4,6 +4,7 @@ import type {
   CoordinatorPatient,
   CoordinatorSummary,
   CoordinatorCancellation,
+  CoordinatorDiagnosticAgreement,
 } from "../types/coordinatorReport.types";
 
 export async function getCoordinatorSummary(
@@ -39,6 +40,17 @@ export async function getCoordinatorAgenda(
 export async function getCoordinatorCancellations(): Promise<CoordinatorCancellation[]> {
   const response = await apiClient.get<CoordinatorCancellation[]>(
     "/coordinator-report/cancellations",
+  );
+  return response.data;
+}
+
+export async function getCoordinatorDiagnosticAgreement(
+  startDate: string,
+  endDate: string,
+): Promise<CoordinatorDiagnosticAgreement[]> {
+  const response = await apiClient.get<CoordinatorDiagnosticAgreement[]>(
+    "/coordinator-report/diagnostic-concordance",
+    { params: { startDate, endDate } },
   );
   return response.data;
 }
