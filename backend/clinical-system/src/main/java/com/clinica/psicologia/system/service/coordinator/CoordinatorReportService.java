@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientResponseDTO;
+import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorDiagnosticAgreementResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorSummaryResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorCancellationResponseDTO;
 
@@ -17,4 +18,8 @@ public interface CoordinatorReportService {
     List<CitaResponseDTO> getAgenda(LocalDate startDate);
 
     List<CoordinatorCancellationResponseDTO> getCancellations();
+
+    List<CoordinatorDiagnosticAgreementResponseDTO> getDiagnosticConcordance(
+            LocalDate startDate,
+            LocalDate endDate);
 }

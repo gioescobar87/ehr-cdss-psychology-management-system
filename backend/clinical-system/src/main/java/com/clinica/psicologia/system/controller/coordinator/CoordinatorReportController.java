@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorCancellationResponseDTO;
+import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorDiagnosticAgreementResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorSummaryResponseDTO;
 import com.clinica.psicologia.system.service.coordinator.CoordinatorReportService;
 
@@ -48,5 +49,12 @@ public class CoordinatorReportController {
     @GetMapping("/cancellations")
     public List<CoordinatorCancellationResponseDTO> getCancellations() {
         return service.getCancellations();
+    }
+
+    @GetMapping("/diagnostic-concordance")
+    public List<CoordinatorDiagnosticAgreementResponseDTO> getDiagnosticConcordance(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return service.getDiagnosticConcordance(startDate, endDate);
     }
 }

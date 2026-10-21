@@ -15,10 +15,28 @@ import com.clinica.psicologia.system.model.CoordinatorPatientSessionProjection;
 import com.clinica.psicologia.system.model.CoordinatorSummaryMetricsProjection;
 import com.clinica.psicologia.system.model.clinical.Cita;
 import com.clinica.psicologia.system.model.clinical.Cancelacion;
+import com.clinica.psicologia.system.model.expert_system.EvaluacionDiagnostica;
 import com.clinica.psicologia.system.model.patient.PacienteAsignacion;
 import com.clinica.psicologia.system.model.security.Usuario;
 
 public interface CoordinatorReportRepository extends JpaRepository<Cita, Integer> {
+
+    @Query("""
+            SELECT evaluation FROM EvaluacionDiagnostica evaluation
+            JOIN FETCH evaluation.sesion session
+            JOIN FETCH session.paciente patient
+            JOIN FETCH evaluation.usuario psychologist
+            LEFT JOIN FETCH evaluation.diagnosticoSugerido suggested
+            LEFT JOIN FETCH evaluation.diagnosticoSeleccionado selected
+            WHERE psychologist.coordinador.id = :coordinatorId
+                AND evaluation.fechaHoraInferencia >= :startDate
+                AND evaluation.fechaHoraInferencia < :endDate
+            ORDER BY evaluation.fechaHoraInferencia DESC
+            """)
+    List<EvaluacionDiagnostica> findDiagnosticConcordance(
+            @Param("coordinatorId") Integer coordinatorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 
   @Query("""
       SELECT cancellation FROM Cancelacion cancellation

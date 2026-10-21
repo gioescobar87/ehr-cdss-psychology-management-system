@@ -15,6 +15,7 @@ import com.clinica.psicologia.system.dto.response.clinical.CitaResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientDiagnosisDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorPatientResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorCancellationResponseDTO;
+import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorDiagnosticAgreementResponseDTO;
 import com.clinica.psicologia.system.dto.response.coordinator.CoordinatorSummaryResponseDTO;
 import com.clinica.psicologia.system.mapper.clinical.CitaMapper;
 import com.clinica.psicologia.system.model.CoordinatorAppointmentSessionProjection;
@@ -24,6 +25,7 @@ import com.clinica.psicologia.system.model.CoordinatorPatientSessionProjection;
 import com.clinica.psicologia.system.model.CoordinatorSummaryMetricsProjection;
 import com.clinica.psicologia.system.model.clinical.Cita;
 import com.clinica.psicologia.system.model.clinical.Cancelacion;
+import com.clinica.psicologia.system.model.expert_system.EvaluacionDiagnostica;
 import com.clinica.psicologia.system.model.patient.PacienteAsignacion;
 import com.clinica.psicologia.system.model.security.Usuario;
 import com.clinica.psicologia.system.repository.coordinator.CoordinatorReportRepository;
@@ -219,6 +221,43 @@ public class CoordinatorReportServiceImpl implements CoordinatorReportService {
                 return repository.findScopedCancellations(coordinatorId).stream()
                                 .map(this::toCancellationResponse)
                                 .toList();
+        }
+
+        @Override
+        public List<CoordinatorDiagnosticAgreementResponseDTO> getDiagnosticConcordance(
+                        LocalDate startDate,
+                        LocalDate endDate) {
+
+                Integer coordinatorId = authenticatedUser().getId();
+
+                return repository.findDiagnosticConcordance(
+                                coordinatorId,
+                                startDate.atStartOfDay(),
+                                endDate.plusDays(1).atStartOfDay())
+                                .stream()
+                                .map(this::toDiagnosticConcordanceResponse)
+                                .toList();
+        }
+
+        private CoordinatorDiagnosticAgreementResponseDTO toDiagnosticConcordanceResponse(
+                        EvaluacionDiagnostica evaluation) {
+
+                var patient = evaluation.getSesion().getPaciente();
+                var psychologist = evaluation.getUsuario();
+                var suggestedDiagnosis = evaluation.getDiagnosticoSugerido();
+                var selectedDiagnosis = evaluation.getDiagnosticoSeleccionado();
+
+                return new CoordinatorDiagnosticAgreementResponseDTO(
+                                evaluation.getId(),
+                                evaluation.getSesion().getId(),
+                                patient.getId(),
+                                patient.getNombre() + " " + patient.getApellido(),
+                                psychologist.getId(),
+                                fullName(psychologist),
+                                suggestedDiagnosis == null ? null : suggestedDiagnosis.getNombre(),
+                                selectedDiagnosis == null ? null : selectedDiagnosis.getNombre(),
+                                evaluation.getConcordanciaDiagnostica(),
+                                evaluation.getFechaHoraInferencia());
         }
 
         private CoordinatorCancellationResponseDTO toCancellationResponse(Cancelacion cancellation) {
