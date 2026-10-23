@@ -2,6 +2,10 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 import { useNavigation } from "../../navigation/useNavigation";
 import type { NavigationOption } from "../../navigation/navigation.types";
+import {
+  BASIC_CATALOG_PATH,
+  getAvailableBasicCatalogs,
+} from "../../catalog/basicCatalogs";
 
 /** Routes that every authenticated user may reach even when they are not menu options. */
 const ALWAYS_ALLOWED_ROUTES = [
@@ -39,6 +43,9 @@ export default function AuthorizedRoute() {
   const allowedRoutes = [
     ...ALWAYS_ALLOWED_ROUTES,
     ...navigation.flatMap((module) => collectRoutes(module.opciones ?? [])),
+    ...(getAvailableBasicCatalogs(navigation).length > 0
+      ? [BASIC_CATALOG_PATH]
+      : []),
   ];
 
   const pathname = location.pathname;

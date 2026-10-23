@@ -76,6 +76,7 @@ export default function CatalogForm({
           control={control}
           label="Nombre"
           required
+          disabled={loading}
         />
 
         <FormTextField
@@ -84,6 +85,7 @@ export default function CatalogForm({
           label="Descripción"
           multiline
           minRows={3}
+          disabled={loading}
         />
 
         <FormSelect

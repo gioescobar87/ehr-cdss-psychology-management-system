@@ -19,6 +19,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useNavigation } from "../navigation/useNavigation";
 import { iconMap } from "../shared/utils/iconMapper";
 import type { NavigationOption } from "../navigation/navigation.types";
+import {
+  BASIC_CATALOG_PATH,
+  groupBasicCatalogNavigation,
+} from "../catalog/basicCatalogs";
 
 const drawerWidth = 260;
 
@@ -31,7 +35,10 @@ function NavigationItem({ option, level = 0 }: NavigationItemProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const hasChildren = option.children.length > 0;
-  const isActive = location.pathname === option.rutaFrontend;
+  const isActive =
+    location.pathname === option.rutaFrontend ||
+    (option.rutaFrontend === BASIC_CATALOG_PATH &&
+      location.pathname.startsWith(`${BASIC_CATALOG_PATH}/`));
   const hasActiveChild = option.children.some(
     (child) =>
       location.pathname === child.rutaFrontend ||
@@ -120,7 +127,7 @@ export default function Sidebar() {
       <Toolbar />
 
       <List>
-        {navigation.map((module) => (
+        {groupBasicCatalogNavigation(navigation).map((module) => (
           <Box key={module.id}>
             <ListSubheader>{module.nombre}</ListSubheader>
             {module.opciones.map((option) => (
