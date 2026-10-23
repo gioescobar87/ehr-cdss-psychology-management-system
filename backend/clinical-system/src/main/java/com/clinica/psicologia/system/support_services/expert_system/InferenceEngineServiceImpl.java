@@ -34,8 +34,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class InferenceEngineServiceImpl implements InferenceEngineService {
 
-    private static final String SELECTED_RULES_FAILURE_DIAGNOSIS =
-            "El diagnóstico seleccionado ya fue modelado, pero no cumple con las reglas definidas";
+    private static final String SELECTED_RULES_FAILURE_DIAGNOSIS = "El diagnóstico seleccionado ya fue modelado, pero no cumple con las reglas definidas";
 
     private final EvaluacionDiagnosticaRepository evaluationRepository;
     private final SesionRepository sessionRepository;
@@ -43,11 +42,11 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
     private final DiagnosticoRepository diagnosisRepository;
     private final InferenceRuleRepository ruleRepository;
     private final DiagnosticInferenceEvaluator inferenceEvaluator;
-        private final DiagnosticRuleEvaluator ruleEvaluator;
+    private final DiagnosticRuleEvaluator ruleEvaluator;
     private final InferenceExplanationBuilder explanationBuilder;
     private final ClinicalAuthorizationService authorizationService;
     private final ApplicationSupportService supportService;
-        private final PacienteDiagnosticoService patientDiagnosisService;
+    private final PacienteDiagnosticoService patientDiagnosisService;
 
     @Override
     public InferenceResult inferir(Integer evaluationId) {
@@ -96,7 +95,7 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
         Diagnostico selectedDiagnosis = findActiveDiagnosis(request.diagnosticoSeleccionadoId());
         InferenceContext context = loadInferenceContext(session);
         List<Diagnostico> selectedFirstCandidates = selectedFirstCandidate(
-            selectedDiagnosis, context);
+                selectedDiagnosis, context);
         PreparedCandidates prepared = selectedFirstCandidates != null
                 ? new PreparedCandidates(selectedFirstCandidates, context.rulesByDiagnosis(),
                         context.referencesByDiagnosis(), context.presentCriterionIds())
@@ -120,8 +119,7 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
         Diagnostico selectedDiagnosis = findActiveDiagnosis(request.diagnosticoSeleccionadoId());
         InferenceContext context = loadInferenceContext(session);
         Map<Integer, Integer> answers = parseAnswers(request.answers());
-        List<DiagnosticRuleEvaluator.Rule> selectedRules =
-                context.rulesByDiagnosis().get(selectedDiagnosis.getId());
+        List<DiagnosticRuleEvaluator.Rule> selectedRules = context.rulesByDiagnosis().get(selectedDiagnosis.getId());
         boolean selectedModeled = selectedRules != null && !selectedRules.isEmpty();
         boolean selectedFailed = false;
 
@@ -162,7 +160,7 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
                 .map(candidate -> context.rulesByDiagnosis().getOrDefault(candidate.getId(), List.of()))
                 .forEach(rules -> allowedRuleIds.addAll(exclusionRuleIds(rules)));
         reuseSharedQuestionAnswers(answers, normalCandidates.candidates(),
-            context.rulesByDiagnosis(), selectedModeled ? selectedRules : List.of());
+                context.rulesByDiagnosis(), selectedModeled ? selectedRules : List.of());
         validateAnswerIds(answers, allowedRuleIds);
 
         List<InferenceWorkflowDTO.Question> missingQuestions = collectMissingQuestions(
@@ -204,25 +202,24 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
                         && activeStateId.equals(diagnosis.getEstado().getId()))
                 .toList();
 
-        Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis =
-            ruleRepository.findRulesByDiagnosis();
-        Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis =
-            ruleRepository.findCriterionReferencesByDiagnosis();
+        Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis = ruleRepository.findRulesByDiagnosis();
+        Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis = ruleRepository
+                .findCriterionReferencesByDiagnosis();
         boolean hasUnansweredExclusion = activeDiagnoses.stream()
-            .filter(diagnosis -> hasPresentCriterion(
-                referencesByDiagnosis.get(diagnosis.getId()), presentCriterionIds))
-            .filter(diagnosis -> rulesByDiagnosis.containsKey(diagnosis.getId()))
-            .anyMatch(diagnosis -> rulesByDiagnosis.get(diagnosis.getId()).stream()
-                .anyMatch(ruleEvaluator::isExclusionRule));
+                .filter(diagnosis -> hasPresentCriterion(
+                        referencesByDiagnosis.get(diagnosis.getId()), presentCriterionIds))
+                .filter(diagnosis -> rulesByDiagnosis.containsKey(diagnosis.getId()))
+                .anyMatch(diagnosis -> rulesByDiagnosis.get(diagnosis.getId()).stream()
+                        .anyMatch(ruleEvaluator::isExclusionRule));
         if (hasUnansweredExclusion) {
             throw new BusinessRuleException(
-                "Exclusion answers are required; use the session inference workflow.");
+                    "Exclusion answers are required; use the session inference workflow.");
         }
 
         DiagnosticInferenceEvaluator.Outcome outcome = inferenceEvaluator.infer(
                 activeDiagnoses,
-            rulesByDiagnosis,
-            referencesByDiagnosis,
+                rulesByDiagnosis,
+                referencesByDiagnosis,
                 presentCriterionIds);
 
         Diagnostico suggestedDiagnosis = outcome.suggestedDiagnosis();
@@ -254,63 +251,62 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
         authorizationService.validateAssignedPsychologist(session.getPaciente());
     }
 
-    private PreparedCandidates prepareCandidates(Sesion session) {
-        return prepareCandidates(loadInferenceContext(session));
-        }
+    // private PreparedCandidates prepareCandidates(Sesion session) {
+    //     return prepareCandidates(loadInferenceContext(session));
+    // }
 
-        private InferenceContext loadInferenceContext(Sesion session) {
+    private InferenceContext loadInferenceContext(Sesion session) {
         Integer activeStateId = supportService.getActiveState().getId();
         Set<Integer> presentCriterionIds = sessionCriteriaRepository
-            .findBySesionIdOrderByIdAsc(session.getId())
-            .stream()
-            .filter(criteria -> Boolean.TRUE.equals(criteria.getPresente()))
-            .filter(criteria -> criteria.getCriterioClinico() != null
-                && criteria.getCriterioClinico().getEstado() != null
-                && activeStateId.equals(criteria.getCriterioClinico().getEstado().getId()))
-            .map(criteria -> criteria.getCriterioClinico().getId())
-            .collect(Collectors.toSet());
+                .findBySesionIdOrderByIdAsc(session.getId())
+                .stream()
+                .filter(criteria -> Boolean.TRUE.equals(criteria.getPresente()))
+                .filter(criteria -> criteria.getCriterioClinico() != null
+                        && criteria.getCriterioClinico().getEstado() != null
+                        && activeStateId.equals(criteria.getCriterioClinico().getEstado().getId()))
+                .map(criteria -> criteria.getCriterioClinico().getId())
+                .collect(Collectors.toSet());
         return new InferenceContext(
-            diagnosisRepository.findAll().stream()
-                .filter(diagnosis -> diagnosis.getEstado() != null
-                    && activeStateId.equals(diagnosis.getEstado().getId()))
-                .sorted((left, right) -> left.getId().compareTo(right.getId()))
-                .toList(),
-            ruleRepository.findRulesByDiagnosis(),
-            ruleRepository.findCriterionReferencesByDiagnosis(),
-            presentCriterionIds);
-        }
+                diagnosisRepository.findAll().stream()
+                        .filter(diagnosis -> diagnosis.getEstado() != null
+                                && activeStateId.equals(diagnosis.getEstado().getId()))
+                        .sorted((left, right) -> left.getId().compareTo(right.getId()))
+                        .toList(),
+                ruleRepository.findRulesByDiagnosis(),
+                ruleRepository.findCriterionReferencesByDiagnosis(),
+                presentCriterionIds);
+    }
 
-            private List<Diagnostico> selectedFirstCandidate(
-                Diagnostico selectedDiagnosis, InferenceContext context) {
-        List<DiagnosticRuleEvaluator.Rule> selectedRules =
-            context.rulesByDiagnosis().get(selectedDiagnosis.getId());
+    private List<Diagnostico> selectedFirstCandidate(
+            Diagnostico selectedDiagnosis, InferenceContext context) {
+        List<DiagnosticRuleEvaluator.Rule> selectedRules = context.rulesByDiagnosis().get(selectedDiagnosis.getId());
         if (selectedRules == null || selectedRules.isEmpty()) {
             return null;
         }
         DiagnosticRuleEvaluator.Result result = ruleEvaluator.evaluate(
-            selectedRules,
-            context.referencesByDiagnosis().getOrDefault(selectedDiagnosis.getId(), List.of()),
-            context.presentCriterionIds());
+                selectedRules,
+                context.referencesByDiagnosis().getOrDefault(selectedDiagnosis.getId(), List.of()),
+                context.presentCriterionIds());
         if (!result.supported()) {
             throw new BusinessRuleException(
-                "Invalid inference rule for selected diagnosis: " + result.detail());
+                    "Invalid inference rule for selected diagnosis: " + result.detail());
         }
         return result.satisfied() ? List.of(selectedDiagnosis) : null;
-        }
+    }
 
-        private PreparedCandidates prepareCandidates(InferenceContext context) {
+    private PreparedCandidates prepareCandidates(InferenceContext context) {
         List<Diagnostico> activeDiagnoses = context.activeDiagnoses();
         Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis = context.rulesByDiagnosis();
-        Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis =
-            context.referencesByDiagnosis();
+        Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis = context
+                .referencesByDiagnosis();
         Set<Integer> presentCriterionIds = context.presentCriterionIds();
         List<Diagnostico> candidates = new ArrayList<>();
 
         for (Diagnostico diagnosis : activeDiagnoses) {
             Integer diagnosisId = diagnosis.getId();
             List<DiagnosticRuleEvaluator.Rule> rules = rulesByDiagnosis.get(diagnosisId);
-            List<DiagnosticRuleEvaluator.CriterionReference> references =
-                    referencesByDiagnosis.getOrDefault(diagnosisId, List.of());
+            List<DiagnosticRuleEvaluator.CriterionReference> references = referencesByDiagnosis
+                    .getOrDefault(diagnosisId, List.of());
             if (rules == null || rules.isEmpty() || !hasPresentCriterion(references, presentCriterionIds)) {
                 continue;
             }
@@ -491,28 +487,33 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
                 .toList();
     }
 
-    private Map<Integer, Integer> validateAnswers(
-            PreparedCandidates prepared, List<InferenceWorkflowDTO.Answer> submittedAnswers) {
-        Set<Integer> requiredRuleIds = prepared.candidates().stream()
-                .flatMap(candidate -> prepared.rulesByDiagnosis().getOrDefault(candidate.getId(), List.of()).stream())
-                .filter(ruleEvaluator::isExclusionRule)
-                .map(DiagnosticRuleEvaluator.Rule::ruleId)
-                .collect(Collectors.toSet());
-        Map<Integer, Integer> answers = new LinkedHashMap<>();
-        if (submittedAnswers != null) {
-            for (InferenceWorkflowDTO.Answer answer : submittedAnswers) {
-                if (answer == null || answer.ruleId() == null || answer.value() == null
-                        || (answer.value() != 0 && answer.value() != 1)
-                        || answers.putIfAbsent(answer.ruleId(), answer.value()) != null) {
-                    throw new BusinessRuleException("Every exclusion question requires one explicit Sí/No answer.");
-                }
-            }
-        }
-        if (!answers.keySet().equals(requiredRuleIds)) {
-            throw new BusinessRuleException("Answers must be provided for every required exclusion question.");
-        }
-        return answers;
-    }
+    // private Map<Integer, Integer> validateAnswers(
+    // PreparedCandidates prepared, List<InferenceWorkflowDTO.Answer>
+    // submittedAnswers) {
+    // Set<Integer> requiredRuleIds = prepared.candidates().stream()
+    // .flatMap(candidate ->
+    // prepared.rulesByDiagnosis().getOrDefault(candidate.getId(),
+    // List.of()).stream())
+    // .filter(ruleEvaluator::isExclusionRule)
+    // .map(DiagnosticRuleEvaluator.Rule::ruleId)
+    // .collect(Collectors.toSet());
+    // Map<Integer, Integer> answers = new LinkedHashMap<>();
+    // if (submittedAnswers != null) {
+    // for (InferenceWorkflowDTO.Answer answer : submittedAnswers) {
+    // if (answer == null || answer.ruleId() == null || answer.value() == null
+    // || (answer.value() != 0 && answer.value() != 1)
+    // || answers.putIfAbsent(answer.ruleId(), answer.value()) != null) {
+    // throw new BusinessRuleException("Every exclusion question requires one
+    // explicit Sí/No answer.");
+    // }
+    // }
+    // }
+    // if (!answers.keySet().equals(requiredRuleIds)) {
+    // throw new BusinessRuleException("Answers must be provided for every required
+    // exclusion question.");
+    // }
+    // return answers;
+    // }
 
     private boolean passesExclusions(
             Diagnostico candidate,
@@ -551,12 +552,12 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
             Set<Integer> presentCriterionIds) {
     }
 
-            private record InferenceContext(
-                List<Diagnostico> activeDiagnoses,
-                Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis,
-                Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis,
-                Set<Integer> presentCriterionIds) {
-            }
+    private record InferenceContext(
+            List<Diagnostico> activeDiagnoses,
+            Map<Integer, List<DiagnosticRuleEvaluator.Rule>> rulesByDiagnosis,
+            Map<Integer, List<DiagnosticRuleEvaluator.CriterionReference>> referencesByDiagnosis,
+            Set<Integer> presentCriterionIds) {
+    }
 
     private static class QuestionAssociations {
         private final Set<Integer> ruleIds = new LinkedHashSet<>();
