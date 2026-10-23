@@ -15,6 +15,7 @@ import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
 
 import type { CoordinatorDiagnosticAgreement } from "../../types/coordinatorReport.types";
 
+
 function formatDate(value: string) {
   const date = new Date(value);
 
@@ -25,8 +26,22 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("es-GT", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "America/Guatemala",
   }).format(date);
 }
+
+function getPatientInitials(name: string | null | undefined) {
+  if (!name?.trim()) {
+    return "—";
+  }
+
+  return name
+    .trim()
+    .split(/\s+/)
+    .map((part) => `${Array.from(part)[0].toLocaleUpperCase("es-GT")}.`)
+    .join(". ");
+}
+
 
 function getOutcome(value: CoordinatorDiagnosticAgreement["concordanciaDiagnostica"]) {
   if (value === 1) {
@@ -124,7 +139,7 @@ export default function DiagnosticAgreementStage({
               return (
                 <TableRow key={evaluation.id} hover>
                   <TableCell>{formatDate(evaluation.fechaHoraInferencia)}</TableCell>
-                  <TableCell>{evaluation.patientName}</TableCell>
+                  <TableCell>{getPatientInitials(evaluation.patientName)}</TableCell>
                   <TableCell>{evaluation.psychologistName}</TableCell>
                   <TableCell>
                     {evaluation.suggestedDiagnosis || "—"}
