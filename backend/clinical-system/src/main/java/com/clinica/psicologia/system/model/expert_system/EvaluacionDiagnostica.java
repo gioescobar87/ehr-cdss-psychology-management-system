@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,4 +43,8 @@ public class EvaluacionDiagnostica extends BaseEntity {
 
     @Column(name = "fecha_hora_inferencia", nullable = false)
     private LocalDateTime fechaHoraInferencia;
+
+    @NotNull 
+    @Column(name = "observacion", nullable = false)
+    private String observacion;
 }

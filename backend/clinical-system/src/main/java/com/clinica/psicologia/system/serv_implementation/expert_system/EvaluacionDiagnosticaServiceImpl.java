@@ -18,6 +18,7 @@ import com.clinica.psicologia.system.security.exception.custom.DuplicateResource
 import com.clinica.psicologia.system.security.exception.custom.ResourceNotFoundException;
 import com.clinica.psicologia.system.service.expert_system.EvaluacionDiagnosticaService;
 import com.clinica.psicologia.system.support_services.authorization.ClinicalAuthorizationService;
+import com.clinica.psicologia.system.support_services.expert_system.DiagnosticConcordanceService;
 import com.clinica.psicologia.system.support_services.expert_system.InferenceEngineService;
 
 import jakarta.transaction.Transactional;
@@ -34,6 +35,7 @@ public class EvaluacionDiagnosticaServiceImpl implements EvaluacionDiagnosticaSe
     private final EvaluacionDiagnosticaMapper mapper;
     private final ClinicalAuthorizationService authorizationService;
     private final InferenceEngineService inferenceService;
+    private final DiagnosticConcordanceService concordanceService;
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
@@ -95,8 +97,7 @@ public class EvaluacionDiagnosticaServiceImpl implements EvaluacionDiagnosticaSe
                 : diagnosisRepository.findById(request.getDiagnosticoSeleccionadoId())
                         .orElseThrow(() -> new ResourceNotFoundException("Diagnosis not found"));
         entity.setDiagnosticoSeleccionado(selectedDiagnosis);
-        entity.setConcordanciaDiagnostica(calculateConcordance(
-                entity.getDiagnosticoSugerido(), selectedDiagnosis));
+        concordanceService.update(entity);
         return mapper.toResponse(repository.save(entity));
     }
 
@@ -110,13 +111,6 @@ public class EvaluacionDiagnosticaServiceImpl implements EvaluacionDiagnosticaSe
     private EvaluacionDiagnostica getEvaluation(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Diagnostic evaluation not found"));
-    }
-
-    private Integer calculateConcordance(Diagnostico suggested, Diagnostico selected) {
-        if (suggested == null || selected == null) {
-            return null;
-        }
-        return suggested.getId().equals(selected.getId()) ? 1 : 0;
     }
 
     private void authorize(Sesion session) {

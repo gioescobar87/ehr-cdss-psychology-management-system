@@ -2,10 +2,12 @@ package com.clinica.psicologia.system.support_services.expert_system;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,7 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
     private final InferenceRuleRepository ruleRepository;
     private final DiagnosticInferenceEvaluator inferenceEvaluator;
     private final DiagnosticRuleEvaluator ruleEvaluator;
+    private final DiagnosticConcordanceService concordanceService;
     private final InferenceExplanationBuilder explanationBuilder;
     private final ClinicalAuthorizationService authorizationService;
     private final ApplicationSupportService supportService;
@@ -60,7 +63,7 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
     public InferenceResult inferirParaSesion(Integer sessionId, Integer selectedDiagnosisId) {
         Sesion session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
-        authorize(session);
+        authorize(session); 
 
         EvaluacionDiagnostica evaluation = evaluationRepository
                 .findBySesionIdOrderByFechaHoraInferenciaDesc(sessionId)
@@ -143,7 +146,8 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
                 if (passesExclusions(selectedDiagnosis, context.rulesByDiagnosis(), answers)) {
                     validateAnswerIds(answers, exclusionRuleIds(selectedRules));
                     return persistFinal(session, selectedDiagnosis, selectedDiagnosis,
-                            List.of(selectedDiagnosis), 1, request.diagnosticoInicial());
+                            List.of(selectedDiagnosis), context.presentCriterionIds(), answers,
+                            request.diagnosticoInicial());
                 }
                 selectedFailed = true;
             } else {
@@ -173,17 +177,14 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
                 .filter(candidate -> passesExclusions(candidate, context.rulesByDiagnosis(), answers))
                 .toList();
         Diagnostico suggestedDiagnosis = finalCandidates.size() == 1 ? finalCandidates.getFirst() : null;
-        Integer concordance = suggestedDiagnosis != null
-                && suggestedDiagnosis.getId().equals(selectedDiagnosis.getId()) ? 1 : 0;
         if (finalCandidates.isEmpty() && selectedFailed) {
             suggestedDiagnosis = diagnosisRepository.findByNombre(SELECTED_RULES_FAILURE_DIAGNOSIS)
                     .orElseThrow(() -> new BusinessRuleException(
                             "Required explanatory diagnosis is not configured: "
                                     + SELECTED_RULES_FAILURE_DIAGNOSIS));
-            concordance = 0;
         }
         return persistFinal(session, selectedDiagnosis, suggestedDiagnosis,
-                finalCandidates, concordance, request.diagnosticoInicial());
+                finalCandidates, context.presentCriterionIds(), answers, request.diagnosticoInicial());
     }
 
     private InferenceResult infer(EvaluacionDiagnostica evaluation) {
@@ -223,27 +224,28 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
                 presentCriterionIds);
 
         Diagnostico suggestedDiagnosis = outcome.suggestedDiagnosis();
-        evaluation.setDiagnosticoSugerido(suggestedDiagnosis);
-        evaluation.setFechaHoraInferencia(LocalDateTime.now());
-        evaluation.setConcordanciaDiagnostica(calculateConcordance(
-                suggestedDiagnosis, evaluation.getDiagnosticoSeleccionado()));
-        evaluationRepository.save(evaluation);
+        List<Diagnostico> suggestedDiagnoses = outcome.matchingDiagnoses().isEmpty()
+                ? Collections.singletonList(null)
+                : outcome.matchingDiagnoses();
+        List<EvaluacionDiagnostica> savedEvaluations = persistEvaluations(
+                evaluation.getSesion(),
+                evaluation.getDiagnosticoSeleccionado(),
+                suggestedDiagnoses,
+                evaluation,
+                presentCriterionIds,
+                Map.of());
+        Integer concordance = outcome.matchingDiagnoses().size() == 1
+                ? savedEvaluations.getFirst().getConcordanciaDiagnostica()
+                : null;
 
         InferenceResult result = new InferenceResult();
         result.setDiagnostico(suggestedDiagnosis);
         result.setObservacionesSistema(explanationBuilder.build(outcome));
         result.setExecutionTimeMs(Math.toIntExact((System.nanoTime() - start) / 1_000_000));
-        result.setDiagnosticoConfirmado(evaluation.getConcordanciaDiagnostica() == null
+        result.setDiagnosticoConfirmado(concordance == null
                 ? null
-                : evaluation.getConcordanciaDiagnostica() == 1);
+                : concordance == 1);
         return result;
-    }
-
-    private Integer calculateConcordance(Diagnostico suggested, Diagnostico selected) {
-        if (suggested == null || selected == null) {
-            return null;
-        }
-        return suggested.getId().equals(selected.getId()) ? 1 : 0;
     }
 
     private void authorize(Sesion session) {
@@ -435,31 +437,90 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
 
     private InferenceWorkflowDTO.FinalResponse persistFinal(
             Sesion session, Diagnostico selectedDiagnosis, Diagnostico suggestedDiagnosis,
-            List<Diagnostico> finalCandidates, Integer concordance, Boolean diagnosticoInicial) {
+            List<Diagnostico> finalCandidates, Set<Integer> presentCriterionIds,
+            Map<Integer, Integer> exclusionAnswers,
+            Boolean diagnosticoInicial) {
         PacienteDiagnosticoRequestDTO patientDiagnosisRequest = new PacienteDiagnosticoRequestDTO();
         patientDiagnosisRequest.setSesionId(session.getId());
         patientDiagnosisRequest.setDiagnosticoId(selectedDiagnosis.getId());
         patientDiagnosisRequest.setDiagnosticoInicial(diagnosticoInicial);
         patientDiagnosisService.create(patientDiagnosisRequest);
 
-        EvaluacionDiagnostica evaluation = evaluationRepository
-                .findBySesionIdOrderByFechaHoraInferenciaDesc(session.getId())
-                .stream()
-                .findFirst()
-                .orElseGet(EvaluacionDiagnostica::new);
-        evaluation.setSesion(session);
-        evaluation.setUsuario(authorizationService.getAuthenticatedUser());
-        evaluation.setDiagnosticoSugerido(suggestedDiagnosis);
-        evaluation.setDiagnosticoSeleccionado(selectedDiagnosis);
-        evaluation.setConcordanciaDiagnostica(concordance);
-        evaluation.setFechaHoraInferencia(LocalDateTime.now());
-        evaluationRepository.save(evaluation);
+        List<Diagnostico> suggestedDiagnoses = finalCandidates.isEmpty()
+                ? Collections.singletonList(suggestedDiagnosis)
+                : finalCandidates;
+        List<EvaluacionDiagnostica> savedEvaluations = persistEvaluations(
+                session, selectedDiagnosis, suggestedDiagnoses, null,
+                presentCriterionIds, exclusionAnswers);
+        Integer concordance = suggestedDiagnoses.size() == 1
+                ? savedEvaluations.getFirst().getConcordanciaDiagnostica()
+                : null;
 
         return new InferenceWorkflowDTO.FinalResponse(
                 true, finalCandidates.stream().map(this::toCandidate).toList(), List.of(),
                 suggestedDiagnosis == null ? null : toCandidate(suggestedDiagnosis),
                 suggestedDiagnosis == null ? null : suggestedDiagnosis.getId(),
                 selectedDiagnosis.getId(), concordance);
+    }
+
+    private List<EvaluacionDiagnostica> persistEvaluations(
+            Sesion session,
+            Diagnostico selectedDiagnosis,
+            List<Diagnostico> suggestedDiagnoses,
+            EvaluacionDiagnostica preferredEvaluation,
+            Set<Integer> presentCriterionIds,
+            Map<Integer, Integer> exclusionAnswers) {
+        List<EvaluacionDiagnostica> existingEvaluations =
+                evaluationRepository.findBySesionIdOrderByFechaHoraInferenciaDesc(session.getId());
+        Set<Integer> persistedSuggestionIds = new LinkedHashSet<>();
+        boolean persistedNullSuggestion = false;
+        List<EvaluacionDiagnostica> savedEvaluations = new ArrayList<>();
+
+        for (Diagnostico suggestedDiagnosis : suggestedDiagnoses) {
+            Integer suggestedId = suggestedDiagnosis == null ? null : suggestedDiagnosis.getId();
+            if (suggestedId == null ? persistedNullSuggestion : persistedSuggestionIds.contains(suggestedId)) {
+                continue;
+            }
+
+            EvaluacionDiagnostica evaluation = findEvaluation(
+                    existingEvaluations, preferredEvaluation, suggestedId);
+            if (evaluation == null) {
+                evaluation = new EvaluacionDiagnostica();
+            }
+            evaluation.setSesion(session);
+            evaluation.setUsuario(authorizationService.getAuthenticatedUser());
+            evaluation.setDiagnosticoSugerido(suggestedDiagnosis);
+            evaluation.setDiagnosticoSeleccionado(selectedDiagnosis);
+            evaluation.setFechaHoraInferencia(LocalDateTime.now());
+            concordanceService.update(evaluation, exclusionAnswers, presentCriterionIds);
+            evaluationRepository.save(evaluation);
+            savedEvaluations.add(evaluation);
+
+            if (suggestedId == null) {
+                persistedNullSuggestion = true;
+            } else {
+                persistedSuggestionIds.add(suggestedId);
+            }
+        }
+        return savedEvaluations;
+    }
+
+    private EvaluacionDiagnostica findEvaluation(
+            List<EvaluacionDiagnostica> existingEvaluations,
+            EvaluacionDiagnostica preferredEvaluation,
+            Integer suggestedId) {
+        if (preferredEvaluation != null
+                && sameDiagnosisId(preferredEvaluation.getDiagnosticoSugerido(), suggestedId)) {
+            return preferredEvaluation;
+        }
+        return existingEvaluations.stream()
+                .filter(existing -> sameDiagnosisId(existing.getDiagnosticoSugerido(), suggestedId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean sameDiagnosisId(Diagnostico diagnosis, Integer expectedId) {
+        return Objects.equals(diagnosis == null ? null : diagnosis.getId(), expectedId);
     }
 
     private List<InferenceWorkflowDTO.Question> collectQuestions(PreparedCandidates prepared) {
@@ -486,34 +547,6 @@ public class InferenceEngineServiceImpl implements InferenceEngineService {
                         List.copyOf(entry.getValue().diagnosisIds())))
                 .toList();
     }
-
-    // private Map<Integer, Integer> validateAnswers(
-    // PreparedCandidates prepared, List<InferenceWorkflowDTO.Answer>
-    // submittedAnswers) {
-    // Set<Integer> requiredRuleIds = prepared.candidates().stream()
-    // .flatMap(candidate ->
-    // prepared.rulesByDiagnosis().getOrDefault(candidate.getId(),
-    // List.of()).stream())
-    // .filter(ruleEvaluator::isExclusionRule)
-    // .map(DiagnosticRuleEvaluator.Rule::ruleId)
-    // .collect(Collectors.toSet());
-    // Map<Integer, Integer> answers = new LinkedHashMap<>();
-    // if (submittedAnswers != null) {
-    // for (InferenceWorkflowDTO.Answer answer : submittedAnswers) {
-    // if (answer == null || answer.ruleId() == null || answer.value() == null
-    // || (answer.value() != 0 && answer.value() != 1)
-    // || answers.putIfAbsent(answer.ruleId(), answer.value()) != null) {
-    // throw new BusinessRuleException("Every exclusion question requires one
-    // explicit Sí/No answer.");
-    // }
-    // }
-    // }
-    // if (!answers.keySet().equals(requiredRuleIds)) {
-    // throw new BusinessRuleException("Answers must be provided for every required
-    // exclusion question.");
-    // }
-    // return answers;
-    // }
 
     private boolean passesExclusions(
             Diagnostico candidate,

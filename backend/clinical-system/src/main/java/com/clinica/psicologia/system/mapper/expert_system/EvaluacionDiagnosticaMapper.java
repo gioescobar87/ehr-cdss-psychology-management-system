@@ -40,6 +40,7 @@ public class EvaluacionDiagnosticaMapper {
         dto.setConcordanciaDiagnostica(concordance);
         dto.setDiagnosticoConfirmado(concordance == null ? null : concordance == 1);
         dto.setFechaHoraInferencia(entity.getFechaHoraInferencia());
+        dto.setObservacion(entity.getObservacion());
 
         return dto;
     }

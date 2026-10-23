@@ -43,17 +43,21 @@ public class DiagnosticInferenceEvaluator {
 
         if (matches.size() == 1) {
             return new Outcome(matches.getFirst(),
-                    "One diagnosis satisfied all supported rules.", List.copyOf(details));
+                    "One diagnosis satisfied all supported rules.", List.copyOf(details), List.copyOf(matches));
         }
         if (matches.size() > 1) {
             String names = matches.stream().map(Diagnostico::getNombre)
                     .reduce((left, right) -> left + ", " + right).orElse("");
             return new Outcome(null, "Ambiguous inference: multiple diagnoses qualified (" + names + ").",
-                    List.copyOf(details));
+                    List.copyOf(details), List.copyOf(matches));
         }
-        return new Outcome(null, "No diagnosis satisfied the supported rules.", List.copyOf(details));
+        return new Outcome(null, "No diagnosis satisfied the supported rules.", List.copyOf(details), List.of());
     }
 
-    public record Outcome(Diagnostico suggestedDiagnosis, String status, List<String> details) {
+    public record Outcome(
+            Diagnostico suggestedDiagnosis,
+            String status,
+            List<String> details,
+            List<Diagnostico> matchingDiagnoses) {
     }
 }

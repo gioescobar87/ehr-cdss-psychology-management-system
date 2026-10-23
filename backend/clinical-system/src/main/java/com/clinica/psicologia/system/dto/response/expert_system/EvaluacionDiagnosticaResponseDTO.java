@@ -34,4 +34,6 @@ public class EvaluacionDiagnosticaResponseDTO {
     private Integer concordanciaDiagnostica;
 
     private LocalDateTime fechaHoraInferencia;
+
+    private String observacion;
 }
