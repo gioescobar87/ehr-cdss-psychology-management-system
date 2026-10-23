@@ -288,20 +288,6 @@ export default function SessionDiagnosisDialog({
         )}
         {preparation && !finalResult && (
           <Box sx={{ px: 2, pb: 1 }}>
-            {preparation.candidates.length === 0 ? (
-              <Alert severity="info">
-                No hay diagnósticos candidatos que cumplan los criterios
-                clínicos presentes.
-              </Alert>
-            ) : (
-              <Alert severity="info">
-                Candidatos después de evaluar los criterios básicos:{" "}
-                {preparation.candidates
-                  .map((candidate) => candidate.diagnosis)
-                  .join(", ")}
-                {". La sugerencia final se determinará con las respuestas."}
-              </Alert>
-            )}
             {preparation.questions.length > 0 && (
               <Box sx={{ mt: 1.5, display: "grid", gap: 1.5 }}>
                 {preparation.questions.map((question) => {
