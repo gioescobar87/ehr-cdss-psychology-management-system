@@ -43,7 +43,7 @@ export default function AuthorizedRoute() {
   const allowedRoutes = [
     ...ALWAYS_ALLOWED_ROUTES,
     ...navigation.flatMap((module) => collectRoutes(module.opciones ?? [])),
-    ...(getAvailableBasicCatalogs(navigation).length > 0
+    ...(getAvailableBasicCatalogs().length > 0
       ? [BASIC_CATALOG_PATH]
       : []),
   ];
