@@ -21,4 +21,6 @@ public class NotaSesionResponseDTO {
     private String tipoNota;
 
     private LocalDateTime fechaRegistro;
+
+    private String archivoAdjunto;
 }

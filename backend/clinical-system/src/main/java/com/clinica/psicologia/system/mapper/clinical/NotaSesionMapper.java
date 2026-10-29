@@ -22,6 +22,7 @@ public class NotaSesionMapper {
         dto.setContenido(entity.getContenido());
         dto.setTipoNota(entity.getTipoNota());
         dto.setFechaRegistro(entity.getFechaRegistro());
+        dto.setArchivoAdjunto(entity.getArchivoAdjunto());
 
         return dto;
     }

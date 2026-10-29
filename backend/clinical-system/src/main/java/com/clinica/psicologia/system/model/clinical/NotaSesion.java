@@ -33,4 +33,7 @@ public class NotaSesion extends BaseEntity{
     @NotNull
     @Column(name="fecha_registro")
     private LocalDateTime fechaRegistro;
+
+    @Column(name = "archivo_adjunto")
+    private String archivoAdjunto;
 }
