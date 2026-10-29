@@ -84,8 +84,10 @@ export async function getSessionNotes(
 
 export async function createSessionNote(
   request: SessionNoteRequest,
+  attachment?: File | null,
 ): Promise<SessionNote> {
-  const response = await apiClient.post<SessionNote>("/nota-sesion", request);
+  const formData = createSessionNoteFormData(request, attachment);
+  const response = await apiClient.post<SessionNote>("/nota-sesion", formData);
 
   return response.data;
 }
@@ -93,11 +95,31 @@ export async function createSessionNote(
 export async function updateSessionNote(
   id: number,
   request: SessionNoteRequest,
+  attachment?: File | null,
 ): Promise<SessionNote> {
+  const formData = createSessionNoteFormData(request, attachment);
   const response = await apiClient.put<SessionNote>(
     `/nota-sesion/${id}`,
-    request,
+    formData,
   );
 
   return response.data;
+}
+
+function createSessionNoteFormData(
+  request: SessionNoteRequest,
+  attachment?: File | null,
+): FormData {
+  const formData = new FormData();
+
+  formData.append(
+    "request",
+    new Blob([JSON.stringify(request)], { type: "application/json" }),
+  );
+
+  if (attachment) {
+    formData.append("attachment", attachment, attachment.name);
+  }
+
+  return formData;
 }

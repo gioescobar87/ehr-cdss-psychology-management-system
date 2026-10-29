@@ -424,7 +424,7 @@ export default function FileAttachmentUploader({
           >
             <Box>
               <Typography variant="body2" fontWeight={600}>
-                Evidencia de la prueba realizada
+                Archivos adjuntos
               </Typography>
 
               <Typography variant="caption" color="text.secondary">

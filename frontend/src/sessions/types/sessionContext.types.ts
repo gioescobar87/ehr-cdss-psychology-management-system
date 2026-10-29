@@ -55,6 +55,7 @@ export interface SessionNote {
   usuarioNombre: string;
   contenido: string;
   tipoNota?: string;
+  archivoAdjunto?: string | null;
   fechaRegistro: string;
 }
 

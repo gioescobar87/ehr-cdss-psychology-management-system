@@ -64,7 +64,13 @@ export function useCreateSessionNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: SessionNoteRequest) => createSessionNote(request),
+    mutationFn: ({
+      request,
+      attachment,
+    }: {
+      request: SessionNoteRequest;
+      attachment?: File | null;
+    }) => createSessionNote(request, attachment),
 
     onSuccess: (note) => {
       queryClient.invalidateQueries({

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Alert,
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -8,13 +9,16 @@ import {
   DialogTitle,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
+import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 
 import type { SessionNote } from "../types/sessionContext.types";
 import { useCreateSessionNote } from "../hooks/usePatientClinicalContext";
 import { useUpdateSessionNote } from "../hooks/useUpdateSessionNote";
 import { getApiErrorMessage } from "../../shared/utils/apiError";
 import { useNotification } from "../../shared/hooks/useNotification";
+import FileAttachmentUploader from "../../shared/components/forms/FileAttachmentUploader";
 
 interface SessionNoteDialogProps {
   open: boolean;
@@ -29,12 +33,18 @@ interface SessionNoteFormProps {
   onClose: () => void;
 }
 
-function SessionNoteForm({ sessionId, note, onClose }: SessionNoteFormProps) {
+function SessionNoteForm({
+  sessionId,
+  note,
+  onClose,
+}: SessionNoteFormProps) {
   const isEditing = note !== null;
 
   const [content, setContent] = useState(note?.contenido ?? "");
-
   const [noteType, setNoteType] = useState(note?.tipoNota ?? "");
+  const [combinedAttachment, setCombinedAttachment] = useState<File | null>(
+    null,
+  );
 
   const createMutation = useCreateSessionNote();
   const updateMutation = useUpdateSessionNote();
@@ -42,6 +52,15 @@ function SessionNoteForm({ sessionId, note, onClose }: SessionNoteFormProps) {
   const { showSuccess } = useNotification();
 
   const isPending = createMutation.isPending || updateMutation.isPending;
+
+  const handleClose = () => {
+    if (isPending) {
+      return;
+    }
+
+    setCombinedAttachment(null);
+    onClose();
+  };
 
   const handleSave = () => {
     const trimmedContent = content.trim();
@@ -61,6 +80,7 @@ function SessionNoteForm({ sessionId, note, onClose }: SessionNoteFormProps) {
         {
           id: note.id,
           request,
+          attachment: combinedAttachment,
         },
         {
           onSuccess: () => {
@@ -73,12 +93,18 @@ function SessionNoteForm({ sessionId, note, onClose }: SessionNoteFormProps) {
       return;
     }
 
-    createMutation.mutate(request, {
-      onSuccess: () => {
-        showSuccess("La nota fue registrada correctamente.");
-        onClose();
+    createMutation.mutate(
+      {
+        request,
+        attachment: combinedAttachment,
       },
-    });
+      {
+        onSuccess: () => {
+          showSuccess("La nota fue registrada correctamente.");
+          onClose();
+        },
+      },
+    );
   };
 
   const error = createMutation.error ?? updateMutation.error;
@@ -89,11 +115,15 @@ function SessionNoteForm({ sessionId, note, onClose }: SessionNoteFormProps) {
 
   return (
     <>
-      <DialogTitle>{isEditing ? "Editar nota" : "Nueva nota"}</DialogTitle>
+      <DialogTitle>
+        {isEditing ? "Editar nota" : "Nueva nota"}
+      </DialogTitle>
 
       <DialogContent dividers>
         <Stack spacing={2.5} sx={{ pt: 1 }}>
-          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+          {errorMessage && (
+            <Alert severity="error">{errorMessage}</Alert>
+          )}
 
           <TextField
             label="Asunto"
@@ -120,11 +150,35 @@ function SessionNoteForm({ sessionId, note, onClose }: SessionNoteFormProps) {
             required
             disabled={isPending}
           />
+          <Box>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ mb: 1 }}
+            >
+              <AttachFileOutlinedIcon color="action" />
+
+              <Typography variant="subtitle2" fontWeight={600}>
+                Archivos adjuntos
+              </Typography>
+            </Stack>
+
+            <FileAttachmentUploader
+              disabled={isPending}
+              existingFileName={
+                note?.archivoAdjunto
+                  ? "Archivo adjunto actual"
+                  : null
+              }
+              onCombinedFileChange={setCombinedAttachment}
+            />
+          </Box>
         </Stack>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} disabled={isPending}>
+        <Button onClick={handleClose} disabled={isPending}>
           Cancelar
         </Button>
 
@@ -151,19 +205,18 @@ export default function SessionNoteDialog({
   onClose,
 }: SessionNoteDialogProps) {
   /*
-   * The key forces the form to remount when switching between:
-   *
-   * - Nueva nota
-   * - Editar nota A
-   * - Editar nota B
-   *
-   * This allows the form state to be initialized directly from
-   * the selected note without synchronizing state inside an effect.
+   * Remount the form when switching between creating a note
+   * and editing different notes.
    */
   const formKey = note ? `edit-${note.id}` : "create";
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="md"
+    >
       <SessionNoteForm
         key={formKey}
         sessionId={sessionId}
