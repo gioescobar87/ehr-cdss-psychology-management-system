@@ -18,4 +18,6 @@ public class ClinicalContextPsychologicalTestDTO {
     private LocalDate fechaAplicacion;
 
     private Integer sesionId;
+
+    private String archivoAdjunto;
 }

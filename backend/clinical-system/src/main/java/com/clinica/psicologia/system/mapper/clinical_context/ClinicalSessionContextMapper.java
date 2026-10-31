@@ -95,6 +95,7 @@ public class ClinicalSessionContextMapper {
         dto.setId(aplicacionPrueba.getId());
         dto.setFechaAplicacion(aplicacionPrueba.getFechaAplicacion());
         dto.setSesionId(aplicacionPrueba.getSesion().getId());
+        dto.setArchivoAdjunto(aplicacionPrueba.getArchivoAdjunto());
         if (aplicacionPrueba.getPruebaPsicologica() != null) {
             dto.setPruebaPsicologicaId(aplicacionPrueba.getPruebaPsicologica().getId());
             dto.setPruebaNombre(aplicacionPrueba.getPruebaPsicologica().getNombre());
