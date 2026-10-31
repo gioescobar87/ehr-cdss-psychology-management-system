@@ -46,6 +46,7 @@ export interface ClinicalContextPsychologicalTest {
   pruebaNombre: string | null;
   fechaAplicacion: string;
   sesionId: number | null;
+  archivoAdjunto?: string | null;
 }
 
 export interface ClinicalContextRisk {

@@ -106,6 +106,14 @@ export async function updateSessionNote(
   return response.data;
 }
 
+export async function getSessionNoteAttachment(id: number): Promise<Blob> {
+  const response = await apiClient.get<Blob>(`/nota-sesion/${id}/archivo`, {
+    responseType: "blob",
+  });
+
+  return response.data;
+}
+
 function createSessionNoteFormData(
   request: SessionNoteRequest,
   attachment?: File | null,

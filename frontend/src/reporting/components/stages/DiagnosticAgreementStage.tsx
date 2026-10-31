@@ -39,7 +39,7 @@ function getPatientInitials(name: string | null | undefined) {
     .trim()
     .split(/\s+/)
     .map((part) => `${Array.from(part)[0].toLocaleUpperCase("es-GT")}.`)
-    .join(". ");
+    .join(".");
 }
 
 

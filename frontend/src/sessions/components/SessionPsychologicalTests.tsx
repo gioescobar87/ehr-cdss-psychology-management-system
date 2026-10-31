@@ -15,6 +15,7 @@ import {
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 
 import type { Sesion } from "../types/session.types";
 import type { SessionPsychologicalTest } from "../types/sessionPsychologicalTest.types";
@@ -23,12 +24,14 @@ import type { ClinicalContextPsychologicalTest } from "../types/clinicalSessionC
 
 import SessionPsychologicalTestSelectionDialog from "./SessionPsychologicalTestSelectionDialog";
 import SessionPsychologicalTestApplicationDialog from "./SessionPsychologicalTestApplicationDialog";
+import PdfPreviewDialog from "../../shared/components/dialogs/PdfPreviewDialog";
 
 import {
   usePsychologicalTests,
   useSessionPsychologicalTests,
 } from "../hooks/useSessionPsychologicalTests";
 import { useClinicalSessionContext } from "../hooks/usePatientClinicalContext";
+import { usePsychologicalTestAttachment } from "../hooks/usePsychologicalTestAttachment";
 
 interface SessionPsychologicalTestsProps {
   session: Sesion;
@@ -277,6 +280,7 @@ export default function SessionPsychologicalTests({
                       null,
                     fechaAplicacion: application.fechaAplicacion,
                     sesionId: application.sesionId,
+                    archivoAdjunto: application.archivoAdjunto,
                   },
                   encounter: undefined,
                   currentApplication: application,
@@ -372,49 +376,92 @@ function PsychologicalTestHistoryRow({
   testName: string;
   onEdit?: (application: SessionPsychologicalTest) => void;
 }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const applicationId = item.application.archivoAdjunto
+    ? item.application.id
+    : null;
+  const attachmentQuery = usePsychologicalTestAttachment(applicationId, {
+    enabled: previewOpen,
+  });
+
   return (
-    <Box sx={{ py: 1.5 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 2,
-          alignItems: "flex-start",
-        }}
-      >
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="body1" fontWeight={700}>
-            {testName}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {formatDate(item.application.fechaAplicacion)}
-            {item.encounter?.tipoSesion
-              ? ` · ${item.encounter.tipoSesion}`
-              : ""}
-          </Typography>
+    <>
+      <Box sx={{ py: 1.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 2,
+            alignItems: "flex-start",
+          }}
+        >
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="body1" fontWeight={700}>
+              {testName}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {formatDate(item.application.fechaAplicacion)}
+              {item.encounter?.tipoSesion
+                ? ` · ${item.encounter.tipoSesion}`
+                : ""}
+            </Typography>
+          </Box>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {applicationId !== null && (
+              <Button
+                size="small"
+                variant="text"
+                startIcon={<AttachFileOutlinedIcon />}
+                onClick={() => setPreviewOpen(true)}
+                disabled={attachmentQuery.isFetching}
+              >
+                {attachmentQuery.isFetching ? "Cargando..." : "Ver adjunto"}
+              </Button>
+            )}
+            {item.currentApplication && onEdit && (
+              <Button
+                size="small"
+                variant="text"
+                startIcon={<EditOutlinedIcon />}
+                onClick={() => onEdit(item.currentApplication!)}
+              >
+                Editar
+              </Button>
+            )}
+          </Stack>
         </Box>
-        {item.currentApplication && onEdit && (
-          <Button
-            size="small"
-            variant="text"
-            startIcon={<EditOutlinedIcon />}
-            onClick={() => onEdit(item.currentApplication!)}
-          >
-            Editar
-          </Button>
+
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          display="block"
+          sx={{ mt: 0.5 }}
+        >
+          {item.currentApplication?.interpretacion?.trim()
+            ? "Interpretación disponible"
+            : "Aplicación registrada"}
+        </Typography>
+
+        {attachmentQuery.isError && previewOpen && (
+          <Alert severity="error" sx={{ mt: 1 }}>
+            No fue posible cargar el adjunto de la prueba.
+          </Alert>
         )}
       </Box>
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        display="block"
-        sx={{ mt: 0.5 }}
-      >
-        {item.currentApplication?.interpretacion?.trim()
-          ? "Interpretación disponible"
-          : "Aplicación registrada"}
-      </Typography>
-    </Box>
+
+      <PdfPreviewDialog
+        open={previewOpen}
+        file={
+          attachmentQuery.data
+            ? new File([attachmentQuery.data], `${testName}.pdf`, {
+                type: "application/pdf",
+              })
+            : null
+        }
+        loading={attachmentQuery.isFetching}
+        onClose={() => setPreviewOpen(false)}
+      />
+    </>
   );
 }
 
