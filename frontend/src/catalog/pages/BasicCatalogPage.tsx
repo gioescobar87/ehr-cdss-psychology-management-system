@@ -49,10 +49,6 @@ export default function BasicCatalogPage({
 
   return (
     <>
-      <PageHeader
-        title="Catálogos básicos"
-        description="Seleccione el catálogo que desea administrar."
-      />
       <Box sx={{ mb: 3, maxWidth: 480 }}>
         <TextField
           select

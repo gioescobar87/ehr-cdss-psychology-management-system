@@ -2,6 +2,7 @@ import type {
   NavigationModule,
   NavigationOption,
 } from "../navigation/navigation.types";
+import { DIAGNOSTIC_CATALOG_PATH } from "./diagnosticCatalogs";
 
 export const BASIC_CATALOG_PATH = "/administration/basic-catalog";
 
@@ -48,6 +49,13 @@ export function groupBasicCatalogNavigation(navigation: NavigationModule[]) {
             ...option,
             nombre: "Catálogos básicos",
             rutaFrontend: BASIC_CATALOG_PATH,
+            children: [],
+          },
+          {
+            ...option,
+            id: -option.id,
+            nombre: "Catálogos diagnósticos",
+            rutaFrontend: DIAGNOSTIC_CATALOG_PATH,
             children: [],
           },
         ];

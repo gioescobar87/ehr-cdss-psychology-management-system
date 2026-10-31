@@ -6,6 +6,7 @@ import {
   BASIC_CATALOG_PATH,
   getAvailableBasicCatalogs,
 } from "../../catalog/basicCatalogs";
+import { DIAGNOSTIC_CATALOG_PATH } from "../../catalog/diagnosticCatalogs";
 
 /** Routes that every authenticated user may reach even when they are not menu options. */
 const ALWAYS_ALLOWED_ROUTES = [
@@ -43,9 +44,8 @@ export default function AuthorizedRoute() {
   const allowedRoutes = [
     ...ALWAYS_ALLOWED_ROUTES,
     ...navigation.flatMap((module) => collectRoutes(module.opciones ?? [])),
-    ...(getAvailableBasicCatalogs().length > 0
-      ? [BASIC_CATALOG_PATH]
-      : []),
+    ...(getAvailableBasicCatalogs().length > 0 ? [BASIC_CATALOG_PATH] : []),
+    DIAGNOSTIC_CATALOG_PATH,
   ];
 
   const pathname = location.pathname;

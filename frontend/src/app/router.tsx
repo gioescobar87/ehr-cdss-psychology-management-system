@@ -25,6 +25,8 @@ import BasicCatalogPage, {
   LegacyCatalogRedirect,
 } from "../catalog/pages/BasicCatalogPage";
 import { BASIC_CATALOG_PATH, basicCatalogs } from "../catalog/basicCatalogs";
+import DiagnosticCatalogPage from "../catalog/pages/DiagnosticCatalogPage";
+import { DIAGNOSTIC_CATALOG_PATH } from "../catalog/diagnosticCatalogs";
 import AppointmentCreatePage from "../appointments/pages/AppointmentCreatePage";
 import AppointmentEditPage from "../appointments/pages/AppointmentEditPage";
 import AgendaPage from "../appointments/pages/AgendaPage";
@@ -127,6 +129,18 @@ export const router = createBrowserRouter([
               {
                 path: `${BASIC_CATALOG_PATH}/:id/edit`,
                 element: <BasicCatalogPage />,
+              },
+              {
+                path: DIAGNOSTIC_CATALOG_PATH,
+                element: <DiagnosticCatalogPage />,
+              },
+              {
+                path: `${DIAGNOSTIC_CATALOG_PATH}/new`,
+                element: <DiagnosticCatalogPage creating />,
+              },
+              {
+                path: `${DIAGNOSTIC_CATALOG_PATH}/:id/edit`,
+                element: <DiagnosticCatalogPage />,
               },
               ...basicCatalogs.flatMap((catalog) => [
                 {

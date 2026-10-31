@@ -23,6 +23,7 @@ import {
   BASIC_CATALOG_PATH,
   groupBasicCatalogNavigation,
 } from "../catalog/basicCatalogs";
+import { DIAGNOSTIC_CATALOG_PATH } from "../catalog/diagnosticCatalogs";
 
 const drawerWidth = 260;
 
@@ -38,7 +39,9 @@ function NavigationItem({ option, level = 0 }: NavigationItemProps) {
   const isActive =
     location.pathname === option.rutaFrontend ||
     (option.rutaFrontend === BASIC_CATALOG_PATH &&
-      location.pathname.startsWith(`${BASIC_CATALOG_PATH}/`));
+      location.pathname.startsWith(`${BASIC_CATALOG_PATH}/`)) ||
+    (option.rutaFrontend === DIAGNOSTIC_CATALOG_PATH &&
+      location.pathname.startsWith(`${DIAGNOSTIC_CATALOG_PATH}/`));
   const hasActiveChild = option.children.some(
     (child) =>
       location.pathname === child.rutaFrontend ||
